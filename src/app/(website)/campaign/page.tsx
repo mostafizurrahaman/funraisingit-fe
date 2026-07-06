@@ -1,11 +1,12 @@
-import React from 'react';
+import CampaignSection from "@/components/pages/CampaignSection";
+import React from "react";
 
 const Campaign = () => {
-    return (
-        <div>
-            
-        </div>
-    );
+  return (
+    <div>
+      <CampaignSection />
+    </div>
+  );
 };
 
 export default Campaign;
