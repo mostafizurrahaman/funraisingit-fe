@@ -1,4 +1,4 @@
-﻿import Image, { type StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 
@@ -89,12 +89,12 @@ const CampaignSection = () => {
                     <Heart className="size-4" />
                     Donate
                   </button>
-                  <button
-                    type="button"
-                    className="h-10 rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
+                  <Link
+                    href="/order-summary"
+                    className="flex h-10 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
                   >
                     Buy Now
-                  </button>
+                  </Link>
                 </div>
 
                 <div className="mt-3 flex items-center gap-3 border-t border-border pt-3">
