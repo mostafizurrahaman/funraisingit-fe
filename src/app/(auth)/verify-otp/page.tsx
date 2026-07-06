@@ -46,17 +46,17 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#26343a] px-4 py-8">
-      <section className="w-full max-w-[360px] rounded-lg bg-white px-5 py-10 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
+      <section className="w-full max-w-[560px] rounded-lg bg-white px-5 py-10 shadow-xl">
         <Image src={logo} alt="FunRaisingIt" className="mx-auto h-auto w-[207px]" priority />
-        <div className="mt-7 text-center"><h1 className="text-2xl font-semibold tracking-tight">OTP Verification</h1><p className="mx-auto mt-1 max-w-[230px] text-[11px] leading-4">Enter the 6 digits code that you received on your email</p></div>
+        <div className="mt-7 text-center"><h1 className="text-2xl font-semibold tracking-tight">OTP Verification</h1><p className="mx-auto mt-1 max-w-md text-sm leading-7">Enter the 6 digits code that you received on your email</p></div>
         <form onSubmit={handleSubmit} className="mt-4" noValidate>
-          <div onPaste={handlePaste} className="flex justify-center gap-2">
-            {otp.map((digit, index) => <input key={index} ref={(element) => { inputs.current[index] = element; }} value={digit} onChange={(event) => updateDigit(index, event.target.value)} onKeyDown={(event) => handleKeyDown(index, event)} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`OTP digit ${index + 1}`} className="size-10 rounded border border-transparent bg-slate-50 text-center text-xl font-semibold text-primary outline-none transition-all duration-300 focus:border-primary focus:bg-orange-50 focus:ring-2 focus:ring-primary/20" />)}
+          <div onPaste={handlePaste} className="flex justify-center gap-1.5 sm:gap-3">
+            {otp.map((digit, index) => <input key={index} ref={(element) => { inputs.current[index] = element; }} value={digit} onChange={(event) => updateDigit(index, event.target.value)} onKeyDown={(event) => handleKeyDown(index, event)} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`OTP digit ${index + 1}`} className="size-10 rounded border sm:size-14 border-transparent bg-slate-50 text-center text-sm font-semibold text-primary outline-none transition-all duration-300 focus:border-primary focus:bg-orange-50 focus:ring-2 focus:ring-primary/20" />)}
           </div>
-          {error ? <p role="alert" className="mt-2 text-center text-xs text-red-600">{error}</p> : null}
-          <p className="mt-6 text-center text-xs text-muted-foreground">Resend Code: <span className="text-foreground">00:54</span></p>
-          <Button type="submit" disabled={isPending} className="mt-6 h-9 w-full rounded-lg text-xs">{isPending ? "Verifying..." : "Continue"}</Button>
+          {error ? <p role="alert" className="mt-2 text-center text-sm text-red-600">{error}</p> : null}
+          <p className="mt-6 text-center text-sm text-muted-foreground">Resend Code: <span className="text-foreground">00:54</span></p>
+          <Button type="submit" disabled={isPending} className="mt-6 h-12 w-full rounded-lg text-sm">{isPending ? "Verifying..." : "Continue"}</Button>
         </form>
       </section>
     </main>

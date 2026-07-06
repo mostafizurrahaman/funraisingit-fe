@@ -4,7 +4,6 @@ import TtransparentPricing from "@/components/pages/TtransparentPricing";
 const Pricing = () => {
   return (
     <div>
-      <Hero />
       <TtransparentPricing />
     </div>
   );
