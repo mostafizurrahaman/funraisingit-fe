@@ -1,3 +1,4 @@
+import BringIdea from "@/components/pages/BringIdea";
 import CampaignSection from "@/components/pages/CampaignSection";
 import Hero from "@/components/pages/Hero";
 import HowItWorks from "@/components/pages/HowItWorks";
@@ -9,6 +10,7 @@ const Home = () => {
       <Hero />
       <CampaignSection />
       <HowItWorks />
+      <BringIdea />
     </div>
   );
 };
