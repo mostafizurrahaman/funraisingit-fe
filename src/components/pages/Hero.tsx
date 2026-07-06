@@ -1,14 +1,14 @@
-﻿import hero from "../../assets/hero.png";
+import hero from "../../assets/hero.png";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CircleCheck } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+
 
 const Hero = () => {
   return (
     <section className="overflow-hidden bg-background">
-      <div className="container mx-auto grid  items-center gap-10 px-5 pb-14 pt-8 sm:px-8 md:grid-cols-2 md:gap-8 lg:px-10 lg:pb-20 lg:pt-5">
+      <div className="container mx-auto grid items-center gap-10 px-5 pb-14 pt-8 sm:px-8 md:grid-cols-2 md:gap-8 lg:px-10 lg:pb-20 lg:pt-5">
         <div className="relative  text-start md:text-left">
           <h1 className="text-[2.6rem] leading-[1.12] font-semibold tracking-[-0.04em] text-black sm:text-5xl lg:text-[4rem] lg:leading-[1.08]">
             Turn Your Idea
@@ -23,7 +23,7 @@ const Hero = () => {
 
           <Link
             href="/campaign"
-            className="rounded-lg px-3 py-3 font-semibold  transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary"
+            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:px-5 sm:text-base"
           >
             Start My Campaign
             <ArrowRight className="size-4" />
