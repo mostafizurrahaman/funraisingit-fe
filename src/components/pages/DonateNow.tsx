@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type InputHTMLAttributes } from "react";
 import {
   ArrowLeft,
@@ -9,7 +10,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
-  DollarSign,
   Eye,
   Heart,
   LockKeyhole,
@@ -26,7 +26,7 @@ import campaignOwner from "../../assets/user.png";
 const donationAmounts = [10, 20, 40, 80, 160, 320] as const;
 
 const campaignDetails = [
-  { label: "Campaign Name", value: "Jenna’s Banana Pudding", icon: Package },
+  { label: "Campaign Name", value: "Jenna's Banana Pudding", icon: Package },
   { label: "Product", value: "Banana Pudding", icon: Box },
   { label: "Campaign Length", value: "7 Days", icon: CalendarDays },
   { label: "Delivery Options", value: "Pickup, Delivery, Shipping", icon: Truck },
@@ -46,6 +46,7 @@ function FormField({ label, required, ...props }: InputHTMLAttributes<HTMLInputE
 }
 
 const DonateNow = () => {
+  const router = useRouter();
   const [amount, setAmount] = useState(20);
 
   return (
@@ -64,7 +65,7 @@ const DonateNow = () => {
             </h1>
 
             <div className="relative mt-4 aspect-[1.52/1] overflow-hidden rounded-xl">
-              <Image src={orderImage} alt="Jenna’s banana pudding" fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 42vw" />
+              <Image src={orderImage} alt="Jenna's banana pudding" fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 42vw" />
             </div>
 
             <div className="mt-4 flex items-center gap-4">
@@ -124,7 +125,10 @@ const DonateNow = () => {
               </div>
             </section>
 
-            <form className="space-y-5" onSubmit={(event) => event.preventDefault()}>
+            <form className="space-y-5" onSubmit={(event) => {
+                event.preventDefault();
+                router.push(`/donation-success?amount=${amount}`);
+              }}>
               <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
                 <h2 className="text-xl font-semibold">Contact Information</h2>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
