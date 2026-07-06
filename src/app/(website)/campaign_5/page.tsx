@@ -28,7 +28,7 @@ import like from "@/assets/like.png";
 import price from "@/assets/price.png";
 import user from "@/assets/user.png";
 import { Button } from "@/components/ui/button";
-import sparkel from "../../../assets/sparkel.png"
+import sparkel from "@/assets/sparkel.png";
 const campaignUrl = "https://funraisingit.com/jennas-banana-pudding";
 
 const stats = [
@@ -70,7 +70,7 @@ export default function CampaignFivePage() {
           </div>
 
           <section className="relative mt-8 overflow-hidden py-8 text-center">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0">{Array.from({ length: 42 }, (_, index) => <span key={index} className={`absolute size-2 rotate-45 ${["bg-primary", "bg-secondary", "bg-pink-500", "bg-blue-500", "bg-yellow-400"][index % 5]}`} style={{ left: `${(index * 23) % 100}%`, top: `${(index * 37) % 95}%`, transform: `rotate(${index * 31}deg)` }} />)}</div>
+            <Image src={sparkel} alt="" fill sizes="100vw" className="pointer-events-none absolute inset-0 h-full w-full object-cover" aria-hidden="true" />
             <div className="relative z-10 mx-auto flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><CheckCircle2 className="size-10" /></div>
             <h1 className="relative z-10 mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">🎉 Congratulations!</h1>
             <p className="relative z-10 mt-3 text-lg font-semibold text-secondary">Jenna’s Banana Pudding Is Now Live!</p>
