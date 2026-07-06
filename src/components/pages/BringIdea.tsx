@@ -22,13 +22,13 @@ const BringIdea = () => {
           <Image
             src={heart}
             alt=""
-            className="absolute left-4 top-8 h-auto w-16 opacity-50 sm:left-12 sm:top-10 sm:w-20 sm:opacity-100 lg:left-[8%]"
+            className="absolute left-4 top-8 h-auto w-32 opacity-50 sm:left-12 sm:top-10 sm:w-20 sm:opacity-100 lg:left-[8%]"
             aria-hidden="true"
           />
           <Image
             src={send}
             alt=""
-            className="absolute bottom-5 right-3 h-auto w-20 opacity-50 sm:bottom-8 sm:right-10 sm:w-28 sm:opacity-100 lg:right-[4%] lg:w-32"
+            className="absolute bottom-5 right-3 h-auto w-32 opacity-50 sm:bottom-8 sm:right-10 sm:w-28 sm:opacity-100 lg:right-[4%] lg:w-32"
             aria-hidden="true"
           />
 
