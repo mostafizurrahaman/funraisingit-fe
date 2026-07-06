@@ -43,7 +43,7 @@ const BringIdea = () => {
 
             <div className="mt-6">
               <Link
-                href="/campaign"
+                href="/campaign_1"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
                 Start My Campaign

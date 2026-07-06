@@ -22,7 +22,7 @@ const Hero = () => {
           </p>
 
           <Link
-            href="/campaign"
+            href="/campaign_1"
             className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md sm:px-5 sm:text-base"
           >
             Start My Campaign

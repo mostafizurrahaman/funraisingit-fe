@@ -30,7 +30,7 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-          <Link href="/campaign" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-primary/90 sm:px-5 sm:py-3 sm:text-base">
+          <Link href="/campaign_1" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-primary/90 sm:px-5 sm:py-3 sm:text-base">
             Start My Campaign
           </Link>
         </div>
@@ -58,7 +58,7 @@ const Navbar = () => {
                 </DrawerClose>
               ))}
               <DrawerClose asChild>
-                <Link href="/campaign" className="rounded-lg bg-primary px-3 py-3 text-center font-semibold text-white transition-colors duration-300 hover:bg-primary/90">
+                <Link href="/campaign_1" className="rounded-lg bg-primary px-3 py-3 text-center font-semibold text-white transition-colors duration-300 hover:bg-primary/90">
                   Start My Campaign
                 </Link>
               </DrawerClose>
