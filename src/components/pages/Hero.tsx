@@ -31,7 +31,7 @@ const Hero = () => {
 
           <div className="mt-5 flex items-start justify-center gap-2 text-left md:justify-start">
             <CircleCheck className="mt-0.5 size-4 shrink-0 text-secondary" />
-            <p className="text-[10px] leading-4 text-foreground sm:text-xs">
+            <p className="text-[14px] leading-4 text-foreground sm:text-xs">
               Build your campaign free.
               <br />
               Only pay when you&apos;re ready to launch.
