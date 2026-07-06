@@ -15,21 +15,21 @@ interface Campaign {
 const campaigns: Campaign[] = [
   {
     id: 1,
-    title: "Jenny’s Famous Banana Pudding",
+    title: "Jenny's Famous Banana Pudding",
     description: "Help me launch my homemade banana pudding business!",
     supporterCount: 42,
     image: cardImage,
   },
   {
     id: 2,
-    title: "Jenny’s Famous Banana Pudding",
+    title: "Jenny's Famous Banana Pudding",
     description: "Help me launch my homemade banana pudding business!",
     supporterCount: 42,
     image: cardImage,
   },
   {
     id: 3,
-    title: "Jenny’s Famous Banana Pudding",
+    title: "Jenny's Famous Banana Pudding",
     description: "Help me launch my homemade banana pudding business!",
     supporterCount: 42,
     image: cardImage,
@@ -82,13 +82,13 @@ const CampaignSection = () => {
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
+                  <Link
+                    href="/donate-now"
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-secondary bg-white px-3 text-xs font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white"
                   >
                     <Heart className="size-4" />
                     Donate
-                  </button>
+                  </Link>
                   <Link
                     href="/order-summary"
                     className="flex h-10 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
