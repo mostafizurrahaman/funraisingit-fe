@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type InputHTMLAttributes } from "react";
 import {
   ArrowLeft,
@@ -43,6 +44,7 @@ function FormField({ label, required, ...props }: InputHTMLAttributes<HTMLInputE
 }
 
 const OrderSummery = () => {
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [shippingId, setShippingId] = useState<ShippingMethod["id"]>("shipping");
 
@@ -64,7 +66,7 @@ const OrderSummery = () => {
           <div className="space-y-6">
             <section className="rounded-xl border border-muted-foreground/60 p-4 sm:p-5">
               <div className="relative aspect-[1.55/1] overflow-hidden rounded-xl">
-                <Image src={productImage} alt="Jennaâ€™s Banana Pudding" fill priority className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 50vw" />
+                <Image src={productImage} alt="Jenna's Banana Pudding" fill priority className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 50vw" />
               </div>
 
               <div className="mt-4 flex items-start justify-between gap-4">
@@ -73,7 +75,7 @@ const OrderSummery = () => {
                     <Image src={campaignOwner} alt="Jenna" fill className="object-cover" sizes="48px" />
                   </div>
                   <h1 className="text-lg font-semibold leading-6 text-foreground sm:text-xl">
-                    Jennaâ€™s<br />Banana Pudding
+                    Jenna&apos;s<br />Banana Pudding
                   </h1>
                 </div>
                 <p className="whitespace-nowrap text-3xl font-semibold text-secondary">
@@ -131,7 +133,10 @@ const OrderSummery = () => {
             </section>
           </div>
 
-          <form className="space-y-6" onSubmit={(event) => event.preventDefault()}>
+          <form className="space-y-6" onSubmit={(event) => {
+            event.preventDefault();
+            router.push("/order-success");
+          }}>
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
               <h2 className="text-xl font-semibold text-black">Order Summary</h2>
               <div className="mt-5 flex items-center gap-4 border-b border-muted-foreground/30 pb-4">
@@ -140,7 +145,7 @@ const OrderSummery = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold">Jenna&apos;s Banana Pudding</p>
-                  <p className="text-xs text-muted-foreground">$10 Ã— {quantity}</p>
+                  <p className="text-xs text-muted-foreground">$10 × {quantity}</p>
                 </div>
                 <p className="text-sm font-semibold">${subtotal.toFixed(2)}</p>
               </div>
@@ -178,7 +183,7 @@ const OrderSummery = () => {
 
             <button type="submit" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md">
               <ShieldCheck className="size-4" />
-              Place Order Â· ${total.toFixed(2)}
+              Place Order · ${total.toFixed(2)}
             </button>
             <p className="text-center text-[10px] leading-4 text-muted-foreground">By placing your order you agree to our Terms of Service and Privacy Policy.<br />Your payment is secured and encrypted by Stripe.</p>
           </form>
