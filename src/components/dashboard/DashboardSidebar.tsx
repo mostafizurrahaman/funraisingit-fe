@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Heart,
@@ -21,11 +24,10 @@ type NavigationItem = {
   label: string;
   href: string;
   icon: LucideIcon;
-  active?: boolean;
 };
 
 const navigationItems: NavigationItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: Home, active: true },
+  { label: "Dashboard", href: "/dashboard", icon: Home },
   { label: "Orders", href: "/dashboard/orders", icon: Package },
   { label: "Donations", href: "/dashboard/donations", icon: Heart },
   { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
@@ -35,6 +37,8 @@ const navigationItems: NavigationItem[] = [
 ] as const;
 
 export function DashboardSidebar({ className }: { className?: string }) {
+  const pathname = usePathname();
+
   return (
     <aside className={cn("fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-border bg-white", className)}>
       <div className="flex h-full flex-col">
@@ -55,6 +59,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
         <nav aria-label="Dashboard navigation" className="flex-1 space-y-1 px-3">
           {navigationItems.map((item) => {
             const Icon = item.icon;
+            const isActive = item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
 
             return (
               <Link
@@ -62,7 +67,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary",
-                  item.active && "bg-secondary/10 text-secondary",
+                  isActive && "bg-secondary/10 text-secondary",
                 )}
               >
                 <Icon className="size-4" />
