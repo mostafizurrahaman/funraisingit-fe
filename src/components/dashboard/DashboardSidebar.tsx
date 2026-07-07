@@ -29,7 +29,7 @@ type NavigationItem = {
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
   { label: "Orders", href: "/dashboard/orders", icon: Package },
-  { label: "Donations", href: "/dashboard/donations", icon: Heart },
+  { label: "Donations", href: "/dashboard/donation", icon: Heart },
   { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
   { label: "Payouts", href: "/dashboard/payouts", icon: WalletCards },
   { label: "Update Campaign", href: "/dashboard/campaign", icon: UploadCloud },

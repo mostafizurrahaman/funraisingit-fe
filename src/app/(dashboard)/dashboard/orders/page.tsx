@@ -13,25 +13,12 @@ import {
 } from "lucide-react";
 import orderImage from "@/assets/order.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { OrderDetailsModal, type OrderDetails } from "@/components/dashboard/OrderDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-type DeliveryType = "Pickup" | "Delivery" | "Shipping";
-type OrderStatus = "Paid";
-
-type CustomerOrder = {
-  id: string;
-  customer: string;
-  email: string;
-  contact: string;
-  product: string;
-  quantity: number;
-  delivery: DeliveryType;
-  total: string;
-  date: string;
-  status: OrderStatus;
-};
+type DeliveryType = OrderDetails["delivery"];
 
 const summaryStats = [
   { title: "Total Orders", value: "18", detail: "All Orders", icon: ShoppingCart, tone: "secondary" },
@@ -43,7 +30,7 @@ const summaryStats = [
 
 const orderTabs = ["All Orders (18)", "To Be Delivered (12)", "Completed (6)", "Canceled (0)"] as const;
 
-const orders: CustomerOrder[] = [
+const orders: OrderDetails[] = [
   {
     id: "#FRI0018",
     customer: "Sarah M.",
@@ -219,9 +206,7 @@ export default function OrdersPage() {
                     <span className="inline-flex rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">{order.status}</span>
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <button type="button" className="text-sm font-semibold text-secondary transition-colors duration-300 hover:text-primary">
-                      View
-                    </button>
+                    <OrderDetailsModal order={order} />
                   </td>
                 </tr>
               ))}
