@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    startTransition(() => router.push("/"));
+    startTransition(() => router.push("/dashboard"));
   }
 
   return (
