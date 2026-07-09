@@ -131,7 +131,7 @@ export default function CampaignSettingsPage() {
                     {item.label}
                   </span>
                   <span className="font-semibold">
-                    {item.image ? <Image src={order} alt="Banana pudding campaign" className="size-12 rounded-md object-cover" /> : item.value}
+                    {item.label === "Campaign Photo" ? <Image src={order} alt="Banana pudding campaign" className="size-12 rounded-md object-cover" /> : item.value}
                   </span>
                   <button type="button" className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white">
                     {item.action}
@@ -339,3 +339,4 @@ export default function CampaignSettingsPage() {
     </div>
   );
 }
+

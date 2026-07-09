@@ -25,10 +25,10 @@ const payoutTimeline = [
 ] as const;
 
 const earningsBreakdown = [
-  { label: "Gross Sales", amount: "$2,100.00" },
-  { label: "Donations", amount: "$350.00" },
-  { label: "Total Raised", amount: "$2,450.00", highlight: true },
-  { label: "Platform Fee (6%)", amount: "-$147.00", danger: true },
+  { label: "Gross Sales", amount: "$2,100.00", highlight: false, danger: false },
+  { label: "Donations", amount: "$350.00", highlight: false, danger: false },
+  { label: "Total Raised", amount: "$2,450.00", highlight: true, danger: false },
+  { label: "Platform Fee (6%)", amount: "-$147.00", highlight: false, danger: true },
 ] as const;
 
 const payoutActivities = [
@@ -295,3 +295,4 @@ export default function PayoutsPage() {
     </div>
   );
 }
+
