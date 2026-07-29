@@ -9,22 +9,42 @@ import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { useSignUpMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [signUp, { isLoading }] = useSignUpMutation();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const name = data.get("name") as string;
+    const email = data.get("email") as string;
+    const password = data.get("password") as string;
+    const confirmPassword = data.get("confirmPassword") as string;
 
-    if (data.get("password") !== data.get("confirmPassword")) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
     setError("");
-    startTransition(() => router.push("/verify-otp"));
+
+    try {
+      const response = await signUp({ name, email, password }).unwrap();
+      toast.success(response?.message || "OTP sent to your email!");
+      
+      if (typeof window !== "undefined") {
+        localStorage.setItem("otpEmail", email);
+      }
+      router.push(`/verify-otp?email=${encodeURIComponent(email)}&flow=signup`);
+    } catch (err: any) {
+      const errMsg = err?.data?.message || "Sign up failed. Please try again.";
+      toast.error(errMsg);
+      setError(errMsg);
+    }
   }
 
   return (
@@ -43,7 +63,7 @@ export default function SignUpPage() {
             </label>
             <Input
               id="full-name"
-              name="fullName"
+              name="name"
               placeholder="John Doe"
               autoComplete="name"
               className="text-sm"
@@ -119,8 +139,8 @@ export default function SignUpPage() {
             </span>
           </label>
 
-          <Button type="submit" disabled={isPending} className="h-12 w-full rounded-lg text-sm">
-            {isPending ? "Creating account..." : "Create account"}
+          <Button type="submit" disabled={isLoading} className="h-12 w-full rounded-lg text-sm">
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
 

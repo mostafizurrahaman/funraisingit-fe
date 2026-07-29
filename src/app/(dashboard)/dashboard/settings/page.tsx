@@ -1,9 +1,14 @@
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import { Camera, Eye, Upload } from "lucide-react";
 import user from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useChangePasswordMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 const profileFields = [
   { id: "first-name", label: "First Name", defaultValue: "Jennifer", autoComplete: "given-name" },
@@ -17,6 +22,39 @@ const passwordFields = [
 ] as const;
 
 export default function SettingsPage() {
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+  const [showFields, setShowFields] = useState<Record<string, boolean>>({});
+
+  const toggleShowField = (id: string) => {
+    setShowFields((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const oldPassword = data.get("current-password") as string;
+    const newPassword = data.get("new-password") as string;
+    const confirmNewPassword = data.get("confirm-new-password") as string;
+
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      toast.error("Please fill in all password fields.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.error("New passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await changePassword({ oldPassword, newPassword }).unwrap();
+      toast.success(response?.message || "Password updated successfully!");
+      event.currentTarget.reset();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update password. Please try again.");
+    }
+  }
+
   return (
     <div className="max-w-[760px] space-y-6">
       <header>
@@ -87,7 +125,7 @@ export default function SettingsPage() {
           <p className="mt-1 text-sm text-muted-foreground">Keep your account secure with a strong password.</p>
         </div>
 
-        <form className="space-y-5 px-5 py-6">
+        <form onSubmit={handlePasswordSubmit} className="space-y-5 px-5 py-6">
           {passwordFields.map((field) => (
             <div key={field.id}>
               <label htmlFor={field.id} className="mb-2 block text-sm font-medium">
@@ -97,15 +135,16 @@ export default function SettingsPage() {
                 <Input
                   id={field.id}
                   name={field.id}
-                  type="password"
-                  defaultValue="password"
+                  type={showFields[field.id] ? "text" : "password"}
                   autoComplete={field.autoComplete}
                   className="h-11 rounded-2xl border-border pr-12 text-sm"
+                  required
                 />
                 <button
                   type="button"
-                  aria-label={`Show ${field.label.toLowerCase()}`}
-                  className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 text-muted-foreground transition-colors duration-300 hover:text-secondary"
+                  onClick={() => toggleShowField(field.id)}
+                  aria-label={`Toggle ${field.label.toLowerCase()} visibility`}
+                  className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 text-muted-foreground transition-colors duration-300 hover:text-secondary cursor-pointer"
                 >
                   <Eye className="size-4" />
                 </button>
@@ -114,8 +153,8 @@ export default function SettingsPage() {
           ))}
 
           <div className="flex justify-end pt-3">
-            <Button type="submit" className="bg-secondary px-6 text-xs hover:bg-secondary/90">
-              Update Password
+            <Button type="submit" disabled={isChangingPassword} className="bg-secondary px-6 text-xs hover:bg-secondary/90">
+              {isChangingPassword ? "Updating..." : "Update Password"}
             </Button>
           </div>
         </form>
