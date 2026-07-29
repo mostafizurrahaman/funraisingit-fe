@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useEffect, useState, useTransition } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,23 +29,42 @@ Your support will help me purchase ingredients, package, and supplies so I can g
 
 Thank you for believing in me!`;
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import toast from "react-hot-toast";
+import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+
 export default function CampaignTwoPage() {
   const router = useRouter();
-  const [story, setStory] = useState(initialStory);
-  const [selectedPurposes, setSelectedPurposes] = useState<string[]>(["Ingredients", "Packaging", "Inventory"]);
-  const [donationChoice, setDonationChoice] = useState<"allow" | "purchase">("allow");
+  const token = useSelector(userCurrentToken);
+
+  useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token && !localToken) {
+      toast.error("Please log in first to start a campaign.");
+      router.push("/login");
+    }
+  }, [token, router]);
+
+  const { draft, updateDraft } = useCampaignDraft();
+  const story = draft.story || initialStory;
+  const selectedPurposes = draft.fundUsage;
+  const donationChoice = draft.allowDonation ? "allow" : "purchase";
   const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function togglePurpose(purpose: string) {
-    setSelectedPurposes((current) => current.includes(purpose) ? current.filter((item) => item !== purpose) : [...current, purpose]);
+    const nextPurposes = selectedPurposes.includes(purpose)
+      ? selectedPurposes.filter((item) => item !== purpose)
+      : [...selectedPurposes, purpose];
+    updateDraft({ fundUsage: nextPurposes });
   }
 
   function generateStory() {
     setIsGenerating(true);
     window.setTimeout(() => {
-      setStory(initialStory);
+      updateDraft({ story: initialStory });
       setIsGenerating(false);
       setError("");
     }, 500);
@@ -93,7 +112,7 @@ export default function CampaignTwoPage() {
 
             <section>
               <label htmlFor="story" className="mb-2 block text-lg font-semibold">Your Story</label>
-              <Textarea id="story" value={story} onChange={(event) => { setStory(event.target.value.slice(0, 5000)); setError(""); }} rows={9} aria-invalid={Boolean(error)} />
+              <Textarea id="story" value={story} onChange={(event) => { updateDraft({ story: event.target.value.slice(0, 5000) }); setError(""); }} rows={9} aria-invalid={Boolean(error)} />
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <span className="text-sm text-muted-foreground">{story.length}/5,000 characters</span>
                 <Button type="button" variant="outline" onClick={generateStory} disabled={isGenerating} className="border-secondary text-secondary">
@@ -118,8 +137,8 @@ export default function CampaignTwoPage() {
               <h2 className="text-lg font-semibold">Allow Donations?</h2>
               <p className="mt-1 text-sm text-muted-foreground">Supporters can donate without purchasing.</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <button type="button" onClick={() => setDonationChoice("allow")} className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "allow" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><span className={`size-4 rounded-full border-4 ${donationChoice === "allow" ? "border-secondary" : "border-slate-300"}`} />Yes, allow donations</button>
-                <button type="button" onClick={() => setDonationChoice("purchase")} className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "purchase" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><span className={`size-4 rounded-full border-4 ${donationChoice === "purchase" ? "border-secondary" : "border-slate-300"}`} />No, purchase only</button>
+                <button type="button" onClick={() => updateDraft({ allowDonation: true })} className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "allow" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><span className={`size-4 rounded-full border-4 ${donationChoice === "allow" ? "border-secondary" : "border-slate-300"}`} />Yes, allow donations</button>
+                <button type="button" onClick={() => updateDraft({ allowDonation: false })} className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "purchase" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><span className={`size-4 rounded-full border-4 ${donationChoice === "purchase" ? "border-secondary" : "border-slate-300"}`} />No, purchase only</button>
               </div>
             </section>
 

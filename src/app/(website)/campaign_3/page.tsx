@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useEffect, useState, useTransition } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -37,14 +37,36 @@ const deliveryOptions = [
   { id: "shipping", title: "Shipping", detail: "We ship to supporters", icon: PackageCheck },
 ] as const;
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import toast from "react-hot-toast";
+import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+
 export default function CampaignThreePage() {
   const router = useRouter();
-  const [productName, setProductName] = useState("Banana Pudding");
-  const [price, setPrice] = useState<number | "custom">(10);
+  const token = useSelector(userCurrentToken);
+
+  useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token && !localToken) {
+      toast.error("Please log in first to start a campaign.");
+      router.push("/login");
+    }
+  }, [token, router]);
+
+  const { draft, updateDraft } = useCampaignDraft();
+  
+  const productName = draft.productName || "Banana Pudding";
+  const price = prices.includes(draft.price as any) ? (draft.price as number | "custom") : "custom";
   const [customPrice, setCustomPrice] = useState("");
-  const [duration, setDuration] = useState<number>(7);
-  const [delivery, setDelivery] = useState<string[]>(["pickup", "delivery", "shipping"]);
-  const [shippingFee, setShippingFee] = useState<number | "custom">(8);
+  const duration = draft.durationDays;
+  
+  const delivery: string[] = [];
+  if (draft.allowLocalPickup) delivery.push("pickup");
+  if (draft.allowLocalDelivery) delivery.push("delivery");
+  if (draft.allowShipping) delivery.push("shipping");
+
+  const shippingFee = shippingFees.includes(draft.shippingFee as any) ? (draft.shippingFee as number | "custom") : "custom";
   const [customShipping, setCustomShipping] = useState("");
   const [itemCount, setItemCount] = useState(1);
   const [error, setError] = useState("");
@@ -53,8 +75,22 @@ export default function CampaignThreePage() {
   const displayPrice = price === "custom" ? Number(customPrice || 0) : price;
   const displayShipping = shippingFee === "custom" ? Number(customShipping || 0) : shippingFee;
 
+  useEffect(() => {
+    if (price === "custom" && draft.price > 0) {
+      setCustomPrice(draft.price.toString());
+    }
+  }, [price, draft.price]);
+
+  useEffect(() => {
+    if (shippingFee === "custom" && draft.shippingFee > 0) {
+      setCustomShipping(draft.shippingFee.toString());
+    }
+  }, [shippingFee, draft.shippingFee]);
+
   function toggleDelivery(id: string) {
-    setDelivery((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    if (id === "pickup") updateDraft({ allowLocalPickup: !draft.allowLocalPickup });
+    if (id === "delivery") updateDraft({ allowLocalDelivery: !draft.allowLocalDelivery });
+    if (id === "shipping") updateDraft({ allowShipping: !draft.allowShipping });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -97,17 +133,17 @@ export default function CampaignThreePage() {
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Gift className="size-10" /></span>
-              <div className="w-full"><h2 className="text-[32px] font-semibold leading-tight">1. What will supporters receive?</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">What product, item, or experience are you offering?</p><Input value={productName} onChange={(event) => { setProductName(event.target.value); setError(""); }} className="mt-4" required /><p className="mt-3 text-sm text-muted-foreground">Examples: Banana Pudding, 4-Pack Cinnamon Rolls, Handmade Candle, Custom T-Shirt</p></div>
+              <div className="w-full"><h2 className="text-[32px] font-semibold leading-tight">1. What will supporters receive?</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">What product, item, or experience are you offering?</p><Input value={productName} onChange={(event) => { updateDraft({ productName: event.target.value }); setError(""); }} className="mt-4" required /><p className="mt-3 text-sm text-muted-foreground">Examples: Banana Pudding, 4-Pack Cinnamon Rolls, Handmade Candle, Custom T-Shirt</p></div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Tag className="size-10" /></span>
-              <div><h2 className="text-[32px] font-semibold leading-tight">2. Product Price</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will supporters pay?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">{prices.map((amount) => <ChoiceButton key={amount} selected={price === amount} onClick={() => setPrice(amount)}>${amount}</ChoiceButton>)}<ChoiceButton selected={price === "custom"} onClick={() => setPrice("custom")}>Custom</ChoiceButton></div>{price === "custom" ? <Input type="number" min="1" value={customPrice} onChange={(event) => setCustomPrice(event.target.value)} placeholder="Enter custom price" className="mt-4" required /> : null}</div>
+              <div><h2 className="text-[32px] font-semibold leading-tight">2. Product Price</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will supporters pay?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">{prices.map((amount) => <ChoiceButton key={amount} selected={price === amount} onClick={() => updateDraft({ price: amount })}>${amount}</ChoiceButton>)}<ChoiceButton selected={price === "custom"} onClick={() => updateDraft({ price: 0 })}>Custom</ChoiceButton></div>{price === "custom" ? <Input type="number" min="1" value={customPrice} onChange={(event) => { setCustomPrice(event.target.value); updateDraft({ price: Number(event.target.value) || 0 }); }} placeholder="Enter custom price" className="mt-4" required /> : null}</div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><CalendarDays className="size-10" /></span>
-              <div><h2 className="text-[32px] font-semibold leading-tight">3. Campaign Length</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How long should your fundraiser run?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{durations.map((days) => <ChoiceButton key={days} selected={duration === days} onClick={() => setDuration(days)}>{days} Days</ChoiceButton>)}</div></div>
+              <div><h2 className="text-[32px] font-semibold leading-tight">3. Campaign Length</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How long should your fundraiser run?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{durations.map((days) => <ChoiceButton key={days} selected={duration === days} onClick={() => updateDraft({ durationDays: days })}>{days} Days</ChoiceButton>)}</div></div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
@@ -115,7 +151,7 @@ export default function CampaignThreePage() {
               <div><h2 className="text-[32px] font-semibold leading-tight">4. How will customers receive products?</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">Choose all that apply. You can offer more than one option.</p><div className="mt-5 grid gap-3 md:grid-cols-3">{deliveryOptions.map(({ id, title, detail, icon: Icon }) => { const selected = delivery.includes(id); return <button key={id} type="button" role="checkbox" aria-checked={selected} onClick={() => toggleDelivery(id)} className={`relative flex min-h-24 items-start gap-3 rounded-lg border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary ${selected ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><Icon className="mt-1 size-6 shrink-0 text-secondary" /><span><strong className="block text-lg">{title}</strong><small className="mt-1 block text-sm text-muted-foreground">{detail}</small></span>{selected ? <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-secondary text-white"><Check className="size-3" /></span> : null}</button>; })}</div></div>
             </section>
 
-            {delivery.includes("shipping") ? <section className="grid gap-5 sm:grid-cols-[80px_1fr]"><span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><DollarSign className="size-10" /></span><div><h2 className="text-[32px] font-semibold leading-tight">5. Shipping Fee <span className="text-base font-normal text-muted-foreground">(Only applies if shipping is selected)</span></h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will you charge for shipping?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{shippingFees.map((fee) => <ChoiceButton key={fee} selected={shippingFee === fee} onClick={() => setShippingFee(fee)}>${fee}</ChoiceButton>)}<ChoiceButton selected={shippingFee === "custom"} onClick={() => setShippingFee("custom")}>Custom</ChoiceButton></div>{shippingFee === "custom" ? <Input type="number" min="0" value={customShipping} onChange={(event) => setCustomShipping(event.target.value)} placeholder="Enter shipping fee" className="mt-4" required /> : null}</div></section> : null}
+            {delivery.includes("shipping") ? <section className="grid gap-5 sm:grid-cols-[80px_1fr]"><span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><DollarSign className="size-10" /></span><div><h2 className="text-[32px] font-semibold leading-tight">5. Shipping Fee <span className="text-base font-normal text-muted-foreground">(Only applies if shipping is selected)</span></h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will you charge for shipping?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{shippingFees.map((fee) => <ChoiceButton key={fee} selected={shippingFee === fee} onClick={() => updateDraft({ shippingFee: fee })}>${fee}</ChoiceButton>)}<ChoiceButton selected={shippingFee === "custom"} onClick={() => updateDraft({ shippingFee: 0 })}>Custom</ChoiceButton></div>{shippingFee === "custom" ? <Input type="number" min="0" value={customShipping} onChange={(event) => { setCustomShipping(event.target.value); updateDraft({ shippingFee: Number(event.target.value) || 0 }); }} placeholder="Enter shipping fee" className="mt-4" required /> : null}</div></section> : null}
 
             {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
             <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row"><Button type="button" variant="outline" onClick={() => router.push("/campaign_2")} className="border-secondary text-secondary"><ArrowLeft className="size-4" />Back</Button><Button type="submit" disabled={isPending} className="w-full sm:w-56">{isPending ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button></div>

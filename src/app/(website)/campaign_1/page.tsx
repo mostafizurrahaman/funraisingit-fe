@@ -32,20 +32,35 @@ const examples = [
   ["Glam Beauty Bar"],
 ] as const;
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import toast from "react-hot-toast";
+import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+
 export default function CampaignOnePage() {
   const router = useRouter();
-  const [selectedAmount, setSelectedAmount] = useState<number | "custom">(2500);
+  const token = useSelector(userCurrentToken);
+
+  useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token && !localToken) {
+      toast.error("Please log in first to start a campaign.");
+      router.push("/login");
+    }
+  }, [token, router]);
+
+  const { draft, updateDraft } = useCampaignDraft();
   const [customAmount, setCustomAmount] = useState("");
-  const [preview, setPreview] = useState("");
   const [fileError, setFileError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  useEffect(
-    () => () => {
-      if (preview) URL.revokeObjectURL(preview);
-    },
-    [preview],
-  );
+  const selectedAmount = amounts.includes(draft.goalAmount as any) ? (draft.goalAmount as number | "custom") : "custom";
+
+  useEffect(() => {
+    if (selectedAmount === "custom" && draft.goalAmount > 0) {
+      setCustomAmount(draft.goalAmount.toString());
+    }
+  }, [selectedAmount, draft.goalAmount]);
 
   function handlePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -58,8 +73,11 @@ export default function CampaignOnePage() {
       return;
     }
 
-    if (preview) URL.revokeObjectURL(preview);
-    setPreview(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    updateDraft({
+      thumbnail: file,
+      thumbnailPreview: objectUrl,
+    });
     setFileError("");
   }
 
@@ -141,6 +159,8 @@ export default function CampaignOnePage() {
               </p>
               <Input
                 name="campaignName"
+                value={draft.name}
+                onChange={(e) => updateDraft({ name: e.target.value })}
                 required
                 minLength={3}
                 placeholder="Example: Jenny’s Banana Pudding"
@@ -187,9 +207,9 @@ export default function CampaignOnePage() {
               </div>
               <div>
                 <label className="group relative flex min-h-44 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-secondary bg-secondary/10 p-5 text-center transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/15 hover:shadow-md">
-                  {preview ? (
+                  {draft.thumbnailPreview ? (
                     <Image
-                      src={preview}
+                      src={draft.thumbnailPreview}
                       alt="Campaign upload preview"
                       fill
                       unoptimized
@@ -246,7 +266,7 @@ export default function CampaignOnePage() {
                   <button
                     key={amount}
                     type="button"
-                    onClick={() => setSelectedAmount(amount)}
+                    onClick={() => updateDraft({ goalAmount: amount })}
                     className={`relative h-12 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm ${selectedAmount === amount ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
                   >
                     ${amount.toLocaleString()}
@@ -257,7 +277,7 @@ export default function CampaignOnePage() {
                 ))}
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("custom")}
+                  onClick={() => updateDraft({ goalAmount: 0 })}
                   className={`h-12 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm sm:col-span-2 ${selectedAmount === "custom" ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
                 >
                   Custom Amount
@@ -270,7 +290,10 @@ export default function CampaignOnePage() {
                       min="1"
                       required
                       value={customAmount}
-                      onChange={(event) => setCustomAmount(event.target.value)}
+                      onChange={(event) => {
+                        setCustomAmount(event.target.value);
+                        updateDraft({ goalAmount: Number(event.target.value) || 0 });
+                      }}
                       placeholder="Enter custom amount"
                       className="h-12 w-full rounded-md border border-slate-400 px-4 text-lg outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
                     />

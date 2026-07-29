@@ -19,7 +19,8 @@ const baseQuery = fetchBaseQuery({
     // console.log("token from baseAPI", token);
 
     if (token) {
-      headers.set("Authorization", `${token}`);
+      const authHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      headers.set("Authorization", authHeader);
     }
 
     return headers;

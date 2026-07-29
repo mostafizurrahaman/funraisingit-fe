@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
+import { useGetMeQuery } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
 import {
   BarChart3,
   Heart,
@@ -38,6 +42,19 @@ const navigationItems: NavigationItem[] = [
 
 export function DashboardSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const token = useSelector(userCurrentToken);
+  const { data: profileResponse } = useGetMeQuery(undefined, { skip: !token });
+  const profileData = profileResponse?.data;
+  const displayName = profileData?.name || "User";
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dispatch(logout());
+    toast.success("Logged out successfully");
+    router.push("/login");
+  };
 
   return (
     <aside className={cn("fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-border bg-white", className)}>
@@ -50,9 +67,9 @@ export function DashboardSidebar({ className }: { className?: string }) {
 
         <div className="px-5 py-5">
           <div className="rounded-lg border border-border bg-[#f8ffff] p-3 text-center">
-            <Image src={user} alt="Jennie's bouncy banana pudding" className="mx-auto size-20 rounded-lg object-cover" />
-            <p className="mt-3 text-sm font-semibold">Jennie&apos;s Bouncy Pudding</p>
-            <span className="mt-1 inline-flex rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">Live</span>
+            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={80} height={80} className="mx-auto size-20 rounded-lg object-cover" />
+            <p className="mt-3 text-sm font-semibold">{displayName}</p>
+            <span className="mt-1 inline-flex rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary capitalize">{profileData?.role || "Organizer"}</span>
           </div>
         </div>
 
@@ -86,10 +103,10 @@ export function DashboardSidebar({ className }: { className?: string }) {
               Contact Support
             </Button>
           </div>
-          <Link href="/login" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary/10 hover:text-primary">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary/10 hover:text-primary cursor-pointer bg-transparent border-none">
             <LogOut className="size-4" />
             Log out
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

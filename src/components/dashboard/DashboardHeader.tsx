@@ -1,13 +1,23 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Bell, Heart, Menu } from "lucide-react";
 import user from "@/assets/user.png";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import { useGetMeQuery } from "@/redux/features/auth/authApi";
+
 export function DashboardHeader() {
+  const token = useSelector(userCurrentToken);
+  const { data: profileResponse } = useGetMeQuery(undefined, { skip: !token });
+  const profileData = profileResponse?.data;
+  const displayName = profileData?.name || "User";
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur">
       <div className="flex min-h-20 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
@@ -25,7 +35,7 @@ export function DashboardHeader() {
           </Sheet>
           <div>
             <p className="text-xs font-medium text-muted-foreground">Campaign dashboard</p>
-            <h1 className="text-lg font-semibold sm:text-xl">Welcome back, Jennie</h1>
+            <h1 className="text-lg font-semibold sm:text-xl">Welcome back, {displayName}</h1>
           </div>
         </div>
 
@@ -39,10 +49,10 @@ export function DashboardHeader() {
           <button type="button" aria-label="Favorites" className="hidden size-10 items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-300 hover:bg-secondary hover:text-white sm:inline-flex">
             <Heart className="size-4 fill-current" />
           </button>
-          <div className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3">
-            <Image src={user} alt="Jennie profile" className="size-9 rounded-full object-cover" />
-            <span className="hidden text-sm font-semibold sm:block">Jennie</span>
-          </div>
+          <Link href="/dashboard/settings" className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-secondary transition-colors duration-300">
+            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={36} height={36} className="size-9 rounded-full object-cover" />
+            <span className="hidden text-sm font-semibold sm:block">{displayName}</span>
+          </Link>
         </div>
       </div>
     </header>

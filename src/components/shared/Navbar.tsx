@@ -6,6 +6,11 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import { useGetMeQuery } from "@/redux/features/auth/authApi";
+import userPlaceholder from "@/assets/user.png";
+
 import { Drawer, DrawerClose, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 const navigation = [
@@ -17,6 +22,14 @@ const navigation = [
 ] as const;
 
 const Navbar = () => {
+  const token = useSelector(userCurrentToken);
+  const { data: profileResponse } = useGetMeQuery(undefined, { skip: !token });
+  const profileData = profileResponse?.data;
+
+  const filteredNavigation = token
+    ? navigation.filter((item) => item.label !== "Login")
+    : navigation;
+
   return (
     <header className="w-full bg-background">
       <nav aria-label="Main navigation" className="container mx-auto flex h-20 items-center justify-between px-5 sm:px-8 lg:h-24 lg:px-10">
@@ -25,11 +38,23 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden items-center gap-7 lg:flex xl:gap-9">
-          {navigation.map((item) => (
+          {filteredNavigation.map((item) => (
             <Link key={item.href} href={item.href} className="font-semibold text-foreground transition-colors duration-300 hover:text-secondary">
               {item.label}
             </Link>
           ))}
+          {token && (
+            <Link href="/dashboard/settings" className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1.5 px-3.5 hover:border-secondary transition-colors duration-300">
+              <Image
+                src={profileData?.profileImage || userPlaceholder}
+                alt="profile"
+                width={28}
+                height={28}
+                className="rounded-full object-cover size-7"
+              />
+              <span className="text-sm font-semibold text-foreground">{profileData?.name || "Profile"}</span>
+            </Link>
+          )}
           <Link href="/campaign_1" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-primary/90 sm:px-5 sm:py-3 sm:text-base">
             Start My Campaign
           </Link>
@@ -50,13 +75,27 @@ const Navbar = () => {
             </DrawerClose>
             <Image src={logo} alt="FunRaisingIt" className="mb-10 h-auto w-[155px]" />
             <div className="flex flex-col gap-2">
-              {navigation.map((item) => (
+              {filteredNavigation.map((item) => (
                 <DrawerClose key={item.href} asChild>
                   <Link href={item.href} className="rounded-lg px-3 py-3 font-semibold transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary">
                     {item.label}
                   </Link>
                 </DrawerClose>
               ))}
+              {token && (
+                <DrawerClose asChild>
+                  <Link href="/dashboard/settings" className="flex items-center gap-2 rounded-lg px-3 py-3 font-semibold transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary">
+                    <Image
+                      src={profileData?.profileImage || userPlaceholder}
+                      alt="profile"
+                      width={24}
+                      height={24}
+                      className="rounded-full object-cover size-6"
+                    />
+                    {profileData?.name || "Profile"}
+                  </Link>
+                </DrawerClose>
+              )}
               <DrawerClose asChild>
                 <Link href="/campaign_1" className="rounded-lg bg-primary px-3 py-3 text-center font-semibold text-white transition-colors duration-300 hover:bg-primary/90">
                   Start My Campaign

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useEffect, useState, useTransition } from "react";
 import {
   ArrowLeft,
   Check,
@@ -45,20 +46,73 @@ const readiness = [
   "Donation preference confirmed",
 ] as const;
 
+import { useSelector } from "react-redux";
+import { userCurrentToken } from "@/redux/features/auth/authSlice";
+import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+import { useCreateCampaignMutation } from "@/redux/features/campaign/campaignApi";
+import toast from "react-hot-toast";
+
 export default function CampaignFourPage() {
   const router = useRouter();
+  const token = useSelector(userCurrentToken);
+
+  useEffect(() => {
+    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token && !localToken) {
+      toast.error("Please log in first to start a campaign.");
+      router.push("/login");
+    }
+  }, [token, router]);
+
+  const { draft, resetDraft } = useCampaignDraft();
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [createCampaign, { isLoading }] = useCreateCampaignMutation();
 
-  function handleLaunch(event: FormEvent<HTMLFormElement>) {
+  async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!agreed) {
       setError("Please confirm the campaign details and agree to the terms before launching.");
       return;
     }
     setError("");
-    startTransition(() => router.push("/campaign_5"));
+
+    try {
+      const formData = new FormData();
+      formData.append("name", draft.name || "Help Build a Community Library");
+      formData.append("campaignCategory", "physical_product");
+      formData.append("story", draft.story || "We are raising funds...");
+      
+      // Append fundUsage values
+      if (draft.fundUsage && draft.fundUsage.length > 0) {
+        draft.fundUsage.forEach((item) => {
+          formData.append("fundUsage", item);
+        });
+      } else {
+        formData.append("fundUsage", "General Funding");
+      }
+
+      formData.append("goalAmount", String(draft.goalAmount));
+      formData.append("durationDays", String(draft.durationDays));
+      formData.append("allowLocalPickup", String(draft.allowLocalPickup));
+      formData.append("allowLocalDelivery", String(draft.allowLocalDelivery));
+      formData.append("allowShipping", String(draft.allowShipping));
+      formData.append("allowDonation", String(draft.allowDonation));
+      formData.append("shippingFee", String(draft.allowShipping ? draft.shippingFee : 0));
+      
+      if (draft.thumbnail) {
+        formData.append("thumbnail", draft.thumbnail);
+      }
+
+      const response = await createCampaign(formData).unwrap();
+      toast.success(response?.message || "Campaign launched successfully!");
+      resetDraft();
+      router.push("/campaign_5");
+    } catch (err: any) {
+      const errMsg = err?.data?.message || "Failed to launch campaign. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);
+    }
   }
 
   return (
@@ -129,7 +183,7 @@ export default function CampaignFourPage() {
 
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 p-4 text-sm leading-6 transition-colors duration-300 hover:border-secondary"><input type="checkbox" checked={agreed} onChange={(event) => { setAgreed(event.target.checked); setError(""); }} className="mt-1 size-4 shrink-0 accent-primary" /><span>I’ve reviewed my campaign details and agree to the <Link href="#" className="font-medium text-secondary hover:underline">Terms &amp; Conditions</Link>.</span></label>
               {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
-              <div className="grid gap-3 sm:grid-cols-2"><Button type="button" variant="outline" onClick={() => router.push("/campaign_3")} className="border-secondary text-secondary"><Edit3 className="size-4" />Edit Campaign</Button><Button type="submit" disabled={isPending}><Rocket className="size-4" />{isPending ? "Launching..." : "Launch My Campaign"}</Button></div>
+              <div className="grid gap-3 sm:grid-cols-2"><Button type="button" variant="outline" onClick={() => router.push("/campaign_3")} className="border-secondary text-secondary"><Edit3 className="size-4" />Edit Campaign</Button><Button type="submit" disabled={isLoading}><Rocket className="size-4" />{isLoading ? "Launching..." : "Launch My Campaign"}</Button></div>
               <Button type="button" variant="ghost" onClick={() => router.push("/campaign_3")} className="w-full"><ArrowLeft className="size-4" />Back to Details</Button>
               <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4" />Your information is secure and protected</p>
             </form>

@@ -65,6 +65,12 @@ const AUthAPi = baseApi.injectEndpoints({
         body: passwordData,
       }),
     }),
+    getMe: build.query({
+      query: () => ({
+        url: "/auth/me",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -78,4 +84,5 @@ export const {
   useVerifyOtpMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
+  useGetMeQuery,
 } = AUthAPi;
