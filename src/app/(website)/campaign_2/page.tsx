@@ -115,6 +115,7 @@ export default function CampaignTwoPage() {
       const campaignId = response?.data?._id || response?.data?.id;
       if (campaignId) {
         updateDraft({ id: campaignId, story });
+        localStorage.setItem("campaignId", campaignId);
         router.push("/campaign_3");
       } else {
         toast.error("Could not retrieve created Campaign ID.");

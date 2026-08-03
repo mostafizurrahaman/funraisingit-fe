@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import {
   Banknote,
@@ -22,6 +24,10 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useGetDashboardAnalyticsQuery } from "@/redux/features/DashboardAnalytics/DashboardAnalyticsApi";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useSearchParams } from "next/navigation";
 
 const activities = [
   { name: "Sarah donated", note: "5 minutes ago", amount: "$20" },
@@ -67,6 +73,32 @@ const quickActions = [
 ] as const;
 
 export default function DashboardPage() {
+  const searchParams = useSearchParams();
+  const campaignId =
+    searchParams.get("campaignId") ||
+    (typeof window !== "undefined" ? localStorage.getItem("campaignId") : null) 
+
+  const { data: response, isLoading, error } = useGetDashboardAnalyticsQuery(campaignId);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <p className="text-lg font-semibold text-muted-foreground">Loading dashboard analytics...</p>
+      </div>
+    );
+  }
+
+  if (error || !response?.success) {
+    return (
+      <div className="flex h-96 flex-col items-center justify-center gap-3">
+        <p className="text-lg font-semibold text-red-500">Failed to load dashboard data.</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+
+  const data = response.data;
+
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
       <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
@@ -117,28 +149,28 @@ export default function DashboardPage() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Raised"
-          value="$480"
-          detail="of $2,500 goal"
+          value={`$${data.raisedAmount}`}
+          detail={`of $${data.goalAmount} goal`}
           icon={Banknote}
           tone="secondary"
         />
         <StatCard
           title="Supporters"
-          value="32"
+          value={String(data.supporters)}
           detail="people"
           icon={Heart}
           tone="rose"
         />
         <StatCard
           title="Orders"
-          value="18"
+          value={String(data.orders)}
           detail="total orders"
           icon={ShoppingBag}
           tone="primary"
         />
         <StatCard
           title="Goal"
-          value="$2,500"
+          value={`$${data.goalAmount}`}
           detail="campaign target"
           icon={Goal}
           tone="violet"
@@ -152,18 +184,18 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-base font-semibold">Campaign Progress</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  $480 raised of $2,500 goal
+                  ${data.raisedAmount} raised of ${data.goalAmount} goal
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                <CalendarDays className="size-4" />7 days remaining
+                <CalendarDays className="size-4" />{data.remainingDays} days remaining
               </div>
             </div>
             <div className="mt-4 h-3 overflow-hidden rounded-full bg-secondary/10">
-              <div className="h-full w-[19%] rounded-full bg-secondary" />
+              <div className="h-full rounded-full bg-secondary" style={{ width: `${data.raisedPercentage}%` }} />
             </div>
             <p className="mt-2 text-right text-sm font-semibold text-secondary">
-              19%
+              {data.raisedPercentage}%
             </p>
           </DashboardCard>
 
@@ -179,9 +211,9 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="space-y-3">
-                {activities.map((activity) => (
+                {data.recentActivities?.map((activity: any, index: number) => (
                   <div
-                    key={activity.name}
+                    key={activity.paymentId || index}
                     className="flex items-center gap-3 rounded-lg p-2 transition-colors duration-300 hover:bg-secondary/5"
                   >
                     <span className="inline-flex size-8 items-center justify-center rounded-full bg-rose-50 text-rose-500">
@@ -189,14 +221,14 @@ export default function DashboardPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">
-                        {activity.name}
+                        {activity.name} {activity.isDonation ? "donated" : "purchased"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {activity.note}
+                        {activity.paidAt}
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-primary">
-                      {activity.amount}
+                      ${activity.amount}
                     </span>
                   </div>
                 ))}
@@ -214,17 +246,17 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="space-y-3">
-                {orders.map((orderItem) => (
+                {data.recentOrders?.map((orderItem: any, index: number) => (
                   <div
-                    key={orderItem.customer}
+                    key={orderItem.orderId || index}
                     className="grid grid-cols-[1fr_56px_72px] gap-2 text-sm"
                   >
-                    <span className="font-medium">{orderItem.customer}</span>
+                    <span className="font-medium">{orderItem.name}</span>
                     <span className="text-center text-muted-foreground">
-                      {orderItem.quantity}
+                      1
                     </span>
                     <span className="text-right font-semibold">
-                      {orderItem.total}
+                      ${orderItem.amount}
                     </span>
                   </div>
                 ))}
@@ -248,13 +280,13 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="space-y-3">
-                {donations.map((donation) => (
+                {data.recentDonations?.map((donation: any, index: number) => (
                   <div
-                    key={donation.donor}
+                    key={donation.donationId || index}
                     className="flex items-center justify-between text-sm"
                   >
-                    <span className="font-medium">{donation.donor}</span>
-                    <span className="font-semibold">{donation.amount}</span>
+                    <span className="font-medium">{donation.name}</span>
+                    <span className="font-semibold">${donation.amount}</span>
                   </div>
                 ))}
               </div>
@@ -305,15 +337,19 @@ export default function DashboardPage() {
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Campaign Ends</span>
-                <span className="font-semibold">June 15, 2026</span>
+                <span className="font-semibold">
+                  {data.campaignEnds ? new Date(data.campaignEnds).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Expected Payout</span>
-                <span className="font-semibold">June 20, 2026</span>
+                <span className="font-semibold">
+                  {data.expectedPayoutDate ? new Date(data.expectedPayoutDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Available Balance</span>
-                <span className="font-semibold text-secondary">$480.00</span>
+                <span className="font-semibold text-secondary">${data.remainingBalance}</span>
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-secondary/10 p-3 text-xs text-muted-foreground">
