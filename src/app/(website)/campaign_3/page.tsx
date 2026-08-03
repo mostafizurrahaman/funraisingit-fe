@@ -41,6 +41,20 @@ import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+import { useAddProductMutation } from "@/redux/features/campaign/campaignApi";
+import { ChangeEvent } from "react";
+
+interface ProductInput {
+  name: string;
+  description: string;
+  price: number;
+  productType: "physical" | "digital";
+  stock: number;
+  sku: string;
+  weight: number;
+  productImage: File | null;
+  productImagePreview: string;
+}
 
 export default function CampaignThreePage() {
   const router = useRouter();
@@ -56,7 +70,19 @@ export default function CampaignThreePage() {
 
   const { draft, updateDraft } = useCampaignDraft();
   
-  const productName = draft.productName || "Banana Pudding";
+  const [products, setProducts] = useState<ProductInput[]>([]);
+  const [description, setDescription] = useState("");
+  const [productType, setProductType] = useState<"physical" | "digital">("physical");
+  const [stock, setStock] = useState("0");
+  const [sku, setSku] = useState("");
+  const [weight, setWeight] = useState("0.1");
+  const [productImage, setProductImage] = useState<File | null>(null);
+  const [productImagePreview, setProductImagePreview] = useState("");
+  const [productImageError, setProductImageError] = useState("");
+
+  const [addProduct, { isLoading: isAdding }] = useAddProductMutation();
+
+  const productName = draft.productName || "";
   const price = prices.includes(draft.price as any) ? (draft.price as number | "custom") : "custom";
   const [customPrice, setCustomPrice] = useState("");
   const duration = draft.durationDays;
@@ -68,9 +94,7 @@ export default function CampaignThreePage() {
 
   const shippingFee = shippingFees.includes(draft.shippingFee as any) ? (draft.shippingFee as number | "custom") : "custom";
   const [customShipping, setCustomShipping] = useState("");
-  const [itemCount, setItemCount] = useState(1);
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
 
   const displayPrice = price === "custom" ? Number(customPrice || 0) : price;
   const displayShipping = shippingFee === "custom" ? Number(customShipping || 0) : shippingFee;
@@ -87,20 +111,118 @@ export default function CampaignThreePage() {
     }
   }, [shippingFee, draft.shippingFee]);
 
+  function handleProductImage(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setProductImageError("Choose a JPG, PNG, or WEBP image under 5 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setProductImage(file);
+    setProductImagePreview(URL.createObjectURL(file));
+    setProductImageError("");
+  }
+
+  function handleAddProductToList() {
+    if (!productName.trim()) {
+      setError("Please enter a product name first.");
+      return;
+    }
+    if (displayPrice <= 0) {
+      setError("Please enter a valid product price first.");
+      return;
+    }
+
+    const newProduct: ProductInput = {
+      name: productName,
+      description: description || "High-quality product",
+      price: displayPrice,
+      productType,
+      stock: Number(stock) || 0,
+      sku: sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      weight: productType === "physical" ? Number(weight) || 0.1 : 0,
+      productImage,
+      productImagePreview,
+    };
+
+    setProducts([...products, newProduct]);
+
+    // Reset current product inputs
+    updateDraft({ productName: "" });
+    setDescription("");
+    setStock("0");
+    setSku("");
+    setWeight("0.1");
+    setProductImage(null);
+    setProductImagePreview("");
+    setError("");
+  }
+
   function toggleDelivery(id: string) {
     if (id === "pickup") updateDraft({ allowLocalPickup: !draft.allowLocalPickup });
     if (id === "delivery") updateDraft({ allowLocalDelivery: !draft.allowLocalDelivery });
     if (id === "shipping") updateDraft({ allowShipping: !draft.allowShipping });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!productName.trim()) return setError("Enter a product or reward name.");
-    if (displayPrice <= 0) return setError("Select or enter a valid product price.");
+    setError("");
+
     if (!delivery.length) return setError("Select at least one delivery method.");
     if (delivery.includes("shipping") && displayShipping < 0) return setError("Enter a valid shipping fee.");
-    setError("");
-    startTransition(() => router.push("/campaign_4"));
+
+    let finalProducts = [...products];
+
+    // If no products were explicitly added to the list, try to add the current form inputs as the single product
+    if (finalProducts.length === 0) {
+      if (!productName.trim()) return setError("Please enter a product name.");
+      if (displayPrice <= 0) return setError("Select or enter a valid product price.");
+      finalProducts.push({
+        name: productName,
+        description: description || "High-quality product",
+        price: displayPrice,
+        productType,
+        stock: Number(stock) || 0,
+        sku: sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        weight: productType === "physical" ? Number(weight) || 0.1 : 0,
+        productImage,
+        productImagePreview,
+      });
+    }
+
+    const campaignId = draft.id;
+    if (!campaignId) {
+      return setError("Campaign ID not found. Please create the campaign first in Step 2.");
+    }
+
+    try {
+      for (const p of finalProducts) {
+        const formData = new FormData();
+        formData.append("name", p.name);
+        formData.append("description", p.description);
+        formData.append("price", String(p.price));
+        formData.append("productType", p.productType);
+        formData.append("stock", String(p.stock));
+        formData.append("sku", p.sku);
+        formData.append("weight", String(p.weight));
+        if (p.productImage) {
+          formData.append("productImage", p.productImage);
+        }
+
+        await addProduct({ campaignId, formData }).unwrap();
+      }
+
+      toast.success("Products added successfully!");
+      router.push("/campaign_4");
+    } catch (err: any) {
+      const errMsg = err?.data?.message || "Failed to add products. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);
+    }
   }
 
   return (
@@ -124,16 +246,127 @@ export default function CampaignThreePage() {
             <header>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <span className="inline-flex bg-secondary/10 px-3 py-1.5 text-base font-medium text-secondary">Step 3 of 4</span>
-                <Button type="button" variant="outline" onClick={() => setItemCount((count) => count + 1)} className="border-secondary text-secondary"><Plus className="size-4" />Add New Item</Button>
+                <Button type="button" variant="outline" onClick={handleAddProductToList} className="border-secondary text-secondary"><Plus className="size-4" />Add Product to Campaign</Button>
               </div>
               <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">Set Up Your Campaign</h1>
               <p className="mt-4 text-lg leading-7 text-muted-foreground">Just a few more details before we create your fundraiser.</p>
-              {itemCount > 1 ? <p className="mt-2 text-sm font-medium text-secondary">{itemCount} campaign items added</p> : null}
+              {products.length > 0 ? <p className="mt-2 text-sm font-medium text-secondary">{products.length} campaign items added</p> : null}
             </header>
+
+            {/* List of added products */}
+            {products.length > 0 && (
+              <div className="rounded-lg border border-secondary bg-secondary/5 p-5">
+                <h3 className="font-semibold text-secondary text-lg mb-3">Added Products ({products.length})</h3>
+                <div className="divide-y divide-slate-200">
+                  {products.map((p, idx) => (
+                    <div key={idx} className="flex justify-between items-center py-3">
+                      <div>
+                        <p className="font-semibold text-foreground">{p.name} - ${p.price}</p>
+                        <p className="text-xs text-muted-foreground">{p.productType} | SKU: {p.sku || "N/A"} | Stock: {p.stock}</p>
+                        {p.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{p.description}</p>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProducts(products.filter((_, i) => i !== idx))}
+                        className="text-red-500 hover:text-red-700 hover:scale-105 transition-all text-sm font-semibold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Gift className="size-10" /></span>
-              <div className="w-full"><h2 className="text-[32px] font-semibold leading-tight">1. What will supporters receive?</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">What product, item, or experience are you offering?</p><Input value={productName} onChange={(event) => { updateDraft({ productName: event.target.value }); setError(""); }} className="mt-4" required /><p className="mt-3 text-sm text-muted-foreground">Examples: Banana Pudding, 4-Pack Cinnamon Rolls, Handmade Candle, Custom T-Shirt</p></div>
+              <div className="w-full space-y-4">
+                <h2 className="text-[32px] font-semibold leading-tight">1. What will supporters receive?</h2>
+                <p className="text-lg leading-7 text-muted-foreground">What product, item, or experience are you offering?</p>
+                
+                <div>
+                  <label className="text-sm font-semibold text-foreground">Product Name *</label>
+                  <Input value={productName} onChange={(event) => { updateDraft({ productName: event.target.value }); setError(""); }} className="mt-1" required placeholder="Example: Premium T-Shirt" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-foreground">Product Description</label>
+                  <Input value={description} onChange={(event) => { setDescription(event.target.value); setError(""); }} className="mt-1" placeholder="High-quality cotton t-shirt" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-foreground block mb-2">Product Type *</label>
+                  <div className="grid grid-cols-2 gap-3 max-w-xs">
+                    <button
+                      type="button"
+                      onClick={() => setProductType("physical")}
+                      className={`h-11 rounded-md border text-base font-medium transition-all ${
+                        productType === "physical"
+                          ? "border-secondary bg-secondary/10 text-secondary"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      Physical
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProductType("digital")}
+                      className={`h-11 rounded-md border text-base font-medium transition-all ${
+                        productType === "digital"
+                          ? "border-secondary bg-secondary/10 text-secondary"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      Digital
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-semibold text-foreground">Stock *</label>
+                    <Input type="number" min="0" value={stock} onChange={(event) => setStock(event.target.value)} className="mt-1" required />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-foreground">SKU</label>
+                    <Input value={sku} onChange={(event) => setSku(event.target.value)} className="mt-1" placeholder="TSHIRT-BLUE-001" />
+                  </div>
+                </div>
+
+                {productType === "physical" && (
+                  <div>
+                    <label className="text-sm font-semibold text-foreground">Weight (kg)</label>
+                    <Input type="number" step="0.01" min="0" value={weight} onChange={(event) => setWeight(event.target.value)} className="mt-1" />
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-sm font-semibold text-foreground block mb-2">Product Image</label>
+                  <div className="flex items-center gap-4">
+                    {productImagePreview ? (
+                      <div className="relative size-20 overflow-hidden rounded-lg border border-slate-200">
+                        <Image src={productImagePreview} alt="Product preview" fill className="object-cover" unoptimized />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductImage(null);
+                            setProductImagePreview("");
+                          }}
+                          className="absolute right-1 top-1 bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex h-20 w-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
+                        <span className="text-xs font-semibold text-secondary">Upload Image</span>
+                        <input type="file" accept="image/*" onChange={handleProductImage} className="sr-only" />
+                      </label>
+                    )}
+                  </div>
+                  {productImageError && <p className="mt-1 text-xs text-red-500">{productImageError}</p>}
+                </div>
+              </div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
@@ -154,7 +387,7 @@ export default function CampaignThreePage() {
             {delivery.includes("shipping") ? <section className="grid gap-5 sm:grid-cols-[80px_1fr]"><span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><DollarSign className="size-10" /></span><div><h2 className="text-[32px] font-semibold leading-tight">5. Shipping Fee <span className="text-base font-normal text-muted-foreground">(Only applies if shipping is selected)</span></h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will you charge for shipping?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{shippingFees.map((fee) => <ChoiceButton key={fee} selected={shippingFee === fee} onClick={() => updateDraft({ shippingFee: fee })}>${fee}</ChoiceButton>)}<ChoiceButton selected={shippingFee === "custom"} onClick={() => updateDraft({ shippingFee: 0 })}>Custom</ChoiceButton></div>{shippingFee === "custom" ? <Input type="number" min="0" value={customShipping} onChange={(event) => { setCustomShipping(event.target.value); updateDraft({ shippingFee: Number(event.target.value) || 0 }); }} placeholder="Enter shipping fee" className="mt-4" required /> : null}</div></section> : null}
 
             {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
-            <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row"><Button type="button" variant="outline" onClick={() => router.push("/campaign_2")} className="border-secondary text-secondary"><ArrowLeft className="size-4" />Back</Button><Button type="submit" disabled={isPending} className="w-full sm:w-56">{isPending ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button></div>
+            <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row"><Button type="button" variant="outline" onClick={() => router.push("/campaign_2")} className="border-secondary text-secondary"><ArrowLeft className="size-4" />Back</Button><Button type="submit" disabled={isAdding} className="w-full sm:w-56">{isAdding ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button></div>
             <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4" />Your progress is saved automatically</p>
           </form>
 
@@ -163,7 +396,7 @@ export default function CampaignThreePage() {
             <Image src={hero} alt="Banana pudding campaign preview" className="mt-4 aspect-[1.55/1] w-full rounded-lg object-cover object-right" />
             <div className="mt-4 flex items-center gap-3"><Image src={user} alt="Jenna" className="size-12 rounded-full object-cover" /><h3 className="text-lg font-semibold leading-5">Jenna’s<br />Banana Pudding</h3></div>
             <p className="mt-5 text-sm font-medium text-secondary">Goal: $2,500</p><div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div><div className="mt-2 flex justify-between text-xs"><span>$80 Raised</span><span>0 Supporters</span></div>
-            <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary"><ShoppingCart className="mr-2 inline size-4" />{itemCount} {itemCount === 1 ? "Item" : "Items"} Listed</div>
+            <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary"><ShoppingCart className="mr-2 inline size-4" />{products.length || 1} {(products.length || 1) === 1 ? "Item" : "Items"} Listed</div>
             <div className="mt-4 space-y-3"><Button type="button" className="w-full"><ShoppingCart className="size-4" />Buy {productName || "Product"}{displayPrice ? ` — $${displayPrice}` : ""}</Button><Button type="button" variant="outline" className="w-full"><Heart className="size-4" />Donate</Button></div>
             <h3 className="mt-5 text-lg font-semibold">Campaign Details</h3><dl className="mt-3 space-y-3 text-sm"><PreviewRow icon={Gift} label="Product" value={productName || "—"} /><PreviewRow icon={CalendarDays} label="Campaign Length" value={`${duration} Days`} /><PreviewRow icon={Truck} label="Delivery Options" value={delivery.length ? deliveryOptions.filter((option) => delivery.includes(option.id)).map((option) => option.title).join(", ") : "—"} />{delivery.includes("shipping") ? <PreviewRow icon={DollarSign} label="Shipping Fee" value={`$${displayShipping}`} /> : null}</dl>
             <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4"><h3 className="flex items-center gap-2 text-lg font-semibold text-secondary"><ShieldCheck className="size-5" />100% Secure</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Your information is always safe and protected.</p></div>
