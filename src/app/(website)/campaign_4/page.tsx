@@ -25,6 +25,7 @@ import {
 import hero from "@/assets/hero.png";
 import user from "@/assets/user.png";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
 
@@ -49,7 +50,10 @@ const readiness = [
 import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
-import { useCreateCampaignMutation } from "@/redux/features/campaign/campaignApi";
+import {
+  useGetCampaignPreviewQuery,
+  useLaunchCampaignMutation,
+} from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
 
 export default function CampaignFourPage() {
@@ -65,9 +69,20 @@ export default function CampaignFourPage() {
   }, [token, router]);
 
   const { draft, resetDraft } = useCampaignDraft();
+  const campaignId = draft.id;
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
-  const [createCampaign, { isLoading }] = useCreateCampaignMutation();
+  const [promoCode, setPromoCode] = useState("");
+
+  const previewBody = promoCode ? { promoCode } : {};
+
+  const { data: previewResponse, isLoading: isPreviewLoading } = useGetCampaignPreviewQuery(
+    { campaignId, body: previewBody },
+    { skip: !campaignId }
+  );
+  const [launchCampaign, { isLoading: isLaunching }] = useLaunchCampaignMutation();
+
+  const previewData = previewResponse?.data;
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,38 +91,22 @@ export default function CampaignFourPage() {
       return;
     }
     setError("");
+    if (!campaignId) {
+      setError("Campaign ID not found. Please start from Step 1.");
+      return;
+    }
 
     try {
-      const formData = new FormData();
-      formData.append("name", draft.name || "Help Build a Community Library");
-      formData.append("campaignCategory", "physical_product");
-      formData.append("story", draft.story || "We are raising funds...");
-      
-      // Append fundUsage values
-      if (draft.fundUsage && draft.fundUsage.length > 0) {
-        draft.fundUsage.forEach((item) => {
-          formData.append("fundUsage", item);
-        });
-      } else {
-        formData.append("fundUsage", "General Funding");
-      }
-
-      formData.append("goalAmount", String(draft.goalAmount));
-      formData.append("durationDays", String(draft.durationDays));
-      formData.append("allowLocalPickup", String(draft.allowLocalPickup));
-      formData.append("allowLocalDelivery", String(draft.allowLocalDelivery));
-      formData.append("allowShipping", String(draft.allowShipping));
-      formData.append("allowDonation", String(draft.allowDonation));
-      formData.append("shippingFee", String(draft.allowShipping ? draft.shippingFee : 0));
-      
-      if (draft.thumbnail) {
-        formData.append("thumbnail", draft.thumbnail);
-      }
-
-      const response = await createCampaign(formData).unwrap();
+      const launchBody = promoCode ? { promoCode } : {};
+      const response = await launchCampaign({ campaignId, body: launchBody }).unwrap();
       toast.success(response?.message || "Campaign launched successfully!");
       resetDraft();
-      router.push("/campaign_5");
+      
+      if (response?.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        router.push("/campaign_5");
+      }
     } catch (err: any) {
       const errMsg = err?.data?.message || "Failed to launch campaign. Please try again.";
       setError(errMsg);
@@ -181,9 +180,19 @@ export default function CampaignFourPage() {
 
               <div className="rounded-lg border border-secondary bg-secondary/10 p-5"><h3 className="flex items-center gap-3 text-lg font-semibold text-secondary"><ShieldCheck className="size-6" />Build Today. Launch When You’re Ready</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">You only pay when you’re ready to launch.</p></div>
 
+              <div className="rounded-lg border border-slate-300 p-4 bg-white">
+                <label className="text-sm font-semibold text-foreground block mb-2">Promo Code (Optional)</label>
+                <Input
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  placeholder="Enter promo code (e.g. WELCOME25)"
+                  className="w-full border-slate-300 focus:border-secondary focus:ring-secondary/20"
+                />
+              </div>
+
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 p-4 text-sm leading-6 transition-colors duration-300 hover:border-secondary"><input type="checkbox" checked={agreed} onChange={(event) => { setAgreed(event.target.checked); setError(""); }} className="mt-1 size-4 shrink-0 accent-primary" /><span>I’ve reviewed my campaign details and agree to the <Link href="#" className="font-medium text-secondary hover:underline">Terms &amp; Conditions</Link>.</span></label>
               {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
-              <div className="grid gap-3 sm:grid-cols-2"><Button type="button" variant="outline" onClick={() => router.push("/campaign_3")} className="border-secondary text-secondary"><Edit3 className="size-4" />Edit Campaign</Button><Button type="submit" disabled={isLoading}><Rocket className="size-4" />{isLoading ? "Launching..." : "Launch My Campaign"}</Button></div>
+              <div className="grid gap-3 sm:grid-cols-2"><Button type="button" variant="outline" onClick={() => router.push("/campaign_3")} className="border-secondary text-secondary"><Edit3 className="size-4" />Edit Campaign</Button><Button type="submit" disabled={isLaunching}><Rocket className="size-4" />{isLaunching ? "Launching..." : "Launch My Campaign"}</Button></div>
               <Button type="button" variant="ghost" onClick={() => router.push("/campaign_3")} className="w-full"><ArrowLeft className="size-4" />Back to Details</Button>
               <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4" />Your information is secure and protected</p>
             </form>

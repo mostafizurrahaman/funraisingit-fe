@@ -9,8 +9,34 @@ const campaignApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    addProduct: build.mutation({
+      query: ({ campaignId, formData }) => ({
+        url: `/product/${campaignId}/add-product`,
+        method: "POST",
+        body: formData,
+      }),
+    }),
+    getCampaignPreview: build.query({
+      query: ({ campaignId, body }) => ({
+        url: `/campaign/${campaignId}/preview`,
+        method: "GET",
+        body: body || {},
+      }),
+    }),
+    launchCampaign: build.mutation({
+      query: ({ campaignId, body }) => ({
+        url: `/campaign/${campaignId}/launch`,
+        method: "POST",
+        body: body || {},
+      }),
+    }),
   }),
 });
 
-export const { useCreateCampaignMutation } = campaignApi;
+export const {
+  useCreateCampaignMutation,
+  useAddProductMutation,
+  useGetCampaignPreviewQuery,
+  useLaunchCampaignMutation,
+} = campaignApi;
 export default campaignApi;

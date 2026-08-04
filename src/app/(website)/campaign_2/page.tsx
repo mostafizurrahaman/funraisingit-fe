@@ -33,6 +33,7 @@ import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+import { useCreateCampaignMutation } from "@/redux/features/campaign/campaignApi";
 
 export default function CampaignTwoPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function CampaignTwoPage() {
   const donationChoice = draft.allowDonation ? "allow" : "purchase";
   const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [createCampaign, { isLoading: isCreating }] = useCreateCampaignMutation();
 
   function togglePurpose(purpose: string) {
     const nextPurposes = selectedPurposes.includes(purpose)
@@ -70,7 +71,7 @@ export default function CampaignTwoPage() {
     }, 500);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (story.trim().length < 50) {
       setError("Please tell supporters a little more about your campaign.");
@@ -81,7 +82,49 @@ export default function CampaignTwoPage() {
       return;
     }
     setError("");
-    startTransition(() => router.push("/campaign_3"));
+
+    try {
+      const formData = new FormData();
+      formData.append("name", draft.name || "Help Build a Community Library");
+      formData.append("campaignCategory", "physical_product");
+      formData.append("story", story);
+      
+      // Append fundUsage values
+      if (selectedPurposes.length > 0) {
+        selectedPurposes.forEach((item) => {
+          formData.append("fundUsage", item);
+        });
+      } else {
+        formData.append("fundUsage", "General Funding");
+      }
+
+      formData.append("goalAmount", String(draft.goalAmount));
+      formData.append("durationDays", String(draft.durationDays));
+      formData.append("allowLocalPickup", String(draft.allowLocalPickup));
+      formData.append("allowLocalDelivery", String(draft.allowLocalDelivery));
+      formData.append("allowShipping", String(draft.allowShipping));
+      formData.append("allowDonation", String(draft.allowDonation));
+      formData.append("shippingFee", String(draft.allowShipping ? draft.shippingFee : 0));
+      
+      if (draft.thumbnail) {
+        formData.append("thumbnail", draft.thumbnail);
+      }
+
+      const response = await createCampaign(formData).unwrap();
+      toast.success(response?.message || "Campaign created successfully!");
+      const campaignId = response?.data?._id || response?.data?.id;
+      if (campaignId) {
+        updateDraft({ id: campaignId, story });
+        localStorage.setItem("campaignId", campaignId);
+        router.push("/campaign_3");
+      } else {
+        toast.error("Could not retrieve created Campaign ID.");
+      }
+    } catch (err: any) {
+      const errMsg = err?.data?.message || "Failed to create campaign. Please try again.";
+      setError(errMsg);
+      toast.error(errMsg);
+    }
   }
 
   return (
@@ -155,7 +198,7 @@ export default function CampaignTwoPage() {
             {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
             <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row">
               <Button type="button" variant="outline" onClick={() => router.push("/campaign_1")} className="border-secondary text-secondary"><ArrowLeft className="size-4" />Back</Button>
-              <Button type="submit" disabled={isPending} className="w-full sm:w-56">{isPending ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button>
+              <Button type="submit" disabled={isCreating} className="w-full sm:w-56">{isCreating ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button>
             </div>
             <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4" />Your progress is saved automatically</p>
           </form>

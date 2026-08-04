@@ -60,7 +60,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
     <aside className={cn("fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-border bg-white", className)}>
       <div className="flex h-full flex-col">
         <div className="flex h-20 items-center border-b border-border px-5">
-          <Link href="/dashboard" aria-label="FunRaisingIt dashboard" className="transition-opacity duration-300 hover:opacity-80">
+          <Link href="/" aria-label="FunRaisingIt dashboard" className="transition-opacity duration-300 hover:opacity-80">
             <Image src={logo} alt="FunRaisingIt" className="h-auto w-36" priority />
           </Link>
         </div>

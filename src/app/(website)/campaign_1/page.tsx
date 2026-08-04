@@ -17,6 +17,12 @@ import {
   Heart,
   Target,
   Upload,
+  Calendar,
+  Truck,
+  MapPin,
+  Package,
+  Check,
+  DollarSign,
 } from "lucide-react";
 import hero from "@/assets/hero.png";
 import { Button } from "@/components/ui/button";
@@ -24,6 +30,8 @@ import { Input } from "@/components/ui/input";
 
 const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
 const amounts = [500, 1000, 2500, 5000] as const;
+const durations = [2, 3, 5, 7] as const;
+const shippingAmounts = [5, 8, 10] as const;
 
 const examples = [
   ["Jenny’s Banana Pudding", "Mike’s Custom Tees"],
@@ -55,12 +63,20 @@ export default function CampaignOnePage() {
   const [isPending, startTransition] = useTransition();
 
   const selectedAmount = amounts.includes(draft.goalAmount as any) ? (draft.goalAmount as number | "custom") : "custom";
+  const selectedShippingAmount = shippingAmounts.includes(draft.shippingFee as any) ? (draft.shippingFee as number | "custom") : "custom";
+  const [customShipping, setCustomShipping] = useState("");
 
   useEffect(() => {
     if (selectedAmount === "custom" && draft.goalAmount > 0) {
       setCustomAmount(draft.goalAmount.toString());
     }
   }, [selectedAmount, draft.goalAmount]);
+
+  useEffect(() => {
+    if (selectedShippingAmount === "custom" && draft.shippingFee > 0) {
+      setCustomShipping(draft.shippingFee.toString());
+    }
+  }, [selectedShippingAmount, draft.shippingFee]);
 
   function handlePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -86,6 +102,12 @@ export default function CampaignOnePage() {
     if (
       selectedAmount === "custom" &&
       (!customAmount || Number(customAmount) < 1)
+    )
+      return;
+    if (
+      draft.allowShipping &&
+      selectedShippingAmount === "custom" &&
+      (!customShipping || Number(customShipping) < 0)
     )
       return;
     startTransition(() => router.push("/campaign_2"));
@@ -295,6 +317,250 @@ export default function CampaignOnePage() {
                         updateDraft({ goalAmount: Number(event.target.value) || 0 });
                       }}
                       placeholder="Enter custom amount"
+                      className="h-12 w-full rounded-md border border-slate-400 px-4 text-lg outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                    />
+                  </label>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
+          {/* Campaign Length */}
+          <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr]">
+            <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+              <Calendar className="size-10" />
+            </span>
+            <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  Campaign Length
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  How long should your fundraiser run?
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                {durations.map((duration) => {
+                  const label = duration === 7 ? "7 days" : `${duration} Days`;
+                  const isSelected = draft.durationDays === duration;
+                  return (
+                    <button
+                      key={duration}
+                      type="button"
+                      onClick={() => updateDraft({ durationDays: duration })}
+                      className={`relative min-w-[100px] px-6 h-12 rounded-xl border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm ${
+                        isSelected
+                          ? "border-secondary bg-white text-secondary"
+                          : "border-slate-400 bg-white text-foreground"
+                      }`}
+                    >
+                      {label}
+                      {isSelected && (
+                        <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                          <Check className="size-3 stroke-[3]" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* Customer Delivery Options */}
+          <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr]">
+            <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+              <Truck className="size-10" />
+            </span>
+            <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  How will customers receive products?
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  Choose all that apply. You can offer more than one option.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* Local Pickup */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateDraft({ allowLocalPickup: !draft.allowLocalPickup })
+                  }
+                  className={`relative flex flex-col p-4 rounded-xl border text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm cursor-pointer ${
+                    draft.allowLocalPickup
+                      ? "border-secondary bg-white"
+                      : "border-slate-300 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <MapPin className="size-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground leading-tight">
+                        Local Pickup
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Customers pick up in person
+                      </p>
+                    </div>
+                  </div>
+                  {draft.allowLocalPickup && (
+                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                      <Check className="size-3 stroke-[3]" />
+                    </span>
+                  )}
+                </button>
+
+                {/* Local Delivery */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateDraft({
+                      allowLocalDelivery: !draft.allowLocalDelivery,
+                    })
+                  }
+                  className={`relative flex flex-col p-4 rounded-xl border text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm cursor-pointer ${
+                    draft.allowLocalDelivery
+                      ? "border-secondary bg-white"
+                      : "border-slate-300 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <Truck className="size-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground leading-tight">
+                        Local Delivery
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Your Deliver locally
+                      </p>
+                    </div>
+                  </div>
+                  {draft.allowLocalDelivery && (
+                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                      <Check className="size-3 stroke-[3]" />
+                    </span>
+                  )}
+                </button>
+
+                {/* Shipping */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateDraft({ allowShipping: !draft.allowShipping })
+                  }
+                  className={`relative flex flex-col p-4 rounded-xl border text-left transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm cursor-pointer ${
+                    draft.allowShipping
+                      ? "border-secondary bg-white"
+                      : "border-slate-300 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <Package className="size-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground leading-tight">
+                        Shipping
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        We ship to supporters
+                      </p>
+                    </div>
+                  </div>
+                  {draft.allowShipping && (
+                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                      <Check className="size-3 stroke-[3]" />
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Shipping Fee */}
+          <section
+            className={`mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr] transition-all duration-300 ${
+              !draft.allowShipping ? "opacity-50" : ""
+            }`}
+          >
+            <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+              <DollarSign className="size-10" />
+            </span>
+            <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  3. Shipping Fee <span className="text-lg font-normal text-muted-foreground">(Only applies if shipping is selected)</span>
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  How much will you charge for shipping?
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {shippingAmounts.map((amount) => {
+                  const isSelected =
+                    draft.allowShipping &&
+                    selectedShippingAmount === amount;
+                  return (
+                    <button
+                      key={amount}
+                      type="button"
+                      disabled={!draft.allowShipping}
+                      onClick={() => updateDraft({ shippingFee: amount })}
+                      className={`relative h-12 rounded-xl border text-lg font-medium transition-all duration-300 ${
+                        draft.allowShipping
+                          ? "hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm cursor-pointer"
+                          : "cursor-not-allowed"
+                      } ${
+                        isSelected
+                          ? "border-secondary bg-white text-secondary"
+                          : "border-slate-400 bg-white text-foreground"
+                      }`}
+                    >
+                      ${amount}
+                      {isSelected && (
+                        <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                          <Check className="size-3 stroke-[3]" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  disabled={!draft.allowShipping}
+                  onClick={() => updateDraft({ shippingFee: 0 })}
+                  className={`relative h-12 rounded-xl border text-lg font-medium transition-all duration-300 sm:col-span-2 ${
+                    draft.allowShipping
+                      ? "hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm cursor-pointer"
+                      : "cursor-not-allowed"
+                  } ${
+                    draft.allowShipping && selectedShippingAmount === "custom"
+                      ? "border-secondary bg-white text-secondary"
+                      : "border-slate-400 bg-white text-foreground"
+                  }`}
+                >
+                  Custom
+                  {draft.allowShipping && selectedShippingAmount === "custom" && (
+                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                      <Check className="size-3 stroke-[3]" />
+                    </span>
+                  )}
+                </button>
+                {draft.allowShipping && selectedShippingAmount === "custom" ? (
+                  <label className="col-span-full">
+                    <span className="sr-only">Custom shipping fee amount</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      required
+                      value={customShipping}
+                      onChange={(event) => {
+                        setCustomShipping(event.target.value);
+                        updateDraft({
+                          shippingFee: Number(event.target.value) || 0,
+                        });
+                      }}
+                      placeholder="Enter custom shipping fee"
                       className="h-12 w-full rounded-md border border-slate-400 px-4 text-lg outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
                     />
                   </label>
