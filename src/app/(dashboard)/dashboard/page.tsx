@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
-      <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
+      {/* <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
         <DashboardCard className="overflow-hidden">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
             <Heart className="size-5 fill-current" />
           </span>
         </DashboardCard>
-      </section>
+      </section> */}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
