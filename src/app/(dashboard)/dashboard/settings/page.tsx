@@ -7,7 +7,7 @@ import userPlaceholder from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useChangePasswordMutation, useGetMeQuery } from "@/redux/features/auth/authApi";
+import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation } from "@/redux/features/auth/authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -23,9 +23,14 @@ export default function SettingsPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const token = useSelector(userCurrentToken);
-  const { data: profileResponse, isLoading: isLoadingProfile } = useGetMeQuery(undefined, { skip: !token });
+  
+  const { data: profileResponse, isLoading: isLoadingProfile, refetch } = useGetMeQuery(undefined, { skip: !token });
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
+  
   const [showFields, setShowFields] = useState<Record<string, boolean>>({});
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   const profile = profileResponse?.data;
 
@@ -39,6 +44,46 @@ export default function SettingsPage() {
     router.push("/login");
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
+        toast.error("Choose a JPG, PNG, or WEBP image under 5 MB.");
+        return;
+      }
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  async function handleProfileSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = data.get("name") as string;
+    const phone = data.get("phone") as string;
+
+    if (!name?.trim()) {
+      toast.error("Full Name is required.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("phoneNumber", phone || "");
+      if (avatarFile) {
+        formData.append("profileImage", avatarFile);
+      }
+
+      const response = await updateProfile(formData).unwrap();
+      toast.success(response?.message || "Profile updated successfully!");
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update profile. Please try again.");
+    }
+  }
+
   async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -48,6 +93,11 @@ export default function SettingsPage() {
 
     if (!oldPassword || !newPassword || !confirmNewPassword) {
       toast.error("Please fill in all password fields.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters long.");
       return;
     }
 
@@ -96,15 +146,16 @@ export default function SettingsPage() {
           <p className="mt-1 text-sm text-muted-foreground">Update your public organizer profile.</p>
         </div>
 
-        <form className="space-y-5 px-5 py-6" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-5 px-5 py-6" onSubmit={handleProfileSubmit}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative size-16 shrink-0">
               <Image
-                src={profile?.profileImage || userPlaceholder}
+                src={avatarPreview || profile?.profileImage || userPlaceholder}
                 alt={profile?.name || "User profile"}
                 width={64}
                 height={64}
                 className="size-16 rounded-lg object-cover"
+                unoptimized={!!avatarPreview}
               />
               <span className="absolute -bottom-1 -right-1 inline-flex size-6 items-center justify-center rounded-full bg-secondary text-white ring-2 ring-white">
                 <Camera className="size-3.5" />
@@ -116,7 +167,7 @@ export default function SettingsPage() {
                 <Upload className="size-4" />
                 Upload photo
               </label>
-              <input id="profile-photo" name="profilePhoto" type="file" accept="image/*" className="sr-only" />
+              <input id="profile-photo" name="profilePhoto" type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
             </div>
           </div>
 
@@ -124,7 +175,7 @@ export default function SettingsPage() {
             <label htmlFor="name" className="mb-2 block text-sm font-medium">
               Full Name
             </label>
-            <Input id="name" name="name" defaultValue={profile?.name || ""} autoComplete="name" className="h-11 rounded-2xl border-border text-sm" />
+            <Input id="name" name="name" defaultValue={profile?.name || ""} autoComplete="name" className="h-11 rounded-2xl border-border text-sm" required />
           </div>
 
           <div>
@@ -142,8 +193,8 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex justify-end pt-3">
-            <Button type="button" className="bg-secondary px-6 text-xs hover:bg-secondary/90">
-              Save Changes
+            <Button type="submit" disabled={isUpdatingProfile} className="bg-secondary px-6 text-xs hover:bg-secondary/90">
+              {isUpdatingProfile ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>
