@@ -205,14 +205,38 @@ export default function CampaignTwoPage() {
 
           <aside className="rounded-lg border border-slate-400 p-5 lg:sticky lg:top-6">
             <h2 className="flex items-center gap-2 text-lg font-semibold"><Eye className="size-5 text-secondary" />Live Preview</h2>
-            <Image src={hero} alt="Banana pudding campaign preview" className="mt-4 aspect-[1.55/1] w-full rounded-lg object-cover object-right" />
-            <div className="mt-4 flex items-center gap-3"><Image src={user} alt="Jenna" className="size-12 rounded-full object-cover" /><div><h3 className="text-lg font-semibold leading-5">Jenna’s<br />Banana Pudding</h3></div></div>
-            <p className="mt-5 text-sm font-medium text-secondary">Goal: $2,500</p>
+            <div className="relative mt-4 aspect-[1.55/1] w-full overflow-hidden rounded-lg">
+              <Image
+                src={draft.thumbnailPreview || hero}
+                alt="Campaign preview"
+                fill
+                unoptimized={!!draft.thumbnailPreview}
+                className="object-cover"
+              />
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <Image src={user} alt="User avatar" className="size-12 rounded-full object-cover" />
+              <div>
+                <h3 className="text-lg font-semibold leading-5">
+                  {draft.name || "My Campaign"}
+                </h3>
+              </div>
+            </div>
+            <p className="mt-5 text-sm font-medium text-secondary">Goal: ${draft.goalAmount?.toLocaleString() || "0"}</p>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div>
-            <div className="mt-2 flex justify-between text-xs"><span>$80 Raised</span><span>0 Supporters</span></div>
+            <div className="mt-2 flex justify-between text-xs"><span>$0 Raised</span><span>0 Supporters</span></div>
             <h3 className="mt-5 text-lg font-semibold">About This Campaign</h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">{story}</p>
-            <div className="mt-5 space-y-3"><Button type="button" className="w-full"><ShoppingCart className="size-4" />Buy Banana Pudding</Button><Button type="button" variant="outline" className="w-full"><Heart className="size-4" />Donate</Button></div>
+            <div className="mt-5 space-y-3">
+              <Button type="button" className="w-full">
+                <ShoppingCart className="size-4" />
+                Buy {draft.name || "Product"}
+              </Button>
+              <Button type="button" variant="outline" className="w-full">
+                <Heart className="size-4" />
+                Donate
+              </Button>
+            </div>
             <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4"><h3 className="flex items-center gap-2 text-lg font-semibold text-secondary"><Lightbulb className="size-5" />Helpful Tip</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Campaigns with a personal story often receive more support.</p><ul className="mt-3 space-y-2 text-sm">{["Why you’re raising money", "What you’re selling", "What the money will help you accomplish"].map((tip) => <li key={tip} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-secondary" />{tip}</li>)}</ul></div>
           </aside>
         </div>

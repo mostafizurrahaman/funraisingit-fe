@@ -114,6 +114,38 @@ export default function CampaignFourPage() {
     }
   }
 
+  if (isPreviewLoading) {
+    return (
+      <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+        <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
+          <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+          <p className="text-muted-foreground font-medium">Loading campaign preview...</p>
+        </div>
+      </main>
+    );
+  }
+
+  const productsList = previewData?.products || [];
+  const firstProduct = productsList[0] || { name: draft.productName || "Product", price: draft.price || 10 };
+
+  const activeDelivery: string[] = [];
+  if (previewData?.allowLocalPickup ?? draft.allowLocalPickup) activeDelivery.push("Pickup");
+  if (previewData?.allowLocalDelivery ?? draft.allowLocalDelivery) activeDelivery.push("Delivery");
+  if (previewData?.allowShipping ?? draft.allowShipping) activeDelivery.push("Shipping");
+
+  const shippingFeeVal = previewData?.shippingFee ?? draft.shippingFee;
+  const isDonationVal = previewData?.allowDonation ?? draft.allowDonation;
+
+  const summary = [
+    ["Campaign Name", previewData?.name || draft.name || "My Campaign"],
+    ["Goal", `$${(previewData?.goalAmount || draft.goalAmount || 2500).toLocaleString()}`],
+    ["Price", `$${firstProduct?.price || 10} each`],
+    ["Campaign Length", `${previewData?.durationDays || draft.durationDays || 7} days`],
+    ["Delivery Options", activeDelivery.join(", ") || "None"],
+    ["Shipping Fee", (previewData?.allowShipping ?? draft.allowShipping) ? `$${shippingFeeVal}` : "$0"],
+    ["Donations", isDonationVal ? "Enabled" : "Disabled"],
+  ] as const;
+
   return (
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
@@ -145,16 +177,80 @@ export default function CampaignFourPage() {
               <div className="mx-auto mt-6 max-w-md rounded-[3rem] border-[10px] border-slate-950 bg-white p-2 shadow-2xl">
                 <div className="mx-auto mb-2 h-5 w-28 rounded-b-2xl bg-slate-950" />
                 <div className="overflow-hidden rounded-[2rem] border border-slate-200">
-                  <div className="relative"><Image src={hero} alt="Jenna’s Banana Pudding campaign" className="aspect-[1.55/1] w-full object-cover object-right" priority /><div className="absolute right-3 top-3 flex gap-2"><span className="flex size-9 items-center justify-center rounded-full bg-white shadow"><Heart className="size-5 text-secondary" /></span><span className="flex size-9 items-center justify-center rounded-full bg-white shadow"><ShoppingCart className="size-5 text-secondary" /></span></div></div>
+                  <div className="relative aspect-[1.55/1] w-full overflow-hidden">
+                    <Image
+                      src={previewData?.thumbnail || draft.thumbnailPreview || hero}
+                      alt={previewData?.name || draft.name || "Campaign Preview"}
+                      fill
+                      priority
+                      unoptimized={!!(previewData?.thumbnail || draft.thumbnailPreview)}
+                      className="object-cover"
+                    />
+                    <div className="absolute right-3 top-3 flex gap-2">
+                      <span className="flex size-9 items-center justify-center rounded-full bg-white shadow">
+                        <Heart className="size-5 text-secondary" />
+                      </span>
+                      <span className="flex size-9 items-center justify-center rounded-full bg-white shadow">
+                        <ShoppingCart className="size-5 text-secondary" />
+                      </span>
+                    </div>
+                  </div>
                   <div className="p-5">
-                    <div className="flex items-center gap-3"><Image src={user} alt="Jenna" className="size-14 rounded-full object-cover" /><h3 className="text-xl font-semibold leading-6">Jenna’s<br />Banana Pudding</h3></div>
-                    <p className="mt-5 text-lg font-semibold text-secondary">Goal: $2,500</p>
+                    <div className="flex items-center gap-3"><Image src={user} alt="User avatar" className="size-14 rounded-full object-cover" /><h3 className="text-xl font-semibold leading-6">{previewData?.name || draft.name || "My Campaign"}</h3></div>
+                    <p className="mt-5 text-lg font-semibold text-secondary">Goal: ${(previewData?.goalAmount || draft.goalAmount || 2500).toLocaleString()}</p>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div>
-                    <div className="mt-2 flex justify-between text-sm"><span>$80 Raised</span><span>0 Supporters</span><span className="text-secondary">7 Days Left</span></div>
-                    <h3 className="mt-6 text-lg font-semibold">About This Campaign</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Hi everyone! My name is Jenna, and I’m raising money to launch Jenna’s Banana Pudding. Your support will help me purchase ingredients, packaging, and supplies so I can grow my business.</p>
-                    <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4"><div className="flex items-center gap-3"><Gift className="size-10 text-secondary" /><div><p className="text-lg font-semibold">What You’ll Receive</p><p className="text-sm text-muted-foreground">Banana Pudding — $10 Each</p></div></div></div>
-                    <h3 className="mt-5 text-lg font-semibold">Delivery Options</h3><div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">{[[StoreIcon, "Local Pickup"], [Truck, "Local Delivery"], [PackageCheck, "Shipping"]].map(([Icon, label]) => { const DeliveryIcon = Icon as typeof Truck; return <span key={label as string} className="rounded-md border border-slate-300 p-2"><DeliveryIcon className="mx-auto mb-1 size-5 text-secondary" />{label as string}</span>; })}</div><p className="mt-3 text-sm text-muted-foreground">Shipping fee: $8</p>
-                    <div className="mt-5 space-y-3"><Button type="button" className="w-full"><ShoppingCart className="size-4" />Buy Banana Pudding</Button><Button type="button" variant="outline" className="w-full"><Heart className="size-4" />Donate</Button></div>
+                    <div className="mt-2 flex justify-between text-sm"><span>$0 Raised</span><span>0 Supporters</span><span className="text-secondary">{previewData?.durationDays || draft.durationDays || 7} Days Left</span></div>
+                    <h3 className="mt-6 text-lg font-semibold">About This Campaign</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground whitespace-pre-line">
+                      {previewData?.story || draft.story || "No story provided."}
+                    </p>
+                    {firstProduct && (
+                      <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4">
+                        <div className="flex items-center gap-3">
+                          <Gift className="size-10 text-secondary" />
+                          <div>
+                            <p className="text-lg font-semibold">What You’ll Receive</p>
+                            <p className="text-sm text-muted-foreground">
+                              {firstProduct.name} — ${firstProduct.price} Each
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <h3 className="mt-5 text-lg font-semibold">Delivery Options</h3>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                      {(previewData?.allowLocalPickup ?? draft.allowLocalPickup) && (
+                        <span className="rounded-md border border-slate-300 p-2">
+                          <StoreIcon className="mx-auto mb-1 size-5 text-secondary" />
+                          Local Pickup
+                        </span>
+                      )}
+                      {(previewData?.allowLocalDelivery ?? draft.allowLocalDelivery) && (
+                        <span className="rounded-md border border-slate-300 p-2">
+                          <Truck className="mx-auto mb-1 size-5 text-secondary" />
+                          Local Delivery
+                        </span>
+                      )}
+                      {(previewData?.allowShipping ?? draft.allowShipping) && (
+                        <span className="rounded-md border border-slate-300 p-2">
+                          <PackageCheck className="mx-auto mb-1 size-5 text-secondary" />
+                          Shipping
+                        </span>
+                      )}
+                    </div>
+                    {(previewData?.allowShipping ?? draft.allowShipping) && (
+                      <p className="mt-3 text-sm text-muted-foreground">Shipping fee: ${shippingFeeVal}</p>
+                    )}
+                    <div className="mt-5 space-y-3">
+                      <Button type="button" className="w-full">
+                        <ShoppingCart className="size-4" />
+                        Buy {firstProduct?.name || "Product"}
+                      </Button>
+                      <Button type="button" variant="outline" className="w-full">
+                        <Heart className="size-4" />
+                        Donate
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -171,7 +267,12 @@ export default function CampaignFourPage() {
               </Panel>
 
               <Panel title="Fees & Payout" icon={DollarSign}>
-                <p className="text-sm text-muted-foreground">Here’s how campaign earnings are calculated:</p><dl className="mt-4 space-y-3 text-sm"><FeeRow label="Product Price" value="$10.00" /><FeeRow label="Platform Fee (5%)" value="−$0.50" /><FeeRow label="You Receive" value="$9.50" strong /></dl>
+                <p className="text-sm text-muted-foreground">Here’s how campaign earnings are calculated:</p>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <FeeRow label="Product Price" value={`$${firstProduct?.price || 10}.00`} />
+                  <FeeRow label="Platform Fee (5%)" value={`−$${((firstProduct?.price || 10) * 0.05).toFixed(2)}`} />
+                  <FeeRow label="You Receive" value={`$${((firstProduct?.price || 10) * 0.95).toFixed(2)}`} strong />
+                </dl>
               </Panel>
 
               <Panel title="What Happens Next?" icon={Clock3}>

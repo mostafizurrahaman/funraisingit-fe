@@ -393,9 +393,22 @@ export default function CampaignThreePage() {
 
           <aside className="rounded-lg border border-slate-400 p-5 lg:sticky lg:top-6">
             <h2 className="flex items-center gap-2 text-lg font-semibold"><Eye className="size-5 text-secondary" />Live Preview</h2>
-            <Image src={hero} alt="Banana pudding campaign preview" className="mt-4 aspect-[1.55/1] w-full rounded-lg object-cover object-right" />
-            <div className="mt-4 flex items-center gap-3"><Image src={user} alt="Jenna" className="size-12 rounded-full object-cover" /><h3 className="text-lg font-semibold leading-5">Jenna’s<br />Banana Pudding</h3></div>
-            <p className="mt-5 text-sm font-medium text-secondary">Goal: $2,500</p><div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div><div className="mt-2 flex justify-between text-xs"><span>$80 Raised</span><span>0 Supporters</span></div>
+            <div className="relative mt-4 aspect-[1.55/1] w-full overflow-hidden rounded-lg">
+              <Image
+                src={draft.thumbnailPreview || hero}
+                alt="Campaign preview"
+                fill
+                unoptimized={!!draft.thumbnailPreview}
+                className="object-cover"
+              />
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <Image src={user} alt="User avatar" className="size-12 rounded-full object-cover" />
+              <h3 className="text-lg font-semibold leading-5">{draft.name || "My Campaign"}</h3>
+            </div>
+            <p className="mt-5 text-sm font-medium text-secondary">Goal: ${draft.goalAmount?.toLocaleString() || "0"}</p>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div>
+            <div className="mt-2 flex justify-between text-xs"><span>$0 Raised</span><span>0 Supporters</span></div>
             <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary"><ShoppingCart className="mr-2 inline size-4" />{products.length || 1} {(products.length || 1) === 1 ? "Item" : "Items"} Listed</div>
             <div className="mt-4 space-y-3"><Button type="button" className="w-full"><ShoppingCart className="size-4" />Buy {productName || "Product"}{displayPrice ? ` — $${displayPrice}` : ""}</Button><Button type="button" variant="outline" className="w-full"><Heart className="size-4" />Donate</Button></div>
             <h3 className="mt-5 text-lg font-semibold">Campaign Details</h3><dl className="mt-3 space-y-3 text-sm"><PreviewRow icon={Gift} label="Product" value={productName || "—"} /><PreviewRow icon={CalendarDays} label="Campaign Length" value={`${duration} Days`} /><PreviewRow icon={Truck} label="Delivery Options" value={delivery.length ? deliveryOptions.filter((option) => delivery.includes(option.id)).map((option) => option.title).join(", ") : "—"} />{delivery.includes("shipping") ? <PreviewRow icon={DollarSign} label="Shipping Fee" value={`$${displayShipping}`} /> : null}</dl>
