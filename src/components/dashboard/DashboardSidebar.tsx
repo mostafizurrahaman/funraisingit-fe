@@ -14,6 +14,7 @@ import {
   LogOut,
   Package,
   Settings,
+  ShoppingBag,
   Sparkles,
   UploadCloud,
   WalletCards,
@@ -32,6 +33,7 @@ type NavigationItem = {
 
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Products", href: "/dashboard/products", icon: ShoppingBag },
   { label: "Orders", href: "/dashboard/orders", icon: Package },
   { label: "Donations", href: "/dashboard/donation", icon: Heart },
   { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
