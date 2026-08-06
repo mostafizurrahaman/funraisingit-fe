@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
+import { useCreateOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
 import toast from "react-hot-toast";
 
 import defaultProductImage from "../../assets/order.png";
@@ -31,7 +32,11 @@ interface ShippingMethod {
 const inputClassName =
   "h-10 w-full rounded-lg border border-muted-foreground/50 bg-white px-3 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/15";
 
-function FormField({ label, required, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+}
+
+function FormField({ label, required, ...props }: FormFieldProps) {
   return (
     <label className="block text-xs font-medium text-foreground">
       {label} {required && <span className="text-red-500">*</span>}
@@ -52,6 +57,8 @@ const OrderSummery = () => {
   const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(code, {
     skip: !code,
   });
+
+  const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
 
   const campaign = campaignResponse?.data;
   const products = campaign?.products || [];
@@ -132,6 +139,71 @@ const OrderSummery = () => {
 
   const selectedShippingFee = shippingMethods.find((method) => method.id === currentShippingId)?.price ?? 0;
   const total = subtotal + selectedShippingFee + tax;
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!product || !campaign) return;
+
+    if (isPhysical && isLimited && availableStock <= 0) {
+      return toast.error("This product is currently out of stock.");
+    }
+    if (isPhysical && isLimited && quantity > availableStock) {
+      return toast.error(`You cannot order more than ${availableStock} items.`);
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+    const address1 = (formData.get("address1") as string) || "";
+    const address2 = (formData.get("address2") as string) || "";
+    const city = (formData.get("city") as string) || "";
+    const state = (formData.get("state") as string) || "";
+    const postalCode = (formData.get("postalCode") as string) || "";
+    const country = (formData.get("country") as string) || "";
+
+    let shippingType = "shipping";
+    if (currentShippingId === "pickup") shippingType = "local_pickup";
+    else if (currentShippingId === "delivery") shippingType = "local_delivery";
+
+    const orderItems = [
+      {
+        product: product._id,
+        quantity: quantity,
+        price: product.price,
+        productType: product.productType,
+      },
+    ];
+
+    const orderPayload = {
+      campaignId: campaign._id,
+      orderItems,
+      fullName: `${firstName} ${lastName}`,
+      email,
+      phone,
+      addressLine1: currentShippingId === "pickup" ? "Local Pickup" : address1,
+      addressLine2: address2,
+      city: currentShippingId === "pickup" ? "Local Pickup" : city,
+      state: currentShippingId === "pickup" ? "Local Pickup" : state,
+      postalCode: currentShippingId === "pickup" ? "0000" : postalCode,
+      country: currentShippingId === "pickup" ? "US" : country,
+      shippingType,
+    };
+
+    try {
+      const res = await createOrder(orderPayload).unwrap();
+      if (res.success && res.data?.url) {
+        toast.success(res.message || "Order created! Redirecting to payment...");
+        window.location.href = res.data.url;
+      } else {
+        toast.error(res.message || "Failed to create order");
+      }
+    } catch (err: any) {
+      const errMsg = err?.data?.message || err?.message || "Failed to create order";
+      toast.error(errMsg);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -312,16 +384,7 @@ const OrderSummery = () => {
             )}
           </div>
 
-          <form className="space-y-6" onSubmit={(event) => {
-            event.preventDefault();
-            if (isPhysical && isLimited && availableStock <= 0) {
-              return toast.error("This product is currently out of stock.");
-            }
-            if (isPhysical && isLimited && quantity > availableStock) {
-              return toast.error(`You cannot order more than ${availableStock} items.`);
-            }
-            router.push("/order-success");
-          }}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
               <h2 className="text-xl font-semibold text-black">Order Summary</h2>
               <div className="mt-5 flex items-center gap-4 border-b border-muted-foreground/30 pb-4">
@@ -368,23 +431,32 @@ const OrderSummery = () => {
               <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
                 <h2 className="text-xl font-semibold text-black">Delivery Address</h2>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2"><FormField label="Address Line 1" name="address1" placeholder="123 Main Street" required disabled={isProductOutOfStock} /></div>
+                  <div className="sm:col-span-2"><FormField label="Address Line 1" name="address1" placeholder="123 Main Street" required={true} disabled={isProductOutOfStock} /></div>
                   <div className="sm:col-span-2"><FormField label="Address Line 2" name="address2" placeholder="Apt, suite, unit (optional)" disabled={isProductOutOfStock} /></div>
-                  <FormField label="City" name="city" placeholder="Springfield" required disabled={isProductOutOfStock} />
-                  <label className="block text-xs font-medium">State <span className="text-red-500">*</span><select name="state" required disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select state</option><option>California</option><option>New York</option><option>Texas</option></select></label>
-                  <FormField label="ZIP / Postal Code" name="postalCode" placeholder="62701" required disabled={isProductOutOfStock} />
-                  <label className="block text-xs font-medium">Country <span className="text-red-500">*</span><select name="country" required disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select country</option><option>United States</option><option>Canada</option><option>United Kingdom</option></select></label>
+                  <FormField label="City" name="city" placeholder="Springfield" required={true} disabled={isProductOutOfStock} />
+                  <label className="block text-xs font-medium">State <span className="text-red-500">*</span><select name="state" required={true} disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select state</option><option>California</option><option>New York</option><option>Texas</option></select></label>
+                  <FormField label="ZIP / Postal Code" name="postalCode" placeholder="62701" required={true} disabled={isProductOutOfStock} />
+                  <label className="block text-xs font-medium">Country <span className="text-red-500">*</span><select name="country" required={true} disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select country</option><option>United States</option><option>Canada</option><option>United Kingdom</option></select></label>
                 </div>
               </section>
             )}
 
             <button
               type="submit"
-              disabled={isProductOutOfStock}
+              disabled={isProductOutOfStock || isCreating}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-md disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              <ShieldCheck className="size-4" />
-              {isProductOutOfStock ? "Product Out of Stock" : `Place Order · $${total.toFixed(2)}`}
+              {isCreating ? (
+                <>
+                  <Loader2 className="size-4 animate-spin mr-1" />
+                  Creating Order...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="size-4" />
+                  {isProductOutOfStock ? "Product Out of Stock" : `Place Order · $${total.toFixed(2)}`}
+                </>
+              )}
             </button>
             <p className="text-center text-[10px] leading-4 text-muted-foreground">By placing your order you agree to our Terms of Service and Privacy Policy.<br />Your payment is secured and encrypted by Stripe.</p>
           </form>
