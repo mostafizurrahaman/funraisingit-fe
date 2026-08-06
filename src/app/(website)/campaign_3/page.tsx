@@ -54,6 +54,8 @@ interface ProductInput {
   weight: number;
   productImage: File | null;
   productImagePreview: string;
+  downloadFileName?: string;
+  downloadFiles?: File | null;
 }
 
 export default function CampaignThreePage() {
@@ -79,6 +81,10 @@ export default function CampaignThreePage() {
   const [productImage, setProductImage] = useState<File | null>(null);
   const [productImagePreview, setProductImagePreview] = useState("");
   const [productImageError, setProductImageError] = useState("");
+
+  const [downloadFileName, setDownloadFileName] = useState("");
+  const [downloadFiles, setDownloadFiles] = useState<File | null>(null);
+  const [downloadFilesError, setDownloadFilesError] = useState("");
 
   const [addProduct, { isLoading: isAdding }] = useAddProductMutation();
 
@@ -127,6 +133,20 @@ export default function CampaignThreePage() {
     setProductImageError("");
   }
 
+  function handleDownloadFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 50 * 1024 * 1024) {
+      setDownloadFilesError("Digital file must be under 50 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setDownloadFiles(file);
+    setDownloadFilesError("");
+  }
+
   function handleAddProductToList() {
     if (!productName.trim()) {
       setError("Please enter a product name first.");
@@ -147,6 +167,8 @@ export default function CampaignThreePage() {
       weight: productType === "physical" ? Number(weight) || 0.1 : 0,
       productImage,
       productImagePreview,
+      downloadFileName: productType === "digital" ? downloadFileName : undefined,
+      downloadFiles: productType === "digital" ? downloadFiles : undefined,
     };
 
     setProducts([...products, newProduct]);
@@ -159,6 +181,8 @@ export default function CampaignThreePage() {
     setWeight("0.1");
     setProductImage(null);
     setProductImagePreview("");
+    setDownloadFileName("");
+    setDownloadFiles(null);
     setError("");
   }
 
@@ -191,6 +215,8 @@ export default function CampaignThreePage() {
         weight: productType === "physical" ? Number(weight) || 0.1 : 0,
         productImage,
         productImagePreview,
+        downloadFileName: productType === "digital" ? downloadFileName : undefined,
+        downloadFiles: productType === "digital" ? downloadFiles : undefined,
       });
     }
 
@@ -211,6 +237,14 @@ export default function CampaignThreePage() {
         formData.append("weight", String(p.weight));
         if (p.productImage) {
           formData.append("productImage", p.productImage);
+        }
+        if (p.productType === "digital") {
+          if (p.downloadFileName) {
+            formData.append("downloadFileName", p.downloadFileName);
+          }
+          if (p.downloadFiles) {
+            formData.append("downloadFiles", p.downloadFiles);
+          }
         }
 
         await addProduct({ campaignId, formData }).unwrap();
@@ -337,6 +371,42 @@ export default function CampaignThreePage() {
                   <div>
                     <label className="text-sm font-semibold text-foreground">Weight (kg)</label>
                     <Input type="number" step="0.01" min="0" value={weight} onChange={(event) => setWeight(event.target.value)} className="mt-1" />
+                  </div>
+                )}
+
+                {productType === "digital" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-semibold text-foreground">Download File Name *</label>
+                      <Input
+                        value={downloadFileName}
+                        onChange={(event) => setDownloadFileName(event.target.value)}
+                        className="mt-1"
+                        placeholder="React-Complete-Course.zip"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-foreground block mb-2">Download Files *</label>
+                      {downloadFiles ? (
+                        <div className="flex h-12 items-center justify-between rounded-lg border border-secondary bg-secondary/5 px-4 text-xs font-semibold text-secondary">
+                          <span className="truncate max-w-[150px]">{downloadFiles.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setDownloadFiles(null)}
+                            className="bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex h-12 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
+                          <span className="text-xs font-semibold text-secondary">Upload Digital File</span>
+                          <input type="file" onChange={handleDownloadFile} className="sr-only" required />
+                        </label>
+                      )}
+                      {downloadFilesError && <p className="mt-1 text-xs text-red-500">{downloadFilesError}</p>}
+                    </div>
                   </div>
                 )}
 
