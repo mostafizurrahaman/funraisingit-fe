@@ -53,6 +53,14 @@ const campaignApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Campaign"],
     }),
+    getAllCampaigns: build.query({
+      query: (params) => ({
+        url: "/campaign/all",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Campaign"],
+    }),
   }),
 });
 
@@ -64,5 +72,6 @@ export const {
   useGetCampaignByIdQuery,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetAllCampaignsQuery,
 } = campaignApi;
 export default campaignApi;
