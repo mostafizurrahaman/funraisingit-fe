@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, Loader2 } from "lucide-react";
+import { useGetSiteInfoQuery } from "@/redux/features/settingsManagement/settingsManagementApi";
 
 interface PricingPlan {
   name: string;
@@ -11,55 +14,74 @@ interface PricingPlan {
   featured?: boolean;
 }
 
-const pricingPlans: PricingPlan[] = [
-  {
-    name: "Starter",
-    price: "Free",
-    billing: "No upfront cost",
-    platformFee: "6% platform fee",
-    features: [
-      "Campaign builder",
-      "Unlimited products",
-      "Public campaign page",
-      "Order management",
-      "Basic analytics",
-    ],
-    buttonLabel: "Start for free",
-  },
-  {
-    name: "Pro",
-    price: "$19.99",
-    billing: "One-time launch fee",
-    platformFee: "4% platform fee",
-    features: [
-      "Everything in Starter",
-      "Priority support",
-      "Social post generator",
-      "QR code download",
-      "Email supporters",
-      "Advanced analytics",
-    ],
-    buttonLabel: "Launch Pro",
-    featured: true,
-  },
-  {
-    name: "Brand Builder",
-    price: "$49.99",
-    billing: "One-time launch fee",
-    platformFee: "2% platform fee",
-    features: [
-      "Everything in Pro",
-      "Custom merch design",
-      "Dedicated designer",
-      "Mockup approval",
-      "Event package",
-      "Brand kit",
-    ],
-    buttonLabel: "Go Premium",
-  },
-];
-
 const TtransparentPricing = () => {
+  const { data: siteInfoResponse, isLoading } = useGetSiteInfoQuery(undefined);
+
+  const siteInfo = siteInfoResponse?.data || {};
+
+  const platformFeeVal = siteInfo.platformFee !== undefined ? siteInfo.platformFee : 6;
+  const launchFeeVal = siteInfo.campaignLaunchFee !== undefined ? siteInfo.campaignLaunchFee : 18.99;
+  const brandBuilderPricingVal = siteInfo.brandBuilderPricing !== undefined ? siteInfo.brandBuilderPricing : 39.99;
+
+  const pricingPlans: PricingPlan[] = [
+    {
+      name: "Starter",
+      price: "Free",
+      billing: "No upfront cost",
+      platformFee: `${platformFeeVal}% platform fee`,
+      features: [
+        "Campaign builder",
+        "Unlimited products",
+        "Public campaign page",
+        "Order management",
+        "Basic analytics",
+      ],
+      buttonLabel: "Start for free",
+    },
+    {
+      name: "Pro",
+      price: `$${launchFeeVal}`,
+      billing: "One-time launch fee",
+      platformFee: "4% platform fee",
+      features: [
+        "Everything in Starter",
+        "Priority support",
+        "Social post generator",
+        "QR code download",
+        "Email supporters",
+        "Advanced analytics",
+      ],
+      buttonLabel: "Launch Pro",
+      featured: true,
+    },
+    {
+      name: "Brand Builder",
+      price: `$${brandBuilderPricingVal}`,
+      billing: "One-time launch fee",
+      platformFee: "2% platform fee",
+      features: [
+        "Everything in Pro",
+        "Custom merch design",
+        "Dedicated designer",
+        "Mockup approval",
+        "Event package",
+        "Brand kit",
+      ],
+      buttonLabel: "Go Premium",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <section className="bg-background py-14 sm:py-20 lg:py-24">
+        <div className="container mx-auto px-5 sm:px-8 lg:px-10 flex flex-col items-center justify-center min-h-[300px]">
+          <Loader2 className="size-8 animate-spin text-secondary" />
+          <p className="mt-2 text-sm text-muted-foreground">Loading pricing details...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-background py-14 sm:py-20 lg:py-24">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10">

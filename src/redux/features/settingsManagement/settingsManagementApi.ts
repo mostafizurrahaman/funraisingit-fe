@@ -48,6 +48,15 @@ const settingsManagementApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Settings"],
     }),
+
+    // Get Site Info
+    getSiteInfo: builder.query({
+      query: () => ({
+        url: "/site-info",
+        method: "GET",
+      }),
+      providesTags: ["Settings"],
+    }),
   }),
 });
 
@@ -57,4 +66,5 @@ export const {
   useCreateSettingMutation,
   useUpdateSettingMutation,
   useDeleteSettingMutation,
+  useGetSiteInfoQuery,
 } = settingsManagementApi;
