@@ -89,7 +89,7 @@ const CampaignSection = () => {
                       Donate
                     </Link>
                     <Link
-                      href="/order-summary"
+                      href={`/order-summary?code=${campaign.campaignCode}`}
                       className="flex h-10 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
                     >
                       Buy Now
