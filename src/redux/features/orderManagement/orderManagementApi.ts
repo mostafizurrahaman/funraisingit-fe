@@ -15,7 +15,7 @@ const orderManagementApi = baseApi.injectEndpoints({
     // Get All Orders
     getAllOrders: builder.query({
       query: (params) => ({
-        url: "/order",
+        url: `/order/all`,
         method: "GET",
         params,
       }),

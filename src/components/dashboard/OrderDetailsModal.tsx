@@ -15,7 +15,7 @@ export type OrderDetails = {
   delivery: "Pickup" | "Delivery" | "Shipping";
   total: string;
   date: string;
-  status: "Paid";
+  status: string;
 };
 
 const deliveryTone: Record<OrderDetails["delivery"], string> = {
