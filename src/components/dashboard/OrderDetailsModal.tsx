@@ -16,6 +16,7 @@ export type OrderDetails = {
   total: string;
   date: string;
   status: string;
+  productImage?: string;
 };
 
 const deliveryTone: Record<OrderDetails["delivery"], string> = {

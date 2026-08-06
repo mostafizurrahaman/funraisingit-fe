@@ -60,16 +60,31 @@ export default function OrdersPage() {
   const ordersData = ordersResponse?.data?.result || ordersResponse?.data || [];
 
   const mappedOrders: OrderDetails[] = ordersData.map((order: any) => {
-    const address = order.shippingAddress || [
-      order.addressLine1,
-      order.city,
-      order.state,
-      order.postalCode,
-      order.country
-    ].filter(Boolean).join(", ") || "No address provided";
+    const shippingAddrObj = order.shippingAddress;
+    const address = typeof shippingAddrObj === "object" && shippingAddrObj
+      ? [
+          shippingAddrObj.addressLine1,
+          shippingAddrObj.addressLine2,
+          shippingAddrObj.city,
+          shippingAddrObj.state,
+          shippingAddrObj.postalCode,
+          shippingAddrObj.country
+        ].filter(Boolean).join(", ")
+      : [
+          order.addressLine1,
+          order.addressLine2,
+          order.city,
+          order.state,
+          order.postalCode,
+          order.country
+        ].filter(Boolean).join(", ") || "No address provided";
 
-    const contact = `${address}\n${order.phoneNumber || ""}`;
-    const dateObj = order.createdAt ? new Date(order.createdAt) : new Date();
+    const phoneNum = order.customerPhone || order.supporterPhone || order.shippingAddress?.phoneNumber || "";
+    const contact = `${address}\n${phoneNum}`;
+
+    const firstItem = order.orderItems?.[0];
+    const orderDate = order.paidAt || firstItem?.createdAt || order.createdAt;
+    const dateObj = orderDate ? new Date(orderDate) : new Date();
     const dateFormatted = dateObj.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -80,23 +95,31 @@ export default function OrdersPage() {
     });
 
     let deliveryVal: OrderDetails["delivery"] = "Pickup";
-    if (order.deliveryType?.toLowerCase() === "delivery" || order.delivery?.toLowerCase() === "delivery") {
+    const typeLower = (order.shippingType || order.deliveryType || order.delivery || "").toLowerCase();
+    if (typeLower.includes("pickup") || typeLower.includes("local_pickup")) {
+      deliveryVal = "Pickup";
+    } else if (typeLower.includes("delivery") || typeLower.includes("local_delivery")) {
       deliveryVal = "Delivery";
-    } else if (order.deliveryType?.toLowerCase() === "shipping" || order.delivery?.toLowerCase() === "shipping") {
+    } else if (typeLower.includes("shipping")) {
       deliveryVal = "Shipping";
     }
 
+    const quantity = firstItem?.purchasedQuantity || order.quantity || 1;
+    const productName = firstItem?.productName || order.productName || "Product";
+    const productImage = firstItem?.productImage || order.productImage || "";
+
     return {
       id: order.orderId || order._id || order.id || "N/A",
-      customer: order.name || order.customerName || order.userId?.name || "Customer",
-      email: order.email || "No email provided",
+      customer: order.customerName || order.supporterName || order.name || "Customer",
+      email: order.supporterEmail || order.email || "No email provided",
       contact: contact,
-      product: order.productName || order.productId?.name || "Product",
-      quantity: order.quantity || 1,
+      product: productName,
+      quantity: quantity,
       delivery: deliveryVal,
-      total: `$${(order.amount || order.total || 0).toFixed(2)}`,
+      total: `$${(order.totalAmount || order.amount || order.total || 0).toFixed(2)}`,
       date: dateFormatted,
-      status: order.paymentStatus || order.status || "Paid",
+      status: order.orderStatus || order.paymentStatus || order.status || "Paid",
+      productImage: productImage,
     };
   });
 
@@ -109,23 +132,33 @@ export default function OrdersPage() {
 
     if (!matchesSearch) return false;
 
+    const statusLower = order.status.toLowerCase();
     if (activeTab === 1) {
-      return order.status !== "Completed" && order.status !== "Delivered" && order.status !== "Canceled" && order.status !== "Cancelled";
+      return statusLower !== "completed" && statusLower !== "delivered" && statusLower !== "canceled" && statusLower !== "cancelled";
     }
     if (activeTab === 2) {
-      return order.status === "Completed" || order.status === "Delivered";
+      return statusLower === "completed" || statusLower === "delivered";
     }
     if (activeTab === 3) {
-      return order.status === "Canceled" || order.status === "Cancelled";
+      return statusLower === "canceled" || statusLower === "cancelled";
     }
 
     return true;
   });
 
   const countAll = mappedOrders.length;
-  const countToBeDelivered = mappedOrders.filter(o => o.status !== "Completed" && o.status !== "Delivered" && o.status !== "Canceled" && o.status !== "Cancelled").length;
-  const countCompleted = mappedOrders.filter(o => o.status === "Completed" || o.status === "Delivered").length;
-  const countCanceled = mappedOrders.filter(o => o.status === "Canceled" || o.status === "Cancelled").length;
+  const countToBeDelivered = mappedOrders.filter(o => {
+    const s = o.status.toLowerCase();
+    return s !== "completed" && s !== "delivered" && s !== "canceled" && s !== "cancelled";
+  }).length;
+  const countCompleted = mappedOrders.filter(o => {
+    const s = o.status.toLowerCase();
+    return s === "completed" || s === "delivered";
+  }).length;
+  const countCanceled = mappedOrders.filter(o => {
+    const s = o.status.toLowerCase();
+    return s === "canceled" || s === "cancelled";
+  }).length;
 
   const orderTabs = [
     `All Orders (${countAll})`,
@@ -319,11 +352,20 @@ export default function OrdersPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <Image
-                          src={orderImage}
-                          alt=""
-                          className="size-8 rounded-md object-cover"
-                        />
+                        {order.productImage ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={order.productImage}
+                            alt=""
+                            className="size-8 rounded-md object-cover bg-slate-50"
+                          />
+                        ) : (
+                          <Image
+                            src={orderImage}
+                            alt=""
+                            className="size-8 rounded-md object-cover bg-slate-50"
+                          />
+                        )}
                         <span className="font-medium">{order.product}</span>
                       </div>
                     </td>
