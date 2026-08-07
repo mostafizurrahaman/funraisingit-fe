@@ -97,20 +97,28 @@ export default function CampaignTwoPage() {
          };
 
          const response = await generateCampaignStory(payload).unwrap();
+         const rawStory =
+            response?.data?.story ??
+            response?.story ??
+            response?.generatedStory ??
+            response?.data;
          const generatedStory =
-            response?.data?.story ||
-            response?.story ||
-            response?.generatedStory;
+            typeof rawStory === "string"
+               ? rawStory.trim()
+               : typeof rawStory === "object" && rawStory !== null
+                 ? (rawStory.story ?? rawStory.generatedStory ?? rawStory.data)
+                 : "";
 
          if (generatedStory && typeof generatedStory === "string") {
             updateDraft({ story: generatedStory });
          } else {
             throw new Error("Unable to generate your story right now.");
          }
-      } catch (err: any) {
+      } catch (err: unknown) {
          const errMsg =
-            err?.data?.message ||
-            err?.message ||
+            (err as { data?: { message?: string }; message?: string })?.data
+               ?.message ||
+            (err as { message?: string })?.message ||
             "Unable to generate your story right now.";
          setError(errMsg);
          toast.error(errMsg);
@@ -177,9 +185,9 @@ export default function CampaignTwoPage() {
          } else {
             toast.error("Could not retrieve created Campaign ID.");
          }
-      } catch (err: any) {
+      } catch (err: unknown) {
          const errMsg =
-            err?.data?.message ||
+            (err as { data?: { message?: string } })?.data?.message ||
             "Failed to create campaign. Please try again.";
          setError(errMsg);
          toast.error(errMsg);
@@ -199,7 +207,7 @@ export default function CampaignTwoPage() {
                   return (
                      <li
                         key={step}
-                        className={`relative flex flex-1 flex-col items-center text-center ${index < steps.length - 1 ? `after:absolute after:left-1/2 after:top-5 after:-z-0 after:h-px after:w-full ${index === 0 ? "after:bg-primary" : "after:bg-slate-400"}` : ""}`}
+                        className={`relative flex flex-1 flex-col items-center text-center ${index < steps.length - 1 ? `after:absolute after:left-1/2 after:top-5 after:z-0 after:h-px after:w-full ${index === 0 ? "after:bg-primary" : "after:bg-slate-400"}` : ""}`}
                      >
                         <span
                            className={`relative z-10 flex size-10 items-center justify-center rounded-full border text-base font-semibold ${complete ? "border-secondary bg-secondary text-white" : active ? "border-primary bg-primary text-white" : "border-slate-500 bg-white text-foreground"}`}
