@@ -1,85 +1,93 @@
 import { baseApi } from "@/redux/api/baseApi";
 
 const campaignApi = baseApi.injectEndpoints({
-  endpoints: (build) => ({
-    createCampaign: build.mutation({
-      query: (formData) => ({
-        url: "/campaign",
-        method: "POST",
-        body: formData,
+   endpoints: (build) => ({
+      createCampaign: build.mutation({
+         query: (formData) => ({
+            url: "/campaign",
+            method: "POST",
+            body: formData,
+         }),
       }),
-    }),
-    addProduct: build.mutation({
-      query: ({ campaignId, formData }) => ({
-        url: `/product/${campaignId}/add-product`,
-        method: "POST",
-        body: formData,
+      addProduct: build.mutation({
+         query: ({ campaignId, formData }) => ({
+            url: `/product/${campaignId}/add-product`,
+            method: "POST",
+            body: formData,
+         }),
+         invalidatesTags: ["Campaign"],
       }),
-      invalidatesTags: ["Campaign"],
-    }),
-    getCampaignPreview: build.query({
-      query: ({ campaignId, body }) => ({
-        url: `/campaign/${campaignId}/preview`,
-        method: "GET",
-        body: body || {},
+      getCampaignPreview: build.query({
+         query: ({ campaignId, body }) => ({
+            url: `/campaign/${campaignId}/preview`,
+            method: "GET",
+            body: body || {},
+         }),
       }),
-    }),
-    launchCampaign: build.mutation({
-      query: ({ campaignId, body }) => ({
-        url: `/campaign/${campaignId}/launch`,
-        method: "POST",
-        body: body || {},
+      launchCampaign: build.mutation({
+         query: ({ campaignId, body }) => ({
+            url: `/campaign/${campaignId}/launch`,
+            method: "POST",
+            body: body || {},
+         }),
       }),
-    }),
-    getCampaignById: build.query({
-      query: (id) => ({
-        url: `/campaign/${id}`,
-        method: "GET",
+      getCampaignById: build.query({
+         query: (id) => ({
+            url: `/campaign/${id}`,
+            method: "GET",
+         }),
+         providesTags: ["Campaign"],
       }),
-      providesTags: ["Campaign"],
-    }),
-    updateProduct: build.mutation({
-      query: ({ productId, formData }) => ({
-        url: `/product/${productId}/update-product`,
-        method: "PATCH",
-        body: formData,
+      updateProduct: build.mutation({
+         query: ({ productId, formData }) => ({
+            url: `/product/${productId}/update-product`,
+            method: "PATCH",
+            body: formData,
+         }),
+         invalidatesTags: ["Campaign"],
       }),
-      invalidatesTags: ["Campaign"],
-    }),
-    deleteProduct: build.mutation({
-      query: (productId) => ({
-        url: `/product/${productId}`,
-        method: "DELETE",
+      deleteProduct: build.mutation({
+         query: (productId) => ({
+            url: `/product/${productId}`,
+            method: "DELETE",
+         }),
+         invalidatesTags: ["Campaign"],
       }),
-      invalidatesTags: ["Campaign"],
-    }),
-    getAllCampaigns: build.query({
-      query: (params) => ({
-        url: "/campaign/all",
-        method: "GET",
-        params,
+      getAllCampaigns: build.query({
+         query: (params) => ({
+            url: "/campaign/all",
+            method: "GET",
+            params,
+         }),
+         providesTags: ["Campaign"],
       }),
-      providesTags: ["Campaign"],
-    }),
-    getCampaignsByCode: build.query({
-      query: (code) => ({
-        url: `/campaign/${code}/details`,
-        method: "GET",
+      getCampaignsByCode: build.query({
+         query: (code) => ({
+            url: `/campaign/${code}/details`,
+            method: "GET",
+         }),
+         providesTags: ["Campaign"],
       }),
-      providesTags: ["Campaign"],
-    }),
-  }),
+      generateCampaignStory: build.mutation({
+         query: (body) => ({
+            url: "/campaign/story",
+            method: "POST",
+            body,
+         }),
+      }),
+   }),
 });
 
 export const {
-  useCreateCampaignMutation,
-  useAddProductMutation,
-  useGetCampaignPreviewQuery,
-  useLaunchCampaignMutation,
-  useGetCampaignByIdQuery,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-  useGetAllCampaignsQuery,
-  useGetCampaignsByCodeQuery,
+   useCreateCampaignMutation,
+   useAddProductMutation,
+   useGetCampaignPreviewQuery,
+   useLaunchCampaignMutation,
+   useGetCampaignByIdQuery,
+   useUpdateProductMutation,
+   useDeleteProductMutation,
+   useGetAllCampaignsQuery,
+   useGetCampaignsByCodeQuery,
+   useGenerateCampaignStoryMutation,
 } = campaignApi;
 export default campaignApi;
