@@ -66,4 +66,4 @@ jobs:
             echo '${{ secrets.ENV_FILE }}' > .env
 
             npm ci
-            pm2 restart ecosystem.config.cjs
+            pm2 restart ecosystem.config.mjs
