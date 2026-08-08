@@ -15,7 +15,7 @@ const SupportersApi = baseApi.injectEndpoints({
     // Get All Supporters
     getAllSupporters: builder.query({
       query: (params) => ({
-        url: "/supporters",
+        url: "/supporter/all",
         method: "GET",
         params,
       }),
