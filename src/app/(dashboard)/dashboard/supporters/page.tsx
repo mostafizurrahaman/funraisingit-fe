@@ -23,7 +23,7 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useGetAllSupportersQuery } from "@/redux/features/SupportersApi/SupportersApi";
+import { useGetAllSupportersQuery, useGetSupportersOverviewQuery } from "@/redux/features/SupportersApi/SupportersApi";
 import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
 
@@ -51,12 +51,19 @@ export default function SupportersPage() {
   });
   const campaignData = campaignResponse?.data;
 
-  const { data: supportersResponse, isLoading, error } = useGetAllSupportersQuery(
+  // 1. Fetch List of Supporters
+  const { data: supportersResponse, isLoading: isLoadingList, error: listError } = useGetAllSupportersQuery(
     { campaignId, skipPagination: true },
     { skip: !campaignId }
   );
-
   const supportersData = supportersResponse?.data || [];
+
+  // 2. Fetch pre-calculated Supporters Overview from Backend API
+  const { data: overviewResponse, isLoading: isLoadingOverview } = useGetSupportersOverviewQuery(
+    { campaignId },
+    { skip: !campaignId }
+  );
+  const overview = overviewResponse?.data;
 
   // Filtered supporters based on search
   const filteredSupporters = supportersData.filter((s: any) => {
@@ -68,73 +75,95 @@ export default function SupportersPage() {
     );
   });
 
-  // Calculate dynamic stats
-  const totalSupporters = supportersData.length;
+  const totalSupporters = overview?.totalSupporters || 0;
   
-  const totalOrders = supportersData.reduce(
-    (acc: number, curr: any) => acc + (curr.totalOrders || 0),
-    0
-  );
-
-  const totalDonations = supportersData.reduce(
-    (acc: number, curr: any) => acc + (curr.totalDonations || 0),
-    0
-  );
-
-  const totalSupport = supportersData.reduce(
-    (acc: number, curr: any) => acc + (curr.totalAmount || 0),
-    0
-  );
-
-  // New this week count
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const newThisWeek = supportersData.filter((s: any) => {
-    const createdDate = new Date(s.createdAt);
-    return createdDate >= oneWeekAgo;
-  }).length;
-
   const stats = [
-    { title: "Total Supporters", value: String(totalSupporters), detail: "People", icon: Users, tone: "secondary" },
-    { title: "Total Orders", value: `$${totalOrders.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, detail: `From ${supportersData.filter((s: any) => (s.totalOrders || 0) > 0).length} supporters`, icon: Heart, tone: "rose" },
-    { title: "Total Donations", value: `$${totalDonations.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, detail: `From ${supportersData.filter((s: any) => (s.totalDonations || 0) > 0).length} supporters`, icon: Gift, tone: "blue" },
-    { title: "Total Support", value: `$${totalSupport.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, detail: "Combined total", icon: Star, tone: "primary" },
-    { title: "New This Week", value: String(newThisWeek), detail: "New supporters", icon: Users, tone: "violet" },
+    {
+      title: "Total Supporters",
+      value: String(totalSupporters),
+      detail: "People",
+      icon: Users,
+      tone: "secondary",
+    },
+    {
+      title: "Total Orders",
+      value: `$${(overview?.totalOrders?.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      detail: `From ${overview?.totalOrders?.fromSupporters || 0} supporters`,
+      icon: Heart,
+      tone: "rose",
+    },
+    {
+      title: "Total Donations",
+      value: `$${(overview?.totalDonations?.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      detail: `From ${overview?.totalDonations?.fromSupporters || 0} supporters`,
+      icon: Gift,
+      tone: "blue",
+    },
+    {
+      title: "Total Support",
+      value: `$${(overview?.totalSupport?.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      detail: "Combined total",
+      icon: Star,
+      tone: "primary",
+    },
+    {
+      title: "New This Week",
+      value: String(overview?.newSupportersThisWeek || 0),
+      detail: "New supporters",
+      icon: Users,
+      tone: "violet",
+    },
   ] as const;
 
-  // Support Overview Logic
-  const ordersOnly = supportersData.filter((s: any) => (s.totalOrders || 0) > 0 && (s.totalDonations || 0) === 0).length;
-  const donationsOnly = supportersData.filter((s: any) => (s.totalDonations || 0) > 0 && (s.totalOrders || 0) === 0).length;
-  const bothOrdersAndDonations = supportersData.filter((s: any) => (s.totalOrders || 0) > 0 && (s.totalDonations || 0) > 0).length;
+  // Support Overview Chart calculations
+  const ordersOnly = overview?.supportOverview?.ordersOnly || 0;
+  const donationsOnly = overview?.supportOverview?.donationsOnly || 0;
+  const bothOrdersAndDonations = overview?.supportOverview?.bothOrdersAndDonations || 0;
 
   const ordersPercentage = totalSupporters > 0 ? Math.round((ordersOnly / totalSupporters) * 100) : 0;
   const donationsPercentage = totalSupporters > 0 ? Math.round((donationsOnly / totalSupporters) * 100) : 0;
   const bothPercentage = totalSupporters > 0 ? Math.round((bothOrdersAndDonations / totalSupporters) * 100) : 0;
 
-  // Conic gradient style
-  // Conic gradient style parameters: orders (up to ordersPercentage), donations (up to ordersPercentage + donationsPercentage), both (rest)
   const chartGradient = `conic-gradient(var(--secondary) 0% ${ordersPercentage}%, #f43f5e ${ordersPercentage}% ${ordersPercentage + donationsPercentage}%, #3b82f6 ${ordersPercentage + donationsPercentage}% 100%)`;
 
-  // Top Supporters Logic (Sorted by totalAmount descending)
-  const topSupporters = [...supportersData]
-    .sort((a, b) => (b.totalAmount || 0) - (a.totalAmount || 0))
-    .slice(0, 5);
-
-  // Supporter Insights calculation
-  // Dynamic average order value
-  const totalOrdersCount = supportersData.filter((s: any) => (s.totalOrders || 0) > 0).length;
-  const averageOrderValue = totalOrdersCount > 0 ? totalOrders / totalOrdersCount : 0;
-
-  // Dynamic average donation value
-  const totalDonationsCount = supportersData.filter((s: any) => (s.totalDonations || 0) > 0).length;
-  const averageDonationValue = totalDonationsCount > 0 ? totalDonations / totalDonationsCount : 0;
+  const topSupporters = overview?.topSupporters || [];
 
   const insights = [
-    { title: "Most Active Day", value: "Saturday", detail: "Weekend peak", icon: Users, tone: "secondary" },
-    { title: "Peak Engagement Hour", value: "10AM-2PM", detail: "Highest activity", icon: CalendarClock, tone: "blue" },
-    { title: "Repeat Supporters", value: String(bothOrdersAndDonations), detail: "Active on both fronts", icon: Heart, tone: "violet" },
-    { title: "Average Order Value", value: `$${averageOrderValue.toFixed(2)}`, detail: `From ${totalOrdersCount} orders`, icon: ShoppingBag, tone: "primary" },
-    { title: "Average Donations", value: `$${averageDonationValue.toFixed(2)}`, detail: `From ${totalDonationsCount} donations`, icon: Gift, tone: "green" },
+    {
+      title: "Most Active Day",
+      value: overview?.mostActiveDay?.day || "N/A",
+      detail: `${overview?.mostActiveDay?.supporterCount || 0} supporters`,
+      icon: Users,
+      tone: "secondary",
+    },
+    {
+      title: "Peak Engagement Hour",
+      value: overview?.mostActiveTimeRange?.range || "N/A",
+      detail: "Highest activity",
+      icon: CalendarClock,
+      tone: "blue",
+    },
+    {
+      title: "Repeat Supporters",
+      value: String(overview?.repeatSupporters || 0),
+      detail: "Active on both fronts",
+      icon: Heart,
+      tone: "violet",
+    },
+    {
+      title: "Average Order Value",
+      value: `$${(overview?.averageOrderValue || 0).toFixed(2)}`,
+      detail: `From ${overview?.totalOrders?.totalOrdersCount || 0} orders`,
+      icon: ShoppingBag,
+      tone: "primary",
+    },
+    {
+      title: "Average Donations",
+      value: `$${(overview?.averageDonationValue || 0).toFixed(2)}`,
+      detail: `From ${overview?.totalDonations?.totalDonationsCount || 0} donations`,
+      icon: Gift,
+      tone: "green",
+    },
   ] as const;
 
   const handleExport = () => {
@@ -174,6 +203,8 @@ export default function SupportersPage() {
     const emails = supportersData.map((s: any) => s.email).filter(Boolean).join(",");
     window.location.href = `mailto:?bcc=${emails}&subject=Thank%20You%20For%20Supporting%20Our%20Campaign`;
   };
+
+  const isLoading = isLoadingList || isLoadingOverview;
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
@@ -263,7 +294,7 @@ export default function SupportersPage() {
                 <Loader2 className="size-8 animate-spin text-secondary" />
                 <p className="text-sm text-muted-foreground">Loading supporters data...</p>
               </div>
-            ) : error ? (
+            ) : listError ? (
               <div className="flex h-64 flex-col items-center justify-center text-center p-4">
                 <p className="text-lg font-semibold text-rose-500">Failed to load supporters.</p>
                 <p className="text-sm text-muted-foreground mt-1">Please try again later.</p>
@@ -366,11 +397,11 @@ export default function SupportersPage() {
                 <p className="text-xs text-muted-foreground text-center py-2">No top supporters yet.</p>
               ) : (
                 topSupporters.map((supporter: any, index: number) => (
-                  <div key={supporter._id} className="flex items-center justify-between gap-3 text-sm">
+                  <div key={supporter.supporterId || index} className="flex items-center justify-between gap-3 text-sm">
                     <span className="flex items-center gap-2 font-semibold">
                       <span className="inline-flex size-6 items-center justify-center rounded-full bg-secondary/10 text-xs text-secondary">{index + 1}</span>
                       <Image src={user} alt="" className="size-7 rounded-full object-cover" />
-                      <span className="truncate max-w-[120px]">{supporter.name || "Anonymous"}</span>
+                      <span className="truncate max-w-[120px]">{supporter.supporterName || "Anonymous"}</span>
                     </span>
                     <span className="font-semibold">${(supporter.totalAmount || 0).toFixed(2)}</span>
                   </div>

@@ -22,6 +22,16 @@ const SupportersApi = baseApi.injectEndpoints({
       providesTags: ["Supporters"],
     }),
 
+    // Get Supporters Overview
+    getSupportersOverview: builder.query({
+      query: (params) => ({
+        url: "/supporter/overview",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Supporters"],
+    }),
+
     // Get Single Supporter
     getSingleSupporter: builder.query({
       query: (id) => ({
@@ -55,6 +65,7 @@ const SupportersApi = baseApi.injectEndpoints({
 export const {
   useCreateSupporterMutation,
   useGetAllSupportersQuery,
+  useGetSupportersOverviewQuery,
   useGetSingleSupporterQuery,
   useUpdateSupporterMutation,
   useDeleteSupporterMutation,
