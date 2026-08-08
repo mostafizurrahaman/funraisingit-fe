@@ -71,6 +71,18 @@ export default function CampaignThreePage() {
   }, [token, router]);
 
   const { draft, updateDraft } = useCampaignDraft();
+  const [campaignId, setCampaignId] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const localId = localStorage.getItem("campaignId") || "";
+      const finalId = draft.id || localId;
+      setCampaignId(finalId);
+      if (localId && !draft.id) {
+        updateDraft({ id: localId });
+      }
+    }
+  }, [draft.id, updateDraft]);
   
   const [products, setProducts] = useState<ProductInput[]>([]);
   const [description, setDescription] = useState("");
@@ -220,8 +232,8 @@ export default function CampaignThreePage() {
       });
     }
 
-    const campaignId = draft.id;
-    if (!campaignId) {
+    const finalCampaignId = campaignId;
+    if (!finalCampaignId) {
       return setError("Campaign ID not found. Please create the campaign first in Step 2.");
     }
 
@@ -247,7 +259,7 @@ export default function CampaignThreePage() {
           }
         }
 
-        await addProduct({ campaignId, formData }).unwrap();
+        await addProduct({ campaignId: finalCampaignId, formData }).unwrap();
       }
 
       toast.success("Products added successfully!");
@@ -258,6 +270,8 @@ export default function CampaignThreePage() {
       toast.error(errMsg);
     }
   }
+
+
 
   return (
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">

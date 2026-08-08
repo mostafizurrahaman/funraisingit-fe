@@ -18,10 +18,10 @@ const campaignApi = baseApi.injectEndpoints({
       invalidatesTags: ["Campaign"],
     }),
     getCampaignPreview: build.query({
-      query: ({ campaignId, body }) => ({
+      query: ({ campaignId }) => ({
         url: `/campaign/${campaignId}/preview`,
-        method: "GET",
-        body: body || {},
+        method: "POST",
+        body: {}
       }),
     }),
     launchCampaign: build.mutation({
@@ -96,6 +96,6 @@ export const {
   useGetAllCampaignsQuery,
   useGetCampaignsByCodeQuery,
   useGenerateCampaignStoryMutation,
-  useUpdateCampaignMutation
+  useUpdateCampaignMutation,
 } = campaignApi;
 export default campaignApi;
