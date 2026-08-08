@@ -4,7 +4,7 @@ import { persistor, store } from "@/redux/store";
 import React, { ReactNode } from "react";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-
+import { Toaster } from "react-hot-toast";
 
 import { CampaignDraftProvider } from "./CampaignDraftProvider";
 
@@ -18,6 +18,7 @@ const Providers: React.FC<ProvidersProps> = ({ children }) => {
       <PersistGate loading={null} persistor={persistor}>
         <CampaignDraftProvider>
           {children}
+          <Toaster />
         </CampaignDraftProvider>
       </PersistGate>
     </Provider>

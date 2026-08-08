@@ -6,6 +6,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { useGetAllCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
 import cardImage from "../../assets/user.png";
+import toast from "react-hot-toast";
 
 const CampaignSection = () => {
   const { data: campaignsResponse, isLoading } = useGetAllCampaignsQuery(undefined);
@@ -83,6 +84,12 @@ const CampaignSection = () => {
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <Link
                       href="/donate-now"
+                      onClick={(e) => {
+                        if (campaign.status === "draft" || campaign.status === "pending") {
+                          e.preventDefault();
+                          toast.error("This campaign is not launched yet.");
+                        }
+                      }}
                       className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-secondary bg-white px-3 text-xs font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white"
                     >
                       <Heart className="size-4" />
@@ -90,6 +97,12 @@ const CampaignSection = () => {
                     </Link>
                     <Link
                       href={`/order-summary?code=${campaign.campaignCode}`}
+                      onClick={(e) => {
+                        if (campaign.status === "draft" || campaign.status === "pending") {
+                          e.preventDefault();
+                          toast.error("This campaign is not launched yet.");
+                        }
+                      }}
                       className="flex h-10 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
                     >
                       Buy Now
