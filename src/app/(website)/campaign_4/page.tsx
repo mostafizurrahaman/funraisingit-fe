@@ -112,11 +112,7 @@ export default function CampaignFourPage() {
       toast.success(response?.message || "Campaign launched successfully!");
       resetDraft();
 
-      if (response?.data?.url) {
-        window.location.href = response.data.url;
-      } else {
-        router.push("/campaign_5");
-      }
+      router.push(response?.data?.url );
     } catch (err: any) {
       const errMsg =
         err?.data?.message || "Failed to launch campaign. Please try again.";

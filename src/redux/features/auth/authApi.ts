@@ -78,6 +78,12 @@ const AUthAPi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    connectAccount: build.mutation({
+      query: () => ({
+        url: "/account/connect",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -93,4 +99,5 @@ export const {
   useChangePasswordMutation,
   useUpdateProfileMutation,
   useGetMeQuery,
+  useConnectAccountMutation,
 } = AUthAPi;

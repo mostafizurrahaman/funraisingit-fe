@@ -7,7 +7,7 @@ import userPlaceholder from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation } from "@/redux/features/auth/authApi";
+import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation, useConnectAccountMutation } from "@/redux/features/auth/authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -27,12 +27,28 @@ export default function SettingsPage() {
   const { data: profileResponse, isLoading: isLoadingProfile, refetch } = useGetMeQuery(undefined, { skip: !token });
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
+  const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
   
   const [showFields, setShowFields] = useState<Record<string, boolean>>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   const profile = profileResponse?.data;
+
+  async function handleConnectAccount() {
+    try {
+      const response = await connectAccount(undefined).unwrap();
+      if (response?.data?.url) {
+        window.location.href = response.data.url;
+      } else if (response?.url) {
+        window.location.href = response.url;
+      } else {
+        toast.error("Could not retrieve onboarding account URL.");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to connect onboarding account. Please try again.");
+    }
+  }
 
   const toggleShowField = (id: string) => {
     setShowFields((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -239,6 +255,30 @@ export default function SettingsPage() {
             </Button>
           </div>
         </form>
+      </DashboardCard>
+
+      <DashboardCard className="p-0">
+        <div className="border-b border-border px-5 py-4">
+          <h3 className="text-base font-semibold">Onboarding Account</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Set up your payout account to receive funds directly.</p>
+        </div>
+
+        <div className="px-5 py-6 space-y-4">
+          <p className="text-sm text-muted-foreground leading-6">
+            To accept donations and orders from your campaigns, you must link your payout account. We use Stripe to ensure safe, secure, and direct payouts to your bank account.
+          </p>
+          <div className="flex pt-2">
+            <Button
+              type="button"
+              disabled={isConnectingAccount}
+              onClick={handleConnectAccount}
+              className="bg-secondary px-6 text-xs hover:bg-secondary/90 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+            >
+              {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
+              {isConnectingAccount ? "Connecting..." : "Connect Payout Account"}
+            </Button>
+          </div>
+        </div>
       </DashboardCard>
     </div>
   );
