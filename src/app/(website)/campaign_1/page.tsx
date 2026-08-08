@@ -44,6 +44,7 @@ import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
+import { useGetAllCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
 export default function CampaignOnePage() {
   const router = useRouter();
@@ -58,6 +59,41 @@ export default function CampaignOnePage() {
   }, [token, router]);
 
   const { draft, updateDraft } = useCampaignDraft();
+  const [hasPrefilled, setHasPrefilled] = useState(false);
+  const { data: campaignsResponse, isLoading: isCampaignsLoading } = useGetAllCampaignsQuery(
+    undefined,
+    { skip: !token && (typeof window !== "undefined" ? !localStorage.getItem("token") : true) }
+  );
+
+  useEffect(() => {
+    if (campaignsResponse?.data && !hasPrefilled) {
+      const draftOrPending = campaignsResponse.data.find(
+        (c: any) => c.status === "draft" || c.status === "pending"
+      );
+      if (draftOrPending) {
+        toast.success("Loaded your existing draft campaign.");
+        updateDraft({
+          id: draftOrPending._id,
+          name: draftOrPending.name || "",
+          goalAmount: draftOrPending.goalAmount || 2500,
+          thumbnail: null,
+          thumbnailPreview: draftOrPending.thumbnail || "",
+          story: draftOrPending.story || "",
+          fundUsage: draftOrPending.fundUsage || [],
+          allowDonation: draftOrPending.allowDonation !== undefined ? !!draftOrPending.allowDonation : true,
+          productName: draftOrPending.products?.[0]?.name || "",
+          price: draftOrPending.products?.[0]?.price || 10,
+          durationDays: draftOrPending.durationDays || 7,
+          allowLocalPickup: draftOrPending.allowLocalPickup !== undefined ? !!draftOrPending.allowLocalPickup : true,
+          allowLocalDelivery: draftOrPending.allowLocalDelivery !== undefined ? !!draftOrPending.allowLocalDelivery : true,
+          allowShipping: draftOrPending.allowShipping !== undefined ? !!draftOrPending.allowShipping : true,
+          shippingFee: draftOrPending.shippingFee || 8,
+        });
+      }
+      setHasPrefilled(true);
+    }
+  }, [campaignsResponse, hasPrefilled, updateDraft]);
+
   const [customAmount, setCustomAmount] = useState("");
   const [fileError, setFileError] = useState("");
   const [isPending, startTransition] = useTransition();

@@ -46,6 +46,7 @@ import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
 import {
    useCreateCampaignMutation,
    useGenerateCampaignStoryMutation,
+   useUpdateCampaignMutation,
 } from "@/redux/features/campaign/campaignApi";
 
 export default function CampaignTwoPage() {
@@ -69,6 +70,9 @@ export default function CampaignTwoPage() {
    const [isGenerating, setIsGenerating] = useState(false);
    const [createCampaign, { isLoading: isCreating }] =
       useCreateCampaignMutation();
+   const [updateCampaign, { isLoading: isUpdating }] =
+      useUpdateCampaignMutation();
+   const isSaving = isCreating || isUpdating;
    const [generateCampaignStory] = useGenerateCampaignStoryMutation();
 
    function togglePurpose(purpose: string) {
@@ -175,15 +179,21 @@ export default function CampaignTwoPage() {
             formData.append("thumbnail", draft.thumbnail);
          }
 
-         const response = await createCampaign(formData).unwrap();
-         toast.success(response?.message || "Campaign created successfully!");
-         const campaignId = response?.data?._id || response?.data?.id;
+         let response;
+         if (draft.id) {
+            response = await updateCampaign({ campaignId: draft.id, formData }).unwrap();
+            toast.success(response?.message || "Campaign updated successfully!");
+         } else {
+            response = await createCampaign(formData).unwrap();
+            toast.success(response?.message || "Campaign created successfully!");
+         }
+         const campaignId = response?.data?._id || response?.data?.id || draft.id;
          if (campaignId) {
             updateDraft({ id: campaignId, story });
             localStorage.setItem("campaignId", campaignId);
             router.push("/campaign_3");
          } else {
-            toast.error("Could not retrieve created Campaign ID.");
+            toast.error("Could not retrieve Campaign ID.");
          }
       } catch (err: unknown) {
          const errMsg =
@@ -386,10 +396,10 @@ export default function CampaignTwoPage() {
                      </Button>
                      <Button
                         type="submit"
-                        disabled={isCreating}
+                        disabled={isSaving}
                         className="w-full sm:w-56"
                      >
-                        {isCreating ? "Saving..." : "Continue"}
+                        {isSaving ? "Saving..." : "Continue"}
                         <ArrowRight className="size-4" />
                      </Button>
                   </div>
