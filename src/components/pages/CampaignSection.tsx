@@ -83,7 +83,7 @@ const CampaignSection = () => {
 
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <Link
-                      href="/donate-now"
+                      href={`/donate-now?campaignId=${campaign._id}`}
                       onClick={(e) => {
                         if (campaign.status === "draft" || campaign.status === "pending") {
                           e.preventDefault();
