@@ -61,6 +61,7 @@ export default function CampaignFourPage() {
 
   const { draft, updateDraft, resetDraft } = useCampaignDraft();
   const [campaignId, setCampaignId] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
   const [promoCode, setPromoCode] = useState("");
@@ -73,15 +74,17 @@ export default function CampaignFourPage() {
       if (localId && !draft.id) {
         updateDraft({ id: localId });
       }
+      setIsInitialized(true);
     }
   }, [draft.id, updateDraft]);
 
   const previewBody = promoCode ? { promoCode } : {};
 
   const { data: previewResponse, isLoading: isPreviewLoading } =
-    useGetCampaignPreviewQuery({
-  campaignId
-});;
+    useGetCampaignPreviewQuery(
+      { campaignId },
+      { skip: !campaignId }
+    );
   const [launchCampaign, { isLoading: isLaunching }] =
     useLaunchCampaignMutation();
 
@@ -120,6 +123,41 @@ export default function CampaignFourPage() {
       setError(errMsg);
       toast.error(errMsg);
     }
+  }
+
+  if (!isInitialized) {
+    return (
+      <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+        <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
+          <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+          <p className="text-muted-foreground font-medium">
+            Loading campaign preview...
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!campaignId) {
+    return (
+      <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+        <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
+          <div className="size-16 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-2">
+            <Heart className="size-8 text-secondary fill-secondary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground">Campaign Not Found</h2>
+          <p className="text-muted-foreground max-w-md">
+            We couldn&apos;t find an active campaign session. Please create a campaign first to see the preview.
+          </p>
+          <Link
+            href="/campaign_1"
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
+          >
+            Create a Campaign
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   if (isPreviewLoading && !previewData) {

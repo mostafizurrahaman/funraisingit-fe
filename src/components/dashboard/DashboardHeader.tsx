@@ -40,15 +40,17 @@ export function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/campaign" className="hidden rounded-full px-4 text-xs sm:inline-flex">
           <Button size="sm" variant="outline" className="hidden rounded-full px-4 text-xs sm:inline-flex">
-            View My Campaign
+            View All Campaign
           </Button>
+          </Link>
           <button type="button" aria-label="Notifications" className="inline-flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary/10 hover:text-secondary">
             <Bell className="size-4" />
           </button>
-          <button type="button" aria-label="Favorites" className="hidden size-10 items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-300 hover:bg-secondary hover:text-white sm:inline-flex">
+          {/* <button type="button" aria-label="Favorites" className="hidden size-10 items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-300 hover:bg-secondary hover:text-white sm:inline-flex">
             <Heart className="size-4 fill-current" />
-          </button>
+          </button> */}
           <Link href="/dashboard/settings" className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-secondary transition-colors duration-300">
             <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={36} height={36} className="size-9 rounded-full object-cover" />
             <span className="hidden text-sm font-semibold sm:block">{displayName}</span>
