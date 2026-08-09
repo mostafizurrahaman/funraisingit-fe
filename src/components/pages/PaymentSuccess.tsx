@@ -32,7 +32,7 @@ const PaymentSuccess = ({
     { label: "Payment Status", value: "Completed", icon: CheckCircle2, color: "text-secondary" },
     { label: "Transaction ID", value: transactionId, icon: ClipboardCheck, color: "text-primary" },
     { label: "Date & Time", value: currentDate, icon: Calendar, color: "text-primary" },
-    { label: "Receipt Email", value: email, icon: ShieldCheck, color: "text-primary" },
+    // { label: "Receipt Email", value: email, icon: ShieldCheck, color: "text-primary" },
   ] as const;
 
   return (
@@ -70,7 +70,7 @@ const PaymentSuccess = ({
       <div className="container mx-auto px-5 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-xl">
           <article className="rounded-xl border border-border bg-white p-6 sm:p-8 shadow-sm">
-            <div className="flex flex-col items-center border-b border-border pb-6 text-center">
+            {/* <div className="flex flex-col items-center border-b border-border pb-6 text-center">
               <div className="flex size-14 items-center justify-center rounded-full bg-secondary/10 text-secondary">
                 <CreditCard className="size-6" />
               </div>
@@ -78,7 +78,7 @@ const PaymentSuccess = ({
               <p className="mt-1 text-3xl font-bold text-foreground">
                 ${amount.toFixed(2)}
               </p>
-            </div>
+            </div> */}
 
             <dl className="mt-6 space-y-4">
               {paymentDetails.map((detail) => {

@@ -35,8 +35,8 @@ export default function LoginPage() {
 
       if (token) {
         dispatch(setUser({ user, token }));
-        toast.success(response?.message || "Signed in successfully!");
-        router.push("/");
+        toast.success("Signed in successfully! Please complete your profile and onboard your account.");
+        router.push("/dashboard/settings");
       } else {
         console.error("Login response:", response);
         toast.error("Server did not return authentication token.");
