@@ -16,7 +16,7 @@ import {
    Sparkles,
 } from "lucide-react";
 import hero from "@/assets/hero.png";
-import user from "@/assets/user.png";
+// import user from "@/assets/user.png";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -424,11 +424,11 @@ export default function CampaignTwoPage() {
                      />
                   </div>
                   <div className="mt-4 flex items-center gap-3">
-                     <Image
+                     {/* <Image
                         src={user}
                         alt="User avatar"
                         className="size-12 rounded-full object-cover"
-                     />
+                     /> */}
                      <div>
                         <h3 className="text-lg font-semibold leading-5">
                            {draft.name || "My Campaign"}
