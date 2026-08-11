@@ -46,6 +46,7 @@ const Hero = () => {
             className="h-auto w-full object-contain"
             sizes="(max-width: 768px) 90vw, 46vw"
             priority
+            unoptimized
           />
         </div>
       </div>
