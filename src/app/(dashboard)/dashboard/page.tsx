@@ -352,7 +352,7 @@ export default function DashboardPage() {
               </Link>
             </DashboardCard>
 
-            <DashboardCard>
+            {/* <DashboardCard>
               <div className="flex items-start gap-3">
                 <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
                   <Download className="size-5" />
@@ -380,7 +380,7 @@ export default function DashboardPage() {
                   Download CSV
                 </Button>
               </div>
-            </DashboardCard>
+            </DashboardCard> */}
           </div>
         </div>
 
