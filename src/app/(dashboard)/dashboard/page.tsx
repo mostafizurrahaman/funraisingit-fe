@@ -17,8 +17,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import glitter from "@/assets/glitter.png";
-import order from "@/assets/order.png";
+
 import roket from "@/assets/roket.png";
 import send from "@/assets/send.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
@@ -26,44 +25,11 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useGetDashboardAnalyticsQuery } from "@/redux/features/DashboardAnalytics/DashboardAnalyticsApi";
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
-const activities = [
-  { name: "Sarah donated", note: "5 minutes ago", amount: "$20" },
-  {
-    name: "Mike purchased 2 Banana Puddings",
-    note: "15 minutes ago",
-    amount: "$20",
-  },
-  {
-    name: "Brenda fully supported your page",
-    note: "1 hour ago",
-    amount: "$50",
-  },
-  {
-    name: "Aisha purchased Banana Pudding",
-    note: "2 hours ago",
-    amount: "$10",
-  },
-  { name: "Jennifer L. donated", note: "3 hours ago", amount: "$20" },
-] as const;
 
-const orders = [
-  { customer: "Brenda M.", quantity: 2, total: "$20.00" },
-  { customer: "Mike F.", quantity: 2, total: "$20.00" },
-  { customer: "Aubrey K.", quantity: 4, total: "$40.00" },
-  { customer: "David K.", quantity: 2, total: "$20.00" },
-] as const;
-
-const donations = [
-  { donor: "Grace", amount: "$100.00" },
-  { donor: "Alex K.", amount: "$50.00" },
-  { donor: "Ashley K.", amount: "$25.00" },
-  { donor: "David C.", amount: "$20.00" },
-  { donor: "Linda L.", amount: "$10.00" },
-] as const;
 
 const quickActions = [
   { label: "Copy Link", className: "bg-blue-600 hover:bg-blue-700" },
@@ -75,33 +41,114 @@ const quickActions = [
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
-  const campaignId =
+  const initialCampaignId =
     searchParams.get("campaignId") ||
-    (typeof window !== "undefined" ? localStorage.getItem("campaignId") : null) 
+    (typeof window !== "undefined"
+      ? localStorage.getItem("campaignId")
+      : null) ||
+    "";
 
-  const { data: response, isLoading, error } = useGetDashboardAnalyticsQuery(campaignId);
+  const [selectedCampaignId, setSelectedCampaignId] =
+    useState<string>(initialCampaignId);
+
+  const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } =
+    useGetAllMyCampaignsQuery(undefined);
+  const campaignsList = myCampaignsResponse?.data || [];
+
+  // Sort campaigns by createdAt descending to get the most recent first
+  const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  console.log("Sorted Campaigns:", myCampaignsResponse);
+  // Automatically select the most recent campaign if selectedCampaignId is empty
+  useEffect(() => {
+    if (!selectedCampaignId && sortedCampaigns.length > 0) {
+      const mostRecentId = sortedCampaigns[0]._id;
+      setSelectedCampaignId(mostRecentId);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("campaignId", mostRecentId);
+      }
+    }
+  }, [sortedCampaigns, selectedCampaignId]);
+
+  const {
+    data: response,
+    isLoading: isLoadingAnalytics,
+    error,
+  } = useGetDashboardAnalyticsQuery(selectedCampaignId, {
+    skip: !selectedCampaignId,
+  });
+
+  const isLoading =
+    isLoadingCampaigns || (selectedCampaignId ? isLoadingAnalytics : true);
 
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <p className="text-lg font-semibold text-muted-foreground">Loading dashboard analytics...</p>
+        <p className="text-lg font-semibold text-muted-foreground">
+          Loading dashboard analytics...
+        </p>
       </div>
     );
   }
 
-  if (error || !response?.success) {
+  if (selectedCampaignId && (error || (response && !response.success))) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
-        <p className="text-lg font-semibold text-red-500">Failed to load dashboard data.</p>
+        <p className="text-lg font-semibold text-red-500">
+          Failed to load dashboard data.
+        </p>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
     );
   }
 
-  const data = response.data;
+  const data = response?.data || {};
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
+        <div>
+          <h2 className="text-xl font-semibold">Overview</h2>
+          <p className="text-xs text-muted-foreground">
+            Select a campaign to filter dashboard analytics
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="campaign-filter"
+            className="text-sm font-semibold text-muted-foreground shrink-0"
+          >
+            Campaign:
+          </label>
+          <select
+            id="campaign-filter"
+            value={selectedCampaignId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedCampaignId(val);
+              if (typeof window !== "undefined") {
+                if (val) {
+                  localStorage.setItem("campaignId", val);
+                } else {
+                  localStorage.removeItem("campaignId");
+                }
+              }
+            }}
+            className="flex h-10 w-full sm:w-64 rounded-md border border-slate-300 px-3 text-sm outline-none transition-all duration-300 focus:border-secondary cursor-pointer bg-white"
+          >
+            {sortedCampaigns.map((campaign: any) => (
+              <option key={campaign._id} value={campaign._id}>
+                {campaign.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
       {/* <section className="grid gap-4 xl:grid-cols-[1fr_360px]">
         <DashboardCard className="overflow-hidden">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -189,11 +236,15 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                <CalendarDays className="size-4" />{data.remainingDays} days remaining
+                <CalendarDays className="size-4" />
+                {data.remainingDays} days remaining
               </div>
             </div>
             <div className="mt-4 h-3 overflow-hidden rounded-full bg-secondary/10">
-              <div className="h-full rounded-full bg-secondary" style={{ width: `${data.raisedPercentage}%` }} />
+              <div
+                className="h-full rounded-full bg-secondary"
+                style={{ width: `${data.raisedPercentage}%` }}
+              />
             </div>
             <p className="mt-2 text-right text-sm font-semibold text-secondary">
               {data.raisedPercentage}%
@@ -222,7 +273,8 @@ export default function DashboardPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">
-                        {activity.name} {activity.isDonation ? "donated" : "purchased"}
+                        {activity.name}{" "}
+                        {activity.isDonation ? "donated" : "purchased"}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {activity.paidAt}
@@ -253,9 +305,7 @@ export default function DashboardPage() {
                     className="grid grid-cols-[1fr_56px_72px] gap-2 text-sm"
                   >
                     <span className="font-medium">{orderItem.name}</span>
-                    <span className="text-center text-muted-foreground">
-                      1
-                    </span>
+                    <span className="text-center text-muted-foreground">1</span>
                     <span className="text-right font-semibold">
                       ${orderItem.amount}
                     </span>
@@ -339,18 +389,31 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Campaign Ends</span>
                 <span className="font-semibold">
-                  {data.campaignEnds ? new Date(data.campaignEnds).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
+                  {data.campaignEnds
+                    ? new Date(data.campaignEnds).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Expected Payout</span>
                 <span className="font-semibold">
-                  {data.expectedPayoutDate ? new Date(data.expectedPayoutDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
+                  {data.expectedPayoutDate
+                    ? new Date(data.expectedPayoutDate).toLocaleDateString(
+                        "en-US",
+                        { month: "short", day: "numeric", year: "numeric" },
+                      )
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Available Balance</span>
-                <span className="font-semibold text-secondary">${data.remainingBalance}</span>
+                <span className="font-semibold text-secondary">
+                  ${data.remainingBalance}
+                </span>
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-secondary/10 p-3 text-xs text-muted-foreground">
