@@ -168,8 +168,8 @@ export default function SettingsPage() {
               <Image
                 src={avatarPreview || profile?.profileImage || userPlaceholder}
                 alt={profile?.name || "User profile"}
-                width={64}
-                height={64}
+                width={200}
+                height={200}
                 className="size-16 rounded-lg object-cover"
                 unoptimized={!!avatarPreview}
               />

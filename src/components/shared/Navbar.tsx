@@ -33,8 +33,8 @@ const Navbar = () => {
   return (
     <header className="w-full bg-background">
       <nav aria-label="Main navigation" className="container mx-auto flex h-20 items-center justify-between px-5 sm:px-8 lg:h-24 lg:px-10">
-        <Link href="/" aria-label="FunRaisingIt home" className="shrink-0 transition-opacity duration-300 hover:opacity-80">
-          <Image src={logo} alt="FunRaisingIt" priority />
+        <Link href="/" aria-label="FunRaisingIt home" className="">
+          <Image src={logo} alt="FunRaisingIt" priority className="h-auto w-70" />
         </Link>
 
         <div className="hidden items-center gap-7 lg:flex xl:gap-9">
@@ -48,8 +48,8 @@ const Navbar = () => {
               <Image
                 src={profileData?.profileImage || userPlaceholder}
                 alt="profile"
-                width={28}
-                height={28}
+                width={50}
+                height={50}
                 className="rounded-full object-cover size-7"
               />
               <span className="text-sm font-semibold text-foreground">{profileData?.name || "Profile"}</span>

@@ -69,7 +69,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
 
         <div className="px-5 py-5">
           <div className="rounded-lg border border-border bg-[#f8ffff] p-3 text-center">
-            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={80} height={80} className="mx-auto size-20 rounded-lg object-cover" />
+            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={200} height={200} className="mx-auto size-20 rounded-lg object-cover" />
             <p className="mt-3 text-sm font-semibold">{displayName}</p>
             <span className="mt-1 inline-flex rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary capitalize">{profileData?.role || "Organizer"}</span>
           </div>

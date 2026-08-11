@@ -43,7 +43,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       const errMsg = err?.data?.message || "Sign in failed. Please try again.";
-      toast.error(errMsg);
+      // toast.error(errMsg);
     }
   }
 

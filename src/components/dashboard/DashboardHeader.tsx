@@ -52,7 +52,7 @@ export function DashboardHeader() {
             <Heart className="size-4 fill-current" />
           </button> */}
           <Link href="/dashboard/settings" className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-secondary transition-colors duration-300">
-            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={36} height={36} className="size-9 rounded-full object-cover" />
+            <Image src={profileData?.profileImage || user} alt={`${displayName} profile`} width={50} height={50} className="size-9 rounded-full object-cover" />
             <span className="hidden text-sm font-semibold sm:block">{displayName}</span>
           </Link>
         </div>
