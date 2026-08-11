@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { CircleCheck, Loader2 } from "lucide-react";
+import { CircleCheck, Loader2, CreditCard, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { useGetSiteInfoQuery } from "@/redux/features/settingsManagement/settingsManagementApi";
 
 interface PricingPlan {
@@ -10,7 +9,6 @@ interface PricingPlan {
   billing: string;
   platformFee: string;
   features: string[];
-  buttonLabel: string;
   featured?: boolean;
 }
 
@@ -36,7 +34,6 @@ const TtransparentPricing = () => {
         "Order management",
         "Basic analytics",
       ],
-      buttonLabel: "Start for free",
     },
     {
       name: "Pro",
@@ -51,7 +48,6 @@ const TtransparentPricing = () => {
         "Email supporters",
         "Advanced analytics",
       ],
-      buttonLabel: "Launch Pro",
       featured: true,
     },
     {
@@ -67,7 +63,6 @@ const TtransparentPricing = () => {
         "Event package",
         "Brand kit",
       ],
-      buttonLabel: "Go Premium",
     },
   ];
 
@@ -97,54 +92,53 @@ const TtransparentPricing = () => {
           </p>
         </div>
 
+        {/* Pricing Cards Grid */}
         <div className="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-3 lg:items-stretch">
           {pricingPlans.map((plan) => (
             <article
               key={plan.name}
-              className={`relative flex min-h-[370px] flex-col rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-7 ${
+              className={`relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:p-7 ${
                 plan.featured
-                  ? "border-secondary bg-secondary text-white shadow-lg"
-                  : "border-secondary bg-white text-foreground shadow-sm"
+                  ? "border-secondary/60 border-t-4 border-t-secondary"
+                  : "border-slate-100"
               }`}
             >
               {plan.featured && (
-                <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-[#ffc107] px-4 py-1 text-[10px] font-semibold text-black">
-                  MOST POPULAR
+                <span className="absolute right-4 top-4 whitespace-nowrap rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] font-bold text-secondary tracking-wider uppercase">
+                  Popular
                 </span>
               )}
 
-              <p className="text-sm font-medium">{plan.name}</p>
-              <h2 className="mt-1 text-3xl leading-none font-semibold">{plan.price}</h2>
-              <p className="mt-2 text-xs">{plan.billing}</p>
-              <p className={`mt-1 text-sm font-semibold ${plan.featured ? "text-[#fff200]" : "text-secondary"}`}>
-                {plan.platformFee}
-              </p>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{plan.name}</p>
+              <h2 className="mt-2 text-3xl font-extrabold text-foreground">{plan.price}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{plan.billing}</p>
+              
+              <div className="mt-3">
+                <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary">
+                  {plan.platformFee}
+                </span>
+              </div>
 
-              <ul className="mt-7 space-y-3">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm">
-                    <CircleCheck
-                      className={`mt-0.5 size-4 shrink-0 ${plan.featured ? "text-[#fff200]" : "text-secondary"}`}
-                      aria-hidden="true"
-                    />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/sign-up"
-                className={`mt-auto flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${
-                  plan.featured
-                    ? "bg-[#ffb800] text-black hover:bg-[#ffa800]"
-                    : "border border-secondary bg-white text-secondary hover:bg-secondary hover:text-white"
-                }`}
-              >
-                {plan.buttonLabel}
-              </Link>
+              <div className="mt-6 flex-1">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">What&apos;s Included</p>
+                <ul className="space-y-2.5">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
+                      <CircleCheck
+                        className="mt-0.5 size-4 shrink-0 text-secondary"
+                        aria-hidden="true"
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </article>
           ))}
         </div>
+
+     
+
       </div>
     </section>
   );
