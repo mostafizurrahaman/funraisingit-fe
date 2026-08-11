@@ -254,29 +254,35 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Activity</h3>
               </div>
-              <div className="space-y-3">
-                {data.recentActivities?.map((activity: any, index: number) => (
-                  <div
-                    key={activity.paymentId || index}
-                    className="flex items-center gap-3 rounded-lg p-2 transition-colors duration-300 hover:bg-secondary/5"
-                  >
-                    <span className="inline-flex size-8 items-center justify-center rounded-full bg-rose-50 text-rose-500">
-                      <Heart className="size-4 fill-current" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">
-                        {activity.name}{" "}
-                        {activity.isDonation ? "donated" : "purchased"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.paidAt}
-                      </p>
+              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                {!data.recentActivities || data.recentActivities.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No recent activity.
+                  </p>
+                ) : (
+                  data.recentActivities.map((activity: any, index: number) => (
+                    <div
+                      key={activity.paymentId || index}
+                      className="flex items-center gap-3 rounded-lg p-2 transition-colors duration-300 hover:bg-secondary/5"
+                    >
+                      <span className="inline-flex size-8 items-center justify-center rounded-full bg-rose-50 text-rose-500">
+                        <Heart className="size-4 fill-current" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold">
+                          {activity.name}{" "}
+                          {activity.isDonation ? "donated" : "purchased"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.paidAt}
+                        </p>
+                      </div>
+                      <span className="text-sm font-semibold text-primary">
+                        ${activity.amount}
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold text-primary">
-                      ${activity.amount}
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </DashboardCard>
 
@@ -284,19 +290,25 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Orders</h3>
               </div>
-              <div className="space-y-3">
-                {data.recentOrders?.map((orderItem: any, index: number) => (
-                  <div
-                    key={orderItem.orderId || index}
-                    className="grid grid-cols-[1fr_56px_72px] gap-2 text-sm"
-                  >
-                    <span className="font-medium">{orderItem.name}</span>
-                    <span className="text-center text-muted-foreground">1</span>
-                    <span className="text-right font-semibold">
-                      ${orderItem.amount}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                {!data.recentOrders || data.recentOrders.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No recent orders.
+                  </p>
+                ) : (
+                  data.recentOrders.map((orderItem: any, index: number) => (
+                    <div
+                      key={orderItem.orderId || index}
+                      className="grid grid-cols-[1fr_56px_72px] gap-2 text-sm"
+                    >
+                      <span className="font-medium">{orderItem.name}</span>
+                      <span className="text-center text-muted-foreground">1</span>
+                      <span className="text-right font-semibold">
+                        ${orderItem.amount}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
               <Link
                 href="/dashboard/orders"
@@ -315,16 +327,22 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Donations</h3>
               </div>
-              <div className="space-y-3">
-                {data.recentDonations?.map((donation: any, index: number) => (
-                  <div
-                    key={donation.donationId || index}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="font-medium">{donation.name}</span>
-                    <span className="font-semibold">${donation.amount}</span>
-                  </div>
-                ))}
+              <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                {!data.recentDonations || data.recentDonations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No recent donations.
+                  </p>
+                ) : (
+                  data.recentDonations.map((donation: any, index: number) => (
+                    <div
+                      key={donation.donationId || index}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <span className="font-medium">{donation.name}</span>
+                      <span className="font-semibold">${donation.amount}</span>
+                    </div>
+                  ))
+                )}
               </div>
               <Link href="/dashboard/donation">
                 <Button variant="outline" className="mt-5 w-full text-xs">
