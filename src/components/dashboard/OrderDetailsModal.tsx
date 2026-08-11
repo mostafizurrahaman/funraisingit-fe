@@ -94,9 +94,9 @@ export function OrderDetailsModal({ order }: { order: OrderDetails }) {
                 Close
               </Button>
             </Dialog.Close>
-            <Button type="button" className="w-full sm:w-auto">
+            {/* <Button type="button" className="w-full sm:w-auto">
               Mark as Completed
-            </Button>
+            </Button> */}
           </div>
         </Dialog.Content>
       </Dialog.Portal>

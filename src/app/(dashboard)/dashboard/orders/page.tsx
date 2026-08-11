@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useGetAllOrdersQuery, useGetOrderOverviewQuery } from "@/redux/features/orderManagement/orderManagementApi";
+import { ExportButtons } from "@/components/dashboard/ExportButtons";
 
 type DeliveryType = OrderDetails["delivery"];
 
@@ -246,22 +247,27 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button
-            variant="outline"
-            className="h-12 justify-center border-slate-300 px-5 text-foreground hover:border-secondary hover:text-white"
-          >
-            <Download className="size-5" />
-            Download CSV
-          </Button>
-          <Button
-            variant="outline"
-            className="h-12 justify-center border-secondary px-5 text-foreground hover:text-white"
-          >
-            <FileSpreadsheet className="size-5 text-emerald-600" />
-            Download Excel
-          </Button>
-        </div>
+        <ExportButtons
+          data={ordersData}
+          headers={["Order ID", "Customer Name", "Email", "Product", "Qty", "Delivery", "Total", "Status", "Date"]}
+          filename={`${campaignId ? "campaign_" + campaignId : "all"}_orders`}
+          toastSubject="Orders"
+          buttonClassName="h-12 justify-center border-slate-300 px-5 text-foreground hover:border-secondary hover:text-white shrink-0 cursor-pointer"
+          mappingFn={(order: any) => {
+            const firstItem = order.orderItems?.[0];
+            return [
+              order.orderId || order._id || "N/A",
+              order.customerName || order.supporterName || "Customer",
+              order.supporterEmail || order.email || "N/A",
+              firstItem?.productName || order.productName || "Product",
+              firstItem?.purchasedQuantity || order.quantity || 1,
+              order.shippingType || order.deliveryType || "Pickup",
+              (order.totalAmount || order.amount || 0).toFixed(2),
+              order.orderStatus || order.paymentStatus || "Paid",
+              order.paidAt || order.createdAt || ""
+            ];
+          }}
+        />
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">

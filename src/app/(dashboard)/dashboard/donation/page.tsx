@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { useGetAllDonationQuery, useGetDonationOverviewQuery } from "@/redux/features/donation/donationApi";
 import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
+import { ExportButtons, exportData } from "@/components/dashboard/ExportButtons";
 
 const statToneStyles = {
   secondary: "bg-secondary/10 text-secondary",
@@ -74,36 +75,7 @@ export default function DonationPage() {
     }
   };
 
-  const handleExport = (format: "csv" | "excel") => {
-    if (donations.length === 0) {
-      toast.error("No donations to export.");
-      return;
-    }
-    const headers = ["Donation ID", "Donor Name", "Email", "Phone", "Amount", "Status", "Date"];
-    const rows = donations.map((d: any) => [
-      d.donationId || "N/A",
-      d.supporterName || "N/A",
-      d.supporterEmail || "N/A",
-      d.supporterPhone || "N/A",
-      d.totalAmount || 0,
-      d.donationStatus || "N/A",
-      d.paidAt ? new Date(d.paidAt).toLocaleDateString() : "Pending",
-    ]);
 
-    const content = [headers.join(","), ...rows.map((e: any) => e.join(","))].join("\n");
-    const mimeType = format === "csv" ? "text/csv" : "application/vnd.ms-excel";
-    const extension = format === "csv" ? "csv" : "xls";
-    
-    const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${campaign?.name || "campaign"}_donations.${extension}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success(`Donations exported in ${format.toUpperCase()} successfully!`);
-  };
 
   const summaryStats = [
     {
@@ -331,16 +303,23 @@ export default function DonationPage() {
                 Download Donations
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">Download a spreadsheet of all donations and donor details.</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Button onClick={() => handleExport("excel")} variant="outline" className="justify-start text-xs cursor-pointer hover:bg-slate-50">
-                  <FileSpreadsheet className="size-4 text-emerald-600" />
-                  Download Excel
-                </Button>
-                <Button onClick={() => handleExport("csv")} variant="outline" className="justify-start text-xs cursor-pointer hover:bg-slate-50">
-                  <Download className="size-4" />
-                  Download CSV
-                </Button>
-              </div>
+              <ExportButtons
+                data={donations}
+                headers={["Donation ID", "Donor Name", "Email", "Phone", "Amount", "Status", "Date"]}
+                filename={`${campaign?.name || "campaign"}_donations`}
+                toastSubject="Donations"
+                buttonClassName="justify-start text-xs cursor-pointer hover:bg-slate-50"
+                containerClassName="mt-4 grid gap-3 sm:grid-cols-2"
+                mappingFn={(d: any) => [
+                  d.donationId || "N/A",
+                  d.supporterName || "N/A",
+                  d.supporterEmail || "N/A",
+                  d.supporterPhone || "N/A",
+                  d.totalAmount || 0,
+                  d.donationStatus || "N/A",
+                  d.paidAt ? new Date(d.paidAt).toLocaleDateString() : "Pending",
+                ]}
+              />
               <p className="mt-3 text-xs text-muted-foreground">Includes donor name, email, phone, amount, message, date.</p>
             </DashboardCard>
 
@@ -358,7 +337,26 @@ export default function DonationPage() {
                   <MessageCircle className="size-4" />
                   Send Your Email
                 </Button>
-                <Button onClick={() => handleExport("csv")} variant="outline" className="text-xs cursor-pointer hover:bg-slate-50">
+                <Button
+                  onClick={() => exportData({
+                    data: donations,
+                    headers: ["Donation ID", "Donor Name", "Email", "Phone", "Amount", "Status", "Date"],
+                    filename: `${campaign?.name || "campaign"}_donations`,
+                    toastSubject: "Donations",
+                    format: "csv",
+                    mappingFn: (d: any) => [
+                      d.donationId || "N/A",
+                      d.supporterName || "N/A",
+                      d.supporterEmail || "N/A",
+                      d.supporterPhone || "N/A",
+                      d.totalAmount || 0,
+                      d.donationStatus || "N/A",
+                      d.paidAt ? new Date(d.paidAt).toLocaleDateString() : "Pending",
+                    ]
+                  })}
+                  variant="outline"
+                  className="text-xs cursor-pointer hover:bg-slate-50"
+                >
                   <Users className="size-4" />
                   Download Donor List
                 </Button>
