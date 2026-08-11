@@ -1,16 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Loader2 } from "lucide-react";
-import { useGetAllCampaignsQuery } from "@/redux/features/campaign/campaignApi";
+import { useGetAllActiveCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
 import cardImage from "../../assets/user.png";
 import toast from "react-hot-toast";
 
 const CampaignSection = () => {
-  const { data: campaignsResponse, isLoading } = useGetAllCampaignsQuery(undefined);
+  const [page, setPage] = useState(1);
+  const limit = 6;
+  const { data: campaignsResponse, isLoading } = useGetAllActiveCampaignsQuery({
+    page,
+    limit,
+  });
   const campaigns = campaignsResponse?.data || [];
+  const meta = campaignsResponse?.meta || { page: 1, limit: 9, total: 0, totalPages: 1 };
+  const totalPages = meta.totalPages || 1;
 
   return (
     <section className="bg-background py-14 sm:py-20">
@@ -22,7 +30,9 @@ const CampaignSection = () => {
         {isLoading ? (
           <div className="mt-20 flex flex-col items-center justify-center gap-2">
             <Loader2 className="size-8 animate-spin text-secondary" />
-            <p className="text-sm text-muted-foreground">Loading campaigns...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading campaigns...
+            </p>
           </div>
         ) : campaigns.length === 0 ? (
           <div className="mt-20 text-center text-muted-foreground">
@@ -65,17 +75,19 @@ const CampaignSection = () => {
                       <p className="mt-1 text-xs leading-4 text-muted-foreground sm:text-sm line-clamp-2">
                         {campaign.story}
                       </p>
-                      
+
                       {campaign.fundUsage && campaign.fundUsage.length > 0 && (
                         <div className="mt-2.5 flex flex-wrap gap-1">
-                          {campaign.fundUsage.map((fund: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
-                            >
-                              {fund}
-                            </span>
-                          ))}
+                          {campaign.fundUsage.map(
+                            (fund: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
+                              >
+                                {fund}
+                              </span>
+                            ),
+                          )}
                         </div>
                       )}
                     </div>
@@ -85,7 +97,10 @@ const CampaignSection = () => {
                     <Link
                       href={`/donate-now?campaignId=${campaign._id}`}
                       onClick={(e) => {
-                        if (campaign.status === "draft" || campaign.status === "pending") {
+                        if (
+                          campaign.status === "draft" ||
+                          campaign.status === "pending"
+                        ) {
                           e.preventDefault();
                           toast.error("This campaign is not launched yet.");
                         }
@@ -98,7 +113,10 @@ const CampaignSection = () => {
                     <Link
                       href={`/order-summary?code=${campaign.campaignCode}`}
                       onClick={(e) => {
-                        if (campaign.status === "draft" || campaign.status === "pending") {
+                        if (
+                          campaign.status === "draft" ||
+                          campaign.status === "pending"
+                        ) {
                           e.preventDefault();
                           toast.error("This campaign is not launched yet.");
                         }
@@ -110,23 +128,28 @@ const CampaignSection = () => {
                   </div>
 
                   <div className="mt-3 flex items-center gap-3 border-t border-border pt-3">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3].map((supporter) => (
-                        <div
-                          key={supporter}
-                          className="relative size-6 overflow-hidden rounded-full border-2 border-white bg-slate-50"
-                        >
-                          <Image
-                            src={campaign.organizerProfileImage || cardImage}
-                            alt=""
-                            fill
-                            className="object-cover"
-                            sizes="24px"
-                            unoptimized={!!campaign.organizerProfileImage}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    {campaign.totalSupporters > 0 && (
+                      <div className="flex -space-x-2">
+                        {Array.isArray(campaign.supporters) && campaign.supporters.length > 0 ? (
+                          campaign.supporters.slice(0, 3).map((supporter: any, idx: number) => {
+                            const name = typeof supporter === "string" ? supporter : (supporter.name || "Supporter");
+                            const initial = name.charAt(0).toUpperCase();
+                            return (
+                              <div
+                                key={idx}
+                                className="flex size-6 items-center justify-center rounded-full border-2 border-white bg-secondary text-[10px] font-bold text-white shadow-sm"
+                              >
+                                {initial}
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="flex size-6 items-center justify-center rounded-full border-2 border-white bg-secondary text-[10px] font-bold text-white shadow-sm">
+                            {(campaign.organizerName || "S").charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <p className="text-xs text-foreground">
                       Join {campaign.totalSupporters || 0} supporters
                     </p>
@@ -137,14 +160,40 @@ const CampaignSection = () => {
           </div>
         )}
 
-        <div className="mt-7 text-center">
-          <Link
-            href="/campaign"
-            className="text-sm font-semibold text-secondary transition-colors duration-300 hover:text-primary"
-          >
-            See All
-          </Link>
-        </div>
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-2">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-white px-4 text-sm font-medium text-foreground transition-all duration-300 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => {
+              const pageNumber = index + 1;
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => setPage(pageNumber)}
+                  className={`inline-flex size-10 items-center justify-center rounded-lg border text-sm font-medium transition-all duration-300 cursor-pointer ${
+                    page === pageNumber
+                      ? "border-secondary bg-secondary text-white shadow-sm"
+                      : "border-border bg-white text-foreground hover:bg-slate-50"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-white px-4 text-sm font-medium text-foreground transition-all duration-300 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

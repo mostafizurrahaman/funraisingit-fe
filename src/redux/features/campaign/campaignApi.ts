@@ -21,7 +21,7 @@ const campaignApi = baseApi.injectEndpoints({
       query: ({ campaignId }) => ({
         url: `/campaign/${campaignId}/preview`,
         method: "POST",
-        body: {}
+        body: {},
       }),
     }),
     launchCampaign: build.mutation({
@@ -82,6 +82,22 @@ const campaignApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    getDraftCampaigns: build.query({
+      query: () => ({
+        url: "/campaign/draft",
+        method: "GET",
+      }),
+      providesTags: ["Campaign"],
+    }),
+    getAllActiveCampaigns: build.query({
+      query: (params) => ({
+        url: "/campaign/all/active",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Campaign"],
+    }),
+
   }),
 });
 
@@ -97,5 +113,7 @@ export const {
   useGetCampaignsByCodeQuery,
   useGenerateCampaignStoryMutation,
   useUpdateCampaignMutation,
+  useGetDraftCampaignsQuery,
+  useGetAllActiveCampaignsQuery
 } = campaignApi;
 export default campaignApi;
