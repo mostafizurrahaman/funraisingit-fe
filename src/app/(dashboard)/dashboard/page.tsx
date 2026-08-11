@@ -29,8 +29,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
-
-
 const quickActions = [
   { label: "Copy Link", className: "bg-blue-600 hover:bg-blue-700" },
   { label: "Facebook", className: "bg-blue-700 hover:bg-blue-800" },
@@ -255,12 +253,6 @@ export default function DashboardPage() {
             <DashboardCard>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Activity</h3>
-                <button
-                  type="button"
-                  className="text-xs font-semibold text-muted-foreground transition-colors duration-300 hover:text-secondary"
-                >
-                  View All Activity
-                </button>
               </div>
               <div className="space-y-3">
                 {data.recentActivities?.map((activity: any, index: number) => (
@@ -291,12 +283,6 @@ export default function DashboardPage() {
             <DashboardCard>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Orders</h3>
-                <button
-                  type="button"
-                  className="text-xs font-semibold text-secondary transition-colors duration-300 hover:text-primary"
-                >
-                  View All Orders
-                </button>
               </div>
               <div className="space-y-3">
                 {data.recentOrders?.map((orderItem: any, index: number) => (
@@ -312,10 +298,15 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <Button className="mt-5 w-full bg-primary text-xs hover:bg-primary-hover">
-                <PackageCheck className="size-4" />
-                View All Orders
-              </Button>
+              <Link
+                href="/dashboard/orders"
+                className="mt-5 block text-xs font-semibold text-primary hover:underline"
+              >
+                <Button className="mt-5 w-full bg-primary text-xs hover:bg-primary-hover">
+                  <PackageCheck className="size-4" />
+                  View All Orders
+                </Button>
+              </Link>
             </DashboardCard>
           </div>
 
@@ -323,12 +314,6 @@ export default function DashboardPage() {
             <DashboardCard>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Donations</h3>
-                <button
-                  type="button"
-                  className="text-xs font-semibold text-secondary transition-colors duration-300 hover:text-primary"
-                >
-                  View All Donations
-                </button>
               </div>
               <div className="space-y-3">
                 {data.recentDonations?.map((donation: any, index: number) => (
@@ -341,10 +326,12 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="mt-5 w-full text-xs">
-                <Heart className="size-4" />
-                View All Donations
-              </Button>
+              <Link href="/dashboard/donation">
+                <Button variant="outline" className="mt-5 w-full text-xs">
+                  <Heart className="size-4" />
+                  View All Donations
+                </Button>
+              </Link>
             </DashboardCard>
 
             <DashboardCard>
