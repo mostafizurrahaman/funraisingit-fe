@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useGetAllOrdersQuery } from "@/redux/features/orderManagement/orderManagementApi";
+import { useGetAllOrdersQuery, useGetOrderOverviewQuery } from "@/redux/features/orderManagement/orderManagementApi";
 
 type DeliveryType = OrderDetails["delivery"];
 
@@ -57,6 +57,9 @@ export default function OrdersPage() {
     ...(campaignId ? { campaignId } : {}),
   });
 
+  const {data:getOrderOverviewResponse, isLoading: isLoadingOverview} = useGetOrderOverviewQuery(
+    campaignId ? { campaignId } : undefined
+  );
   const ordersData = ordersResponse?.data?.result || ordersResponse?.data || [];
 
   const mappedOrders: OrderDetails[] = ordersData.map((order: any) => {
@@ -174,38 +177,54 @@ export default function OrdersPage() {
     return acc + numericTotal;
   }, 0);
 
+  const overview = getOrderOverviewResponse?.data || {};
+
+  const statsTotalOrders = typeof overview.totalOrders !== "undefined" ? overview.totalOrders : totalOrders;
+  const statsTotalItemsSold = typeof overview.totalItemsSold !== "undefined" ? overview.totalItemsSold : totalItemsSold;
+  
+  let statsTotalSales = `$${totalSales.toFixed(2)}`;
+  if (typeof overview.totalSales !== "undefined") {
+    statsTotalSales = typeof overview.totalSales === "number" ? `$${overview.totalSales.toFixed(2)}` : String(overview.totalSales);
+  }
+
+  const statsToBeDelivered = typeof overview.toBeDelivered !== "undefined"
+    ? overview.toBeDelivered
+    : (typeof overview.toBeDeliverd !== "undefined" ? overview.toBeDeliverd : countToBeDelivered);
+  
+  const statsCompleted = typeof overview.completed !== "undefined" ? overview.completed : countCompleted;
+
   const summaryStats = [
     {
       title: "Total Orders",
-      value: String(totalOrders),
+      value: String(statsTotalOrders),
       detail: "All Orders",
       icon: ShoppingCart,
       tone: "secondary",
     },
     {
       title: "Total Items Sold",
-      value: String(totalItemsSold),
+      value: String(statsTotalItemsSold),
       detail: "Across all orders",
       icon: PackageCheck,
       tone: "primary",
     },
     {
       title: "Total Sales",
-      value: `$${totalSales.toFixed(2)}`,
+      value: String(statsTotalSales),
       detail: "From orders",
       icon: CircleDollarSign,
       tone: "violet",
     },
     {
       title: "To Be Delivered",
-      value: String(countToBeDelivered),
+      value: String(statsToBeDelivered),
       detail: "Not marked delivered",
       icon: Truck,
       tone: "blue",
     },
     {
       title: "Completed",
-      value: String(countCompleted),
+      value: String(statsCompleted),
       detail: "Delivered/Pickup",
       icon: CheckCircle2,
       tone: "green",

@@ -49,6 +49,14 @@ const orderManagementApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Order"],
     }),
+    getOrderOverview: builder.query({
+      query: (params) => ({
+        url: "/order/overview",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Order"],
+    }),
   }),
 });
 
@@ -58,4 +66,5 @@ export const {
   useGetSingleOrderQuery,
   useUpdateOrderMutation,
   useDeleteOrderMutation,
+  useGetOrderOverviewQuery,
 } = orderManagementApi;
