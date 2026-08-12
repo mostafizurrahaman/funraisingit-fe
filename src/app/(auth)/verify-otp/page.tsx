@@ -166,9 +166,9 @@ function VerifyOtpForm() {
               type="button"
               onClick={handleResend}
               disabled={isResendingSignUp || isResendingReset}
-              className="text-primary font-semibold hover:underline cursor-pointer bg-transparent border-none"
+              className="text-primary font-semibold hover:underline cursor-pointer bg-transparent border-none disabled:opacity-50"
             >
-              Resend OTP
+              {isResendingSignUp || isResendingReset ? "Sending..." : "Resend OTP"}
             </button>
           )}
         </div>

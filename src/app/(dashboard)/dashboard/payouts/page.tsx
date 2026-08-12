@@ -27,6 +27,7 @@ import {
   useGetPayoutHistoryQuery,
   useGetPayoutOverviewQuery,
 } from "@/redux/features/Payout/PayoutApi";
+import { useGetAccountQuery, useConnectAccountMutation } from "@/redux/features/auth/authApi";
 
 const faqItems = [
   { question: "When do I get paid?", answer: "Within 1 business day after your campaign ends.", icon: CalendarDays },
@@ -57,6 +58,26 @@ export default function PayoutsPage() {
     skip: !campaignId,
   });
   const overview = overviewResponse?.data;
+
+  // 4. Get onboarding account details
+  const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined);
+  const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
+  const accountInfo = accountResponse?.data;
+
+  const handleConnectAccount = async () => {
+    try {
+      const response = await connectAccount(undefined).unwrap();
+      if (response?.data?.url) {
+        window.location.href = response.data.url;
+      } else if (response?.url) {
+        window.location.href = response.url;
+      } else {
+        import("react-hot-toast").then((t) => t.default.error("Could not retrieve onboarding account URL."));
+      }
+    } catch (err: any) {
+      import("react-hot-toast").then((t) => t.default.error(err?.data?.message || "Failed to connect account."));
+    }
+  };
 
   // 3. Get payout history
   const { data: historyResponse, isLoading: isLoadingHistory } = useGetPayoutHistoryQuery(
@@ -92,7 +113,7 @@ export default function PayoutsPage() {
     return `$${amount.toFixed(2)}`;
   };
 
-  const isLoading = isLoadingCampaign || isLoadingOverview || isLoadingHistory;
+  const isLoading = isLoadingCampaign || isLoadingOverview || isLoadingHistory || isLoadingAccount;
 
   if (!campaignId) {
     return (
@@ -127,9 +148,11 @@ export default function PayoutsPage() {
     { label: "Platform Fee", amount: `-${formatAmount(overview?.financialBreakdown?.platformFee)}`, highlight: false, danger: true },
   ] as const;
 
-  const displayBankAccount = overview?.bankAccount 
-    ? `**** **** **** ${overview.bankAccount.slice(-4)}`
-    : "Not Connected";
+  const displayBankAccount = accountInfo?.account 
+    ? `**** **** **** ${accountInfo.account.slice(-4)}`
+    : overview?.bankAccount 
+      ? `**** **** **** ${overview.bankAccount.slice(-4)}`
+      : "Not Connected";
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
@@ -319,15 +342,13 @@ export default function PayoutsPage() {
           <p className="text-sm font-semibold">{displayBankAccount}</p>
           <span className={cn(
             "mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold",
-            overview?.isBankConnected ? "bg-secondary/10 text-secondary" : "bg-rose-100 text-rose-700"
+            accountInfo?.status === "active" || overview?.isBankConnected ? "bg-secondary/10 text-secondary" : "bg-rose-100 text-rose-700"
           )}>
             <CheckCircle2 className="size-3" />
-            {overview?.isBankConnected ? "Connected" : "Disconnected"}
+            {accountInfo?.status === "active" || overview?.isBankConnected ? "Connected" : "Disconnected"}
           </span>
           <p className="mx-auto mt-5 max-w-44 text-sm text-muted-foreground">Need to update your banking information?</p>
-          <Button variant="outline" size="sm" className="mt-4 w-full text-xs">
-            Edit Bank Information
-          </Button>
+         
         </DashboardCard>
 
         <DashboardCard className="text-center">

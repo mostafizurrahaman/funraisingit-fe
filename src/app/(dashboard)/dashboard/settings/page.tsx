@@ -8,7 +8,7 @@ import userPlaceholder from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation, useConnectAccountMutation } from "@/redux/features/auth/authApi";
+import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation, useConnectAccountMutation, useGetAccountQuery } from "@/redux/features/auth/authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -26,6 +26,7 @@ export default function SettingsPage() {
   const token = useSelector(userCurrentToken);
   
   const { data: profileResponse, isLoading: isLoadingProfile, refetch } = useGetMeQuery(undefined, { skip: !token });
+  const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined, { skip: !token });
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
   const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
@@ -35,6 +36,7 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   const profile = profileResponse?.data;
+  const accountInfo = accountResponse?.data;
 
   async function handleConnectAccount() {
     try {
@@ -132,7 +134,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (isLoadingProfile) {
+  if (isLoadingProfile || isLoadingAccount) {
     return (
       <div className="flex min-h-[50dvh] items-center justify-center">
         <Loader2 className="size-8 animate-spin text-secondary" />
@@ -265,20 +267,66 @@ export default function SettingsPage() {
         </div>
 
         <div className="px-5 py-6 space-y-4">
-          <p className="text-sm text-muted-foreground leading-6">
-            To accept donations and orders from your campaigns, you must link your payout account. We use Stripe to ensure safe, secure, and direct payouts to your bank account.
-          </p>
-          <div className="flex pt-2">
-            <Button
-              type="button"
-              disabled={isConnectingAccount}
-              onClick={handleConnectAccount}
-              className="bg-secondary px-6 text-xs hover:bg-secondary/90 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-            >
-              {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
-              {isConnectingAccount ? "Connecting..." : "Connect Payout Account"}
-            </Button>
-          </div>
+          {accountInfo ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 rounded-xl border border-slate-100 p-4 bg-slate-50/50 text-sm">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Stripe Account</p>
+                  <p className="mt-1 font-mono font-semibold text-slate-800">
+                    {accountInfo.account ? `**** **** **** ${accountInfo.account.slice(-4)}` : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Status</p>
+               
+                  <p className="mt-1 font-semibold text-slate-800">
+                    {accountInfo.status || "Unknown"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Country / Currency</p>
+                  <p className="mt-1 font-semibold text-slate-800">
+                    {accountInfo.country || "N/A"} / {(accountInfo.currency || "usd").toUpperCase()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Payouts & Charges</p>
+                  <p className="mt-1 font-semibold text-slate-800">
+                    {accountInfo.payoutsEnabled ? "Enabled" : "Disabled"} / {accountInfo.chargesEnabled ? "Enabled" : "Disabled"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex pt-2 gap-3">
+                <Button
+                  type="button"
+                  disabled={isConnectingAccount}
+                  onClick={handleConnectAccount}
+                  variant="outline"
+                  className="px-6 text-xs flex items-center gap-2 cursor-pointer transition-all duration-300"
+                >
+                  {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
+                  {isConnectingAccount ? "Connecting..." : "Manage Account Link"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground leading-6">
+                To accept donations and orders from your campaigns, you must link your payout account. We use Stripe to ensure safe, secure, and direct payouts to your bank account.
+              </p>
+              <div className="flex pt-2">
+                <Button
+                  type="button"
+                  disabled={isConnectingAccount}
+                  onClick={handleConnectAccount}
+                  className="bg-secondary px-6 text-xs hover:bg-secondary/90 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
+                  {isConnectingAccount ? "Connecting..." : "Connect Payout Account"}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </DashboardCard>
     </div>
