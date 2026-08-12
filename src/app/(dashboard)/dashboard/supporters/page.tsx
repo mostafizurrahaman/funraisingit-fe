@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -228,19 +229,16 @@ export default function SupportersPage() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Button onClick={handleExport} variant="outline" className="h-11 border-secondary text-xs cursor-pointer hover:bg-secondary/10">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Button onClick={handleExport} variant="outline" className="h-11 border-secondary text-xs cursor-pointer hover:bg-secondary/90">
             <Download className="size-4" />
             Export List
           </Button>
-          <Button onClick={handleSendEmail} variant="outline" className="h-11 border-secondary text-xs cursor-pointer hover:bg-secondary/10">
+          <Button onClick={handleSendEmail} variant="outline" className="h-11 border-secondary text-xs cursor-pointer hover:bg-secondary/90">
             <Mail className="size-4" />
             Send Email
           </Button>
-          <Button onClick={() => toast.success("Supporter management is handled automatically via checkout orders.")} className="h-11 text-xs cursor-pointer hover:-translate-y-0.5 transition-all">
-            <Plus className="size-4" />
-            Add Supporter
-          </Button>
+        
         </div>
       </section>
 
@@ -313,13 +311,11 @@ export default function SupportersPage() {
                 <thead className="text-xs font-semibold text-muted-foreground bg-slate-50 border-b border-border">
                   <tr>
                     <th className="px-4 py-3">Name</th>
-                    <th className="px-4 py-3">Email</th>
-                    <th className="px-4 py-3">Phone</th>
+                   
                     <th className="px-4 py-3">Orders</th>
                     <th className="px-4 py-3">Donations</th>
                     <th className="px-4 py-3">Total Support</th>
                     <th className="px-4 py-3">Last Activity</th>
-                    <th className="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -327,12 +323,11 @@ export default function SupportersPage() {
                     <tr key={supporter._id} className="transition-colors duration-300 hover:bg-secondary/5">
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-2 font-semibold">
-                          <Image src={user} alt="" className="size-7 rounded-full object-cover" />
+                          {/* <Image src={user} alt="" className="size-7 rounded-full object-cover" /> */}
                           {supporter.name || "Anonymous Supporter"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{supporter.email || "N/A"}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{supporter.phone || "N/A"}</td>
+                    
                       <td className="px-4 py-3 font-medium">
                         ${(supporter.totalOrders || 0).toFixed(2)}
                       </td>
@@ -347,16 +342,7 @@ export default function SupportersPage() {
                           ? new Date(supporter.lastActivity).toLocaleDateString()
                           : "N/A"}
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => toast.success(`Contacting ${supporter.name || "supporter"}...`)}
-                          aria-label={`Open actions for ${supporter.name}`}
-                          className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer"
-                        >
-                          <MoreHorizontal className="size-5" />
-                        </button>
-                      </td>
+                    
                     </tr>
                   ))}
                 </tbody>
@@ -400,7 +386,6 @@ export default function SupportersPage() {
                   <div key={supporter.supporterId || index} className="flex items-center justify-between gap-3 text-sm">
                     <span className="flex items-center gap-2 font-semibold">
                       <span className="inline-flex size-6 items-center justify-center rounded-full bg-secondary/10 text-xs text-secondary">{index + 1}</span>
-                      <Image src={user} alt="" className="size-7 rounded-full object-cover" />
                       <span className="truncate max-w-[120px]">{supporter.supporterName || "Anonymous"}</span>
                     </span>
                     <span className="font-semibold">${(supporter.totalAmount || 0).toFixed(2)}</span>

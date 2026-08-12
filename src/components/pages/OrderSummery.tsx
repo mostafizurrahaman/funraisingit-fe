@@ -410,7 +410,7 @@ const OrderSummery = () => {
               <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
                 <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</dd></div>
                 <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>${(isProductOutOfStock ? 0 : selectedShippingFee).toFixed(2)}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">Estimated tax (8%)</dt><dd>${(isProductOutOfStock ? 0 : tax).toFixed(2)}</dd></div>
+                {/* <div className="flex justify-between"><dt className="text-muted-foreground">Estimated tax (8%)</dt><dd>${(isProductOutOfStock ? 0 : tax).toFixed(2)}</dd></div> */}
               </dl>
               <div className="flex items-center justify-between pt-4 text-sm font-semibold">
                 <span>Total</span><span className="text-xl text-secondary">${(isProductOutOfStock ? 0 : total).toFixed(2)}</span>
