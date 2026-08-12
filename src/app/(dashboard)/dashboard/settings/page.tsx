@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -125,9 +126,9 @@ export default function SettingsPage() {
     try {
       const response = await changePassword({ oldPassword, newPassword }).unwrap();
       toast.success(response?.message || "Password updated successfully!");
-      event.currentTarget.reset();
+      // event.currentTarget.reset();
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to update password. Please try again.");
+      toast.error(err?.data?.message );
     }
   }
 

@@ -89,9 +89,9 @@ export default function CampaignFourPage() {
     useLaunchCampaignMutation();
 
   const previewData = previewResponse?.data;
-  console.log("Current Campaign ID in State:", campaignId);
-  console.log("previewBody Data:", previewBody);
-  console.log("Preview Data:", previewResponse);
+  // console.log("Current Campaign ID in State:", campaignId);
+  // console.log("previewBody Data:", previewBody);
+  // console.log("Preview Data:", previewResponse);
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,7 +121,7 @@ export default function CampaignFourPage() {
       const errMsg =
         err?.data?.message || "Failed to launch campaign. Please try again.";
       setError(errMsg);
-      toast.error(errMsg);
+      // toast.error(errMsg);
     }
   }
 
