@@ -1,16 +1,7 @@
 "use client";
 
-import { CircleCheck, Loader2, CreditCard, Rocket, ShieldCheck, Sparkles } from "lucide-react";
+import { Wallet, Rocket, Paintbrush, Check, Star, Info, Loader2 } from "lucide-react";
 import { useGetSiteInfoQuery } from "@/redux/features/settingsManagement/settingsManagementApi";
-
-interface PricingPlan {
-  name: string;
-  price: string;
-  billing: string;
-  platformFee: string;
-  features: string[];
-  featured?: boolean;
-}
 
 const TtransparentPricing = () => {
   const { data: siteInfoResponse, isLoading } = useGetSiteInfoQuery(undefined);
@@ -21,56 +12,11 @@ const TtransparentPricing = () => {
   const launchFeeVal = siteInfo.campaignLaunchFee !== undefined ? siteInfo.campaignLaunchFee : 18.99;
   const brandBuilderPricingVal = siteInfo.brandBuilderPricing !== undefined ? siteInfo.brandBuilderPricing : 39.99;
 
-  const pricingPlans: PricingPlan[] = [
-    {
-      name: "Starter",
-      price: "Free",
-      billing: "No upfront cost",
-      platformFee: `${platformFeeVal}% platform fee`,
-      features: [
-        "Campaign builder",
-        "Unlimited products",
-        "Public campaign page",
-        "Order management",
-        "Basic analytics",
-      ],
-    },
-    {
-      name: "Pro",
-      price: `$${launchFeeVal}`,
-      billing: "One-time launch fee",
-      platformFee: "4% platform fee",
-      features: [
-        "Everything in Starter",
-        "Priority support",
-        "Social post generator",
-        "QR code download",
-        "Email supporters",
-        "Advanced analytics",
-      ],
-      featured: true,
-    },
-    {
-      name: "Brand Builder",
-      price: `$${brandBuilderPricingVal}`,
-      billing: "One-time launch fee",
-      platformFee: "2% platform fee",
-      features: [
-        "Everything in Pro",
-        "Custom merch design",
-        "Dedicated designer",
-        "Mockup approval",
-        "Event package",
-        "Brand kit",
-      ],
-    },
-  ];
-
   if (isLoading) {
     return (
-      <section className="bg-background py-14 sm:py-20 lg:py-24">
+      <section className="bg-[#FAFDFD]/30 py-14 sm:py-20 lg:py-24">
         <div className="container mx-auto px-5 sm:px-8 lg:px-10 flex flex-col items-center justify-center min-h-[300px]">
-          <Loader2 className="size-8 animate-spin text-secondary" />
+          <Loader2 className="size-8 animate-spin text-[#008080]" />
           <p className="mt-2 text-sm text-muted-foreground">Loading pricing details...</p>
         </div>
       </section>
@@ -78,66 +24,132 @@ const TtransparentPricing = () => {
   }
 
   return (
-    <section className="bg-background py-14 sm:py-20 lg:py-24">
-      <div className="container mx-auto px-5 sm:px-8 lg:px-10">
+    <section className="bg-white py-14 sm:py-20 lg:py-24">
+      <div className="container mx-auto px-5 sm:px-8 lg:px-10 max-w-6xl">
+        {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-base font-semibold text-secondary sm:text-lg">
-            Transparent Pricing
-          </p>
-          <h1 className="mt-4 text-3xl leading-tight font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-            Start free. Scale as you grow.
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0F172A]">
+            Simple fees. Transparent always.
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-            No monthly fees. Pay only when you launch. Platform fee auto-deducted — you keep the rest.
+          <p className="mt-4 text-sm sm:text-base text-slate-500 leading-relaxed">
+            We believe in clarity. Here&apos;s how our pricing works.<br />
+            No monthly fees. Pay only what you need.
           </p>
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-3 lg:items-stretch">
-          {pricingPlans.map((plan) => (
-            <article
-              key={plan.name}
-              className={`relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:p-7 ${
-                plan.featured
-                  ? "border-secondary/60 border-t-4 border-t-secondary"
-                  : "border-slate-100"
-              }`}
-            >
-              {plan.featured && (
-                <span className="absolute right-4 top-4 whitespace-nowrap rounded-full bg-secondary/10 px-2.5 py-0.5 text-[10px] font-bold text-secondary tracking-wider uppercase">
-                  Popular
+        <div className="mx-auto mt-12 grid gap-8 md:grid-cols-3 md:items-stretch">
+          
+          {/* Card 1: Platform Fee */}
+          <div className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <div className="flex flex-col items-center text-center">
+              {/* Icon Container */}
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#E6F3F3]">
+                <Wallet className="h-7 w-7 text-[#008080]" />
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#008080] text-[10px] font-bold text-white">
+                  %
                 </span>
-              )}
-
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{plan.name}</p>
-              <h2 className="mt-2 text-3xl font-extrabold text-foreground">{plan.price}</h2>
-              <p className="mt-1 text-xs text-muted-foreground">{plan.billing}</p>
+              </div>
               
-              <div className="mt-3">
-                <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary">
-                  {plan.platformFee}
-                </span>
+              <h3 className="mt-6 text-lg font-semibold text-[#008080]">
+                Platform Fee
+              </h3>
+              
+              <p className="mt-3 text-4xl sm:text-5xl font-bold text-[#0F172A]">
+                {platformFeeVal}%
+              </p>
+              
+              <p className="mt-5 text-sm text-slate-500 leading-relaxed">
+                We take a {platformFeeVal}% platform fee from every order and donation.
+              </p>
+            </div>
+            
+            {/* Footer box */}
+            <div className="mt-8 flex items-start gap-2.5 rounded-lg bg-[#E6F3F3]/50 p-4 text-left">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#008080] text-white">
+                <Check className="h-3 w-3" />
               </div>
+              <p className="text-xs font-medium text-slate-700 leading-snug">
+                This fee helps us provide a secure platform and great support.
+              </p>
+            </div>
+          </div>
 
-              <div className="mt-6 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">What&apos;s Included</p>
-                <ul className="space-y-2.5">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                      <CircleCheck
-                        className="mt-0.5 size-4 shrink-0 text-secondary"
-                        aria-hidden="true"
-                      />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+          {/* Card 2: Campaign Launch */}
+          <div className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <div className="flex flex-col items-center text-center">
+              {/* Icon Container */}
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF3EB]">
+                <Rocket className="h-7 w-7 text-[#F97316]" />
               </div>
-            </article>
-          ))}
+              
+              <h3 className="mt-6 text-lg font-semibold text-[#F97316]">
+                Campaign Launch
+              </h3>
+              
+              <p className="mt-3 text-4xl sm:text-5xl font-bold text-[#0F172A]">
+                ${launchFeeVal}
+              </p>
+              
+              <p className="mt-5 text-sm text-slate-500 leading-relaxed">
+                A one-time ${launchFeeVal} fee is required to launch a campaign.
+              </p>
+            </div>
+            
+            {/* Footer box */}
+            <div className="mt-8 flex items-start gap-2.5 rounded-lg bg-[#FFF3EB]/50 p-4 text-left">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F97316] text-white">
+                <Check className="h-3 w-3" />
+              </div>
+              <p className="text-xs font-medium text-slate-700 leading-snug">
+                Covers campaign setup, review, and getting you live.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Brand Builder */}
+          <div className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+            <div className="flex flex-col items-center text-center">
+              {/* Icon Container */}
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F3E8FF]">
+                <Paintbrush className="h-7 w-7 text-[#7C3AED]" />
+              </div>
+              
+              <h3 className="mt-6 text-lg font-semibold text-[#7C3AED]">
+                Brand Builder
+              </h3>
+              
+              <p className="mt-3 text-4xl sm:text-5xl font-bold text-[#0F172A]">
+                ${brandBuilderPricingVal}
+              </p>
+              
+              <p className="mt-5 text-sm text-slate-500 leading-relaxed">
+                A one-time ${brandBuilderPricingVal} fee to build and customize your campaign brand.
+              </p>
+            </div>
+            
+            {/* Footer box */}
+            <div className="mt-8 flex items-start gap-2.5 rounded-lg bg-[#F3E8FF]/50 p-4 text-left">
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#7C3AED] text-white">
+                <Star className="h-3 w-3 fill-current" />
+              </div>
+              <p className="text-xs font-medium text-slate-700 leading-snug">
+                Unlock advanced branding tools and custom design features.
+              </p>
+            </div>
+          </div>
+
         </div>
 
-     
+        {/* Bottom Banner */}
+        <div className="mx-auto mt-10 max-w-4xl flex justify-center">
+          <div className="flex items-center gap-2 rounded-full bg-[#EBF7F7] px-6 py-3 text-sm text-[#006666]">
+            <Info className="h-4 w-4 shrink-0" />
+            <p className="text-center font-medium">
+              <span className="font-bold">No monthly fees.</span> You only pay when you launch a campaign or use premium branding.
+            </p>
+          </div>
+        </div>
 
       </div>
     </section>
@@ -145,3 +157,4 @@ const TtransparentPricing = () => {
 };
 
 export default TtransparentPricing;
+
