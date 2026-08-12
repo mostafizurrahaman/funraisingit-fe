@@ -39,9 +39,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import {
-  useGetAllCampaignsQuery,
   useGetCampaignByIdQuery,
   useUpdateCampaignMutation,
+  useGetDraftCampaignsQuery,
 } from "@/redux/features/campaign/campaignApi";
 
 const defaultPurposes = [
@@ -54,22 +54,26 @@ const defaultPurposes = [
 ] as const;
 
 export default function CampaignSettingsPage() {
-  const { data: campaignsResponse, isLoading: isLoadingAll, error: allCampaignsError } = useGetAllCampaignsQuery(undefined);
-  
-  // Find the first draft or pending campaign
-  const campaigns = campaignsResponse?.data || [];
-  const draftOrPendingCampaign = campaigns.find(
-    (c: any) => c.status === "draft" || c.status === "pending"
-  );
-  
-  const campaignId = draftOrPendingCampaign?._id;
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
 
+  // 1. Get draft campaigns list
+  const { data: draftCampaignsResponse, isLoading: isLoadingDrafts, error: draftsError } = useGetDraftCampaignsQuery(undefined);
+  
+  // Normalize drafts response (data could be a single object or an array)
+  const draftsData = draftCampaignsResponse?.data;
+  const draftCampaigns = Array.isArray(draftsData)
+    ? draftsData
+    : draftsData && typeof draftsData === "object" && draftsData._id
+      ? [draftsData]
+      : [];
+
+  // 2. Get single campaign details
   const {
     data: campaignResponse,
     isLoading: isDetailsLoading,
     error: detailsError,
     refetch,
-  } = useGetCampaignByIdQuery(campaignId, { skip: !campaignId });
+  } = useGetCampaignByIdQuery(selectedCampaignId, { skip: !selectedCampaignId });
 
   const [updateCampaign, { isLoading: isUpdating }] = useUpdateCampaignMutation();
 
@@ -115,7 +119,8 @@ export default function CampaignSettingsPage() {
     }
   }, [campaign]);
 
-  if (isLoadingAll || (campaignId && isDetailsLoading)) {
+  // Handle loading and error states for editing view
+  if (selectedCampaignId && isDetailsLoading) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 animate-spin text-secondary" />
@@ -124,20 +129,105 @@ export default function CampaignSettingsPage() {
     );
   }
 
-  if (allCampaignsError || detailsError) {
+  if (selectedCampaignId && detailsError) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <p className="text-lg font-semibold text-rose-500">Failed to load campaign data.</p>
-        <Button onClick={() => refetch()}>Retry</Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setSelectedCampaignId(null)} variant="outline">Back to Drafts</Button>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
       </div>
     );
   }
 
-  if (!campaignId || !campaign) {
+  // Render drafts table view when no campaign is selected
+  if (!selectedCampaignId) {
+    if (isLoadingDrafts) {
+      return (
+        <div className="flex h-96 flex-col items-center justify-center gap-3">
+          <Loader2 className="size-8 animate-spin text-secondary" />
+          <p className="text-sm text-muted-foreground">Loading draft campaigns...</p>
+        </div>
+      );
+    }
+
+    if (draftsError) {
+      return (
+        <div className="flex h-96 flex-col items-center justify-center gap-3">
+          <p className="text-lg font-semibold text-rose-500">Failed to load draft campaigns.</p>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex h-96 flex-col items-center justify-center gap-3 text-center px-4">
-        <p className="text-lg font-semibold text-muted-foreground">No draft or pending campaigns found.</p>
-        <p className="text-sm text-muted-foreground max-w-md">Please create a campaign in the draft state first to edit it here.</p>
+      <div className="mx-auto max-w-[1180px] space-y-5">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-800">Draft Campaigns</h2>
+          <p className="text-sm text-muted-foreground mt-1">Select a draft campaign to continue setup and editing.</p>
+        </div>
+
+        <DashboardCard className="p-0 border border-slate-100 overflow-hidden bg-white shadow-sm">
+          {draftCampaigns.length === 0 ? (
+            <div className="flex h-60 flex-col items-center justify-center text-center p-4">
+              <Package className="size-10 text-slate-300 mb-2" />
+              <p className="text-sm font-semibold text-muted-foreground">No draft campaigns found.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-5 py-4 font-semibold">Thumbnail</th>
+                    <th className="px-5 py-4 font-semibold">Campaign Name</th>
+                    <th className="px-5 py-4 font-semibold">Category</th>
+                    <th className="px-5 py-4 font-semibold">Goal Amount</th>
+                    <th className="px-5 py-4 font-semibold">Status</th>
+                    <th className="px-5 py-4 text-right font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {draftCampaigns.map((camp: any) => (
+                    <tr key={camp._id} className="transition-colors duration-300 hover:bg-slate-50/50">
+                      <td className="px-5 py-4">
+                        {camp.thumbnail ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={camp.thumbnail}
+                            alt={camp.name}
+                            className="size-12 rounded-lg object-cover border border-slate-100"
+                          />
+                        ) : (
+                          <div className="size-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
+                            <ImageIcon className="size-6" />
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-slate-800">{camp.name || "Unnamed"}</td>
+                      <td className="px-5 py-4 capitalize text-slate-600">{(camp.campaignCategory || "physical_product").replace("_", " ")}</td>
+                      <td className="px-5 py-4 font-semibold text-slate-700">${camp.goalAmount?.toLocaleString() || "0"}</td>
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 capitalize">
+                          <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          {camp.status || "draft"}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <Button
+                          onClick={() => setSelectedCampaignId(camp._id)}
+                          className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ml-auto cursor-pointer"
+                        >
+                          <Edit3 className="size-3.5" />
+                          Edit
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </DashboardCard>
       </div>
     );
   }
@@ -145,6 +235,7 @@ export default function CampaignSettingsPage() {
   // Handle updates
   const handleUpdate = async (e: React.FormEvent, closeCallback: () => void) => {
     e.preventDefault();
+    if (!campaign) return;
     const formData = new FormData();
     formData.append("name", name);
     formData.append("campaignCategory", campaign.campaignCategory || "physical_product");
@@ -180,7 +271,7 @@ export default function CampaignSettingsPage() {
   };
 
   const copyCampaignLink = () => {
-    if (campaign.campaignCode) {
+    if (campaign && campaign.campaignCode) {
       const link = `${window.location.origin}/order-summary?code=${campaign.campaignCode}`;
       navigator.clipboard.writeText(link);
       toast.success("Campaign link copied to clipboard!");
@@ -189,10 +280,18 @@ export default function CampaignSettingsPage() {
     }
   };
 
+  if (!campaign) return null;
+
   return (
     <div className="mx-auto max-w-[1180px] space-y-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <button
+            onClick={() => setSelectedCampaignId(null)}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-secondary hover:underline cursor-pointer bg-transparent border-none p-0 mb-1"
+          >
+            &larr; Back to Drafts
+          </button>
           <h2 className="text-2xl font-semibold">Campaign Settings</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
             <span>{campaign.name}</span>
@@ -279,7 +378,7 @@ export default function CampaignSettingsPage() {
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
-                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white cursor-pointer"
               >
                 Edit
               </button>
@@ -294,7 +393,7 @@ export default function CampaignSettingsPage() {
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
-                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white cursor-pointer"
               >
                 Edit
               </button>
@@ -309,7 +408,7 @@ export default function CampaignSettingsPage() {
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
-                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white cursor-pointer"
               >
                 Edit
               </button>
@@ -335,7 +434,7 @@ export default function CampaignSettingsPage() {
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
-                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+                className="w-fit rounded-md border border-secondary px-3 py-1 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white cursor-pointer"
               >
                 Replace Photo
               </button>
@@ -436,7 +535,7 @@ export default function CampaignSettingsPage() {
           )}
           <Link
             href="/dashboard/products"
-            className="mt-5 inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-semibold shadow-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground w-full hover:-translate-y-0.5"
+            className="mt-5 inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-semibold shadow-sm transition-all duration-300 hover:bg-accent hover:text-accent-foreground w-full hover:-translate-y-0.5 cursor-pointer"
           >
             Manage Products
           </Link>
@@ -493,7 +592,7 @@ export default function CampaignSettingsPage() {
             <button
               type="button"
               onClick={() => setIsEditDeliveryOpen(true)}
-              className="rounded-md border border-secondary px-3 py-1.5 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+              className="rounded-md border border-secondary px-3 py-1.5 text-xs font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white cursor-pointer"
             >
               Edit
             </button>
@@ -513,7 +612,7 @@ export default function CampaignSettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => setIsEditStoryOpen(true)}
-            className="mx-auto mt-4 flex text-xs transition-all duration-300 hover:-translate-y-0.5"
+            className="mx-auto mt-4 flex text-xs transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
           >
             <Edit3 className="size-4 mr-1.5" />
             Edit Story
@@ -563,7 +662,7 @@ export default function CampaignSettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => setIsEditDonationOpen(true)}
-            className="mt-5 w-full text-xs transition-all duration-300 hover:-translate-y-0.5"
+            className="mt-5 w-full text-xs transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
           >
             Edit Donation Settings
           </Button>
@@ -602,7 +701,7 @@ export default function CampaignSettingsPage() {
             <button
               type="button"
               onClick={copyCampaignLink}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-secondary text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white hover:shadow-sm text-xs font-semibold"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-secondary text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white hover:shadow-sm text-xs font-semibold cursor-pointer"
             >
               <Copy className="size-4" />
               Copy Campaign Link
@@ -616,7 +715,7 @@ export default function CampaignSettingsPage() {
                   toast.error("Organizer email not found.");
                 }
               }}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-sm text-xs font-semibold"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-sm text-xs font-semibold cursor-pointer"
             >
               <Mail className="size-4" />
               Email Supporters
@@ -655,7 +754,7 @@ export default function CampaignSettingsPage() {
                     Update the campaign name, goal, length, and photo.
                   </Dialog.Description>
                 </div>
-                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary">
+                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
                   <X className="size-5" />
                 </Dialog.Close>
               </div>
@@ -729,9 +828,9 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2">
+                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -754,7 +853,7 @@ export default function CampaignSettingsPage() {
                     Describe your campaign to inspire supporters.
                   </Dialog.Description>
                 </div>
-                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary">
+                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
                   <X className="size-5" />
                 </Dialog.Close>
               </div>
@@ -774,9 +873,9 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2">
+                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -799,7 +898,7 @@ export default function CampaignSettingsPage() {
                     Select how products will be delivered and set shipping fees.
                   </Dialog.Description>
                 </div>
-                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary">
+                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
                   <X className="size-5" />
                 </Dialog.Close>
               </div>
@@ -862,9 +961,9 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2">
+                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -887,7 +986,7 @@ export default function CampaignSettingsPage() {
                     Configure donations and select where the raised funds will be allocated.
                   </Dialog.Description>
                 </div>
-                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary">
+                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
                   <X className="size-5" />
                 </Dialog.Close>
               </div>
@@ -924,7 +1023,7 @@ export default function CampaignSettingsPage() {
                             }
                           }}
                           className={cn(
-                            "flex items-center justify-between rounded-md border p-2.5 text-left text-xs font-semibold transition-all duration-300",
+                            "flex items-center justify-between rounded-md border p-2.5 text-left text-xs font-semibold transition-all duration-300 cursor-pointer",
                             isSelected
                               ? "border-secondary bg-secondary/10 text-secondary"
                               : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
@@ -941,9 +1040,9 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2">
+                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>

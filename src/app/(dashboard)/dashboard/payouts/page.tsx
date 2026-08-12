@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -332,7 +333,7 @@ export default function PayoutsPage() {
         </DashboardCard>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-[1fr_0.95fr_1.05fr_1.15fr]">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <DashboardCard className="text-center">
           <span className="mx-auto inline-flex size-14 items-center justify-center rounded-full bg-secondary/10 text-secondary">
             <Landmark className="size-7" />
@@ -371,9 +372,9 @@ export default function PayoutsPage() {
         <DashboardCard>
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-base font-semibold">Payout History</h3>
-            <button type="button" className="text-xs font-semibold text-secondary transition-colors duration-300 hover:text-primary">
+            {/* <button type="button" className="text-xs font-semibold text-secondary transition-colors duration-300 hover:text-primary">
               View All
-            </button>
+            </button> */}
           </div>
           <div className="mt-4 space-y-3">
             {payoutHistories.slice(0, 3).map((item: any) => (
@@ -398,26 +399,7 @@ export default function PayoutsPage() {
           </Button>
         </DashboardCard>
 
-        <DashboardCard>
-          <div className="flex items-center gap-4">
-            <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-700">
-              <ClipboardList className="size-7" />
-            </span>
-            <h3 className="text-base font-semibold">Tax Documents</h3>
-          </div>
-          <div className="mt-5 space-y-3">
-            {taxDocuments.map((document) => (
-              <button key={document} type="button" className="flex w-full items-center justify-between gap-3 text-sm font-medium transition-colors duration-300 hover:text-secondary">
-                <span>{document}</span>
-                <ChevronRight className="size-4" />
-              </button>
-            ))}
-          </div>
-          <Button variant="outline" size="sm" className="mt-5 w-full border-violet-500 text-violet-700 hover:bg-violet-600 hover:text-white">
-            <Download className="size-4" />
-            Download Documents
-          </Button>
-        </DashboardCard>
+       
       </section>
 
       <section className="grid gap-4 rounded-lg border border-border bg-white p-4 shadow-sm xl:grid-cols-[1fr_1.2fr_1.35fr_1.45fr]">
