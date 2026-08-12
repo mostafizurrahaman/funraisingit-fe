@@ -144,16 +144,7 @@ export default function SignUpPage() {
           </Button>
         </form>
 
-        <div className="my-5 flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="h-px flex-1 bg-slate-400" />
-          <span>or sign up with</span>
-          <span className="h-px flex-1 bg-slate-400" />
-        </div>
-
-        <Button type="button" variant="outline" className="h-12 w-full rounded-md border-slate-200 text-sm text-foreground hover:border-secondary">
-          <FcGoogle className="size-5" />
-          Sign Up with Google
-        </Button>
+       
 
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
