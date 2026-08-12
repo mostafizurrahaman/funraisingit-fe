@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -308,7 +310,7 @@ export default function DonationPage() {
                 headers={["Donation ID", "Donor Name", "Email", "Phone", "Amount", "Status", "Date"]}
                 filename={`${campaign?.name || "campaign"}_donations`}
                 toastSubject="Donations"
-                buttonClassName="justify-start text-xs cursor-pointer hover:bg-slate-50"
+                buttonClassName="justify-start text-xs cursor-pointer hover:bg-secondary/90 hover:text-white"
                 containerClassName="mt-4 grid gap-3 sm:grid-cols-2"
                 mappingFn={(d: any) => [
                   d.donationId || "N/A",
@@ -355,7 +357,7 @@ export default function DonationPage() {
                     ]
                   })}
                   variant="outline"
-                  className="text-xs cursor-pointer hover:bg-slate-50"
+                  className="text-xs cursor-pointer hover:bg-secondary/90"
                 >
                   <Users className="size-4" />
                   Download Donor List
@@ -368,7 +370,7 @@ export default function DonationPage() {
 
         {/* Sidebar Cards */}
         <aside className="space-y-5">
-          <DashboardCard className="bg-white border border-border">
+          {/* <DashboardCard className="bg-white border border-border">
             <h3 className="flex items-center gap-2 text-base font-semibold">
               <Target className="size-5 text-primary" />
               Donation Goal Progress
@@ -382,7 +384,7 @@ export default function DonationPage() {
               <span className="font-semibold text-muted-foreground">${Math.max(0, goal - raised).toLocaleString()} to go</span>
               <span className="font-semibold text-secondary">{percentage}%</span>
             </div>
-          </DashboardCard>
+          </DashboardCard> */}
 
           <DashboardCard className="bg-white border border-border">
             <h3 className="flex items-center gap-2 text-base font-semibold">
@@ -426,7 +428,7 @@ export default function DonationPage() {
         </aside>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1fr_1.2fr]">
+      <section className="">
         <DashboardCard className="flex flex-col gap-4 bg-secondary/5 sm:flex-row sm:items-center sm:justify-between border border-secondary/10">
           <div className="flex items-center gap-3">
             <Image src={glitter} alt="" className="size-12 object-contain" />
@@ -438,13 +440,13 @@ export default function DonationPage() {
           <p className="text-2xl font-semibold text-secondary">${(overview?.financialBreakdown?.totalAmount || 0).toFixed(0)} In Donations</p>
         </DashboardCard>
 
-        <DashboardCard className="flex flex-col gap-4 bg-secondary/5 sm:flex-row sm:items-center sm:justify-between border border-secondary/10">
+        {/* <DashboardCard className="flex flex-col gap-4 bg-secondary/5 sm:flex-row sm:items-center sm:justify-between border border-secondary/10">
           <p className="max-w-md text-sm font-medium text-muted-foreground">Keep sharing your campaign to reach your next milestone.</p>
           <div className="flex items-center gap-3">
             <Image src={order} alt="" className="size-16 rounded-lg object-cover" />
             <Image src={roket} alt="" className="size-14 object-contain" />
           </div>
-        </DashboardCard>
+        </DashboardCard> */}
       </section>
     </div>
   );

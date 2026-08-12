@@ -84,16 +84,16 @@ export default function ProductsPage() {
       icon: FileCode,
       colorClass: "bg-violet-100 text-violet-700",
     },
-    {
-      title: "Out of Stock",
-      value: String(outOfStockProducts),
-      detail: "Requires inventory refill",
-      icon: AlertTriangle,
-      colorClass: cn(
-        "bg-red-100 text-red-700",
-        outOfStockProducts > 0 && "animate-pulse"
-      ),
-    },
+    // {
+    //   title: "Out of Stock",
+    //   value: String(outOfStockProducts),
+    //   detail: "Requires inventory refill",
+    //   icon: AlertTriangle,
+    //   colorClass: cn(
+    //     "bg-red-100 text-red-700",
+    //     outOfStockProducts > 0 && "animate-pulse"
+    //   ),
+    // },
   ] as const;
 
   return (
@@ -113,7 +113,7 @@ export default function ProductsPage() {
       </section>
 
       {/* Summary statistics cards */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {summaryStats.map((stat) => {
           const Icon = stat.icon;
           return (

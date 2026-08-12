@@ -6,8 +6,7 @@ import {
   CheckCircle2,
   CircleDollarSign,
   Clock3,
-  Download,
-  FileSpreadsheet,
+
   Info,
   PackageCheck,
   Search,
@@ -20,13 +19,12 @@ import {
   OrderDetailsModal,
   type OrderDetails,
 } from "@/components/dashboard/OrderDetailsModal";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useGetAllOrdersQuery, useGetOrderOverviewQuery } from "@/redux/features/orderManagement/orderManagementApi";
 import { ExportButtons } from "@/components/dashboard/ExportButtons";
 
-type DeliveryType = OrderDetails["delivery"];
+// type DeliveryType = OrderDetails["delivery"];
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -159,16 +157,16 @@ export default function OrdersPage() {
     const s = o.status.toLowerCase();
     return s === "completed" || s === "delivered";
   }).length;
-  const countCanceled = mappedOrders.filter(o => {
-    const s = o.status.toLowerCase();
-    return s === "canceled" || s === "cancelled";
-  }).length;
+  // const countCanceled = mappedOrders.filter(o => {
+  //   const s = o.status.toLowerCase();
+  //   return s === "canceled" || s === "cancelled";
+  // }).length;
 
   const orderTabs = [
     `All Orders (${countAll})`,
-    `To Be Delivered (${countToBeDelivered})`,
-    `Completed (${countCompleted})`,
-    `Canceled (${countCanceled})`,
+    // `To Be Delivered (${countToBeDelivered})`,
+    // `Completed (${countCompleted})`,
+    // `Canceled (${countCanceled})`,
   ];
 
   const totalOrders = mappedOrders.length;
@@ -347,7 +345,7 @@ export default function OrdersPage() {
             <table className="w-full min-w-[980px] text-left text-sm">
               <thead className="border-b border-border bg-[#f8ffff] text-xs font-semibold text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3">Order</th>
+                  {/* <th className="px-4 py-3">Order</th> */}
                   <th className="px-4 py-3">Customer</th>
                   <th className="px-4 py-3">Contact</th>
                   <th className="px-4 py-3">Product</th>
@@ -365,7 +363,7 @@ export default function OrdersPage() {
                     key={order.id}
                     className="transition-colors duration-300 hover:bg-secondary/5"
                   >
-                    <td className="px-4 py-4 font-semibold">{order.id}</td>
+                    {/* <td className="px-4 py-4 font-semibold">{order.id}</td> */}
                     <td className="px-4 py-4">
                       <p className="font-semibold">{order.customer}</p>
                       <p className="text-xs text-muted-foreground">
