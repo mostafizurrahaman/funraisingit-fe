@@ -54,7 +54,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
     dispatch(logout());
-    toast.success("Logged out successfully");
+    // toast.success("Logged out successfully");
     router.push("/login");
   };
 
