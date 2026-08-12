@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -5,9 +6,6 @@ import Image from "next/image";
 import {
   Banknote,
   CalendarDays,
-  ClipboardList,
-  Download,
-  FileSpreadsheet,
   Goal,
   Heart,
   PackageCheck,
@@ -50,7 +48,9 @@ export default function DashboardPage() {
     useState<string>(initialCampaignId);
 
   const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } =
-    useGetAllMyCampaignsQuery(undefined);
+    useGetAllMyCampaignsQuery(undefined, {
+      skip: !selectedCampaignId && !initialCampaignId,
+    });
   const campaignsList = myCampaignsResponse?.data || [];
 
   // Sort campaigns by createdAt descending to get the most recent first
@@ -97,9 +97,11 @@ export default function DashboardPage() {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <p className="text-lg font-semibold text-red-500">
-          Failed to load dashboard data.
+          {myCampaignsResponse?.data?.length === 0
+            ? "No campaign found."
+            : "Failed to load dashboard analytics."}
         </p>
-        <Button onClick={() => window.location.reload()}>Retry</Button>
+        {/* <Button onClick={() => window.location.reload()}>Retry</Button> */}
       </div>
     );
   }
@@ -255,7 +257,8 @@ export default function DashboardPage() {
                 <h3 className="text-base font-semibold">Recent Activity</h3>
               </div>
               <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                {!data.recentActivities || data.recentActivities.length === 0 ? (
+                {!data.recentActivities ||
+                data.recentActivities.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No recent activity.
                   </p>
@@ -302,7 +305,9 @@ export default function DashboardPage() {
                       className="grid grid-cols-[1fr_56px_72px] gap-2 text-sm"
                     >
                       <span className="font-medium">{orderItem.name}</span>
-                      <span className="text-center text-muted-foreground">1</span>
+                      <span className="text-center text-muted-foreground">
+                        1
+                      </span>
                       <span className="text-right font-semibold">
                         ${orderItem.amount}
                       </span>

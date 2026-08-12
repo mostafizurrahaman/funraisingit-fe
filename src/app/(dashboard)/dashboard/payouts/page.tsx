@@ -62,23 +62,9 @@ export default function PayoutsPage() {
 
   // 4. Get onboarding account details
   const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined);
-  const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
   const accountInfo = accountResponse?.data;
 
-  const handleConnectAccount = async () => {
-    try {
-      const response = await connectAccount(undefined).unwrap();
-      if (response?.data?.url) {
-        window.location.href = response.data.url;
-      } else if (response?.url) {
-        window.location.href = response.url;
-      } else {
-        import("react-hot-toast").then((t) => t.default.error("Could not retrieve onboarding account URL."));
-      }
-    } catch (err: any) {
-      import("react-hot-toast").then((t) => t.default.error(err?.data?.message || "Failed to connect account."));
-    }
-  };
+
 
   // 3. Get payout history
   const { data: historyResponse, isLoading: isLoadingHistory } = useGetPayoutHistoryQuery(

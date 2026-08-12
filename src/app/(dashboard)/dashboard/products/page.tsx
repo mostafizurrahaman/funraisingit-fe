@@ -36,7 +36,6 @@ export default function ProductsPage() {
   const campaignData = campaignResponse?.data;
   const campaignStatus = campaignData?.status;
   const products: Product[] = campaignData?.products || [];
-
   // Statistics calculation
   const totalProducts = products.length;
   const physicalProducts = products.filter((p) => p.productType === "physical").length;
