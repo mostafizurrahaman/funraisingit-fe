@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   Rocket,
   GraduationCap,
@@ -138,9 +139,10 @@ const CampaignType = () => {
         {campaignTypes.map((item, idx) => {
           const IconComponent = item.icon;
           return (
-            <div
+            <Link
               key={idx}
-              className={`flex flex-col items-center text-center p-5 bg-white border border-[#e7e9ee] rounded-2xl transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg ${item.shadowColor} ${item.borderColor}`}
+              href={`/campaign?category=${item.id}`}
+              className={`flex flex-col items-center text-center p-5 bg-white border border-[#e7e9ee] rounded-2xl transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg hover:cursor-pointer ${item.shadowColor} ${item.borderColor}`}
             >
               {/* Icon Container */}
               <div
@@ -160,7 +162,7 @@ const CampaignType = () => {
               <p className="text-xs text-[#45506a] leading-relaxed">
                 {item.description}
               </p>
-            </div>
+            </Link>
           );
         })}
       </div>
