@@ -153,11 +153,14 @@ export default function CampaignSettingsPage() {
     }
 
     if (draftsError) {
-      return (
-        <div className="flex h-96 flex-col items-center justify-center gap-3">
-          <p className="text-lg font-semibold text-rose-500">Failed to load draft campaigns.</p>
-        </div>
-      );
+      const errMsg = (draftsError as any)?.data?.message || "";
+      if (errMsg !== "No Draft campaign exists.") {
+        return (
+          <div className="flex h-96 flex-col items-center justify-center gap-3">
+            <p className="text-lg font-semibold text-rose-500">Failed to load draft campaigns.</p>
+          </div>
+        );
+      }
     }
 
     return (
@@ -171,7 +174,9 @@ export default function CampaignSettingsPage() {
           {draftCampaigns.length === 0 ? (
             <div className="flex h-60 flex-col items-center justify-center text-center p-4">
               <Package className="size-10 text-slate-300 mb-2" />
-              <p className="text-sm font-semibold text-muted-foreground">No draft campaigns found.</p>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {(draftsError as any)?.data?.message || "No draft campaigns found."}
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
