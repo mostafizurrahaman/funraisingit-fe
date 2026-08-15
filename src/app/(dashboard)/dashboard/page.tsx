@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -53,7 +54,7 @@ export default function DashboardPage() {
       skip: !selectedCampaignId && !initialCampaignId,
     });
   const campaignsList = myCampaignsResponse?.data || [];
-
+  console.log("Campaigns List:", campaignsList);
   // Sort campaigns by createdAt descending to get the most recent first
   const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
     const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -61,7 +62,8 @@ export default function DashboardPage() {
     return timeB - timeA;
   });
 
-  console.log("Sorted Campaigns:", myCampaignsResponse);
+  const campaignCode = myCampaignsResponse?.data[0]?.campaignCode;
+
   // Automatically select the most recent campaign if selectedCampaignId is empty
   useEffect(() => {
     if (!selectedCampaignId && sortedCampaigns.length > 0) {
@@ -84,8 +86,10 @@ export default function DashboardPage() {
   const isLoading =
     isLoadingCampaigns || (selectedCampaignId ? isLoadingAnalytics : true);
 
-  const selectedCampaign = campaignsList.find((c: any) => c._id === selectedCampaignId);
-  const campaignCode = selectedCampaign?.campaignCode || "";
+  const selectedCampaign = campaignsList.find(
+    (c: any) => c._id === selectedCampaignId,
+  );
+  
 
   const handleShareAction = (label: string) => {
     if (!campaignCode) {
@@ -100,7 +104,10 @@ export default function DashboardPage() {
         toast.success("Campaign link copied to clipboard!");
         break;
       case "Facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+          "_blank",
+        );
         break;
       case "Text Message":
         window.location.href = `sms:?&body=${encodeURIComponent(shareUrl)}`;
@@ -109,7 +116,10 @@ export default function DashboardPage() {
         window.location.href = `mailto:?subject=${encodeURIComponent("Support my campaign")}&body=${encodeURIComponent(shareUrl)}`;
         break;
       case "WhatsApp":
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, "_blank");
+        window.open(
+          `https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`,
+          "_blank",
+        );
         break;
       default:
         break;
