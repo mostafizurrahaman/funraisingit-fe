@@ -59,6 +59,15 @@ const SupportersApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Supporters"],
     }),
+
+    // Send Email to Supporters
+    sendEmailToSupporters: builder.mutation({
+      query: (data) => ({
+        url: "/supporter/send-email",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -69,4 +78,5 @@ export const {
   useGetSingleSupporterQuery,
   useUpdateSupporterMutation,
   useDeleteSupporterMutation,
+  useSendEmailToSupportersMutation,
 } = SupportersApi;

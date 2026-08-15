@@ -1,5 +1,6 @@
 import CampaignDetailsClient from "./CampaignDetailsClient";
 import type { Metadata } from "next";
+import { BASE_URL } from "@/utils/baseUrl";
 
 interface PageProps {
   params: Promise<{
@@ -11,9 +12,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolvedParams = await params;
   const code = resolvedParams.code;
 
+  let organizerProfileImage = "";
+  let campaignName = "";
+  let campaignStory = "";
+
+  try {
+    const res = await fetch(`${BASE_URL}/campaign/${code}/details`);
+    const data = await res.json();
+    if (data.success && data.data) {
+      organizerProfileImage = data.data.organizerProfileImage || "";
+      campaignName = data.data.name || "";
+      campaignStory = data.data.story || "";
+    }
+  } catch (err) {
+    console.error("Failed to fetch campaign details for SEO metadata:", err);
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://funraisingit.com";
-  const title = `Campaign Details - ${code} | FunRaisingIt`;
-  const description = `Support campaign ${code} on FunRaisingIt! Join supporters to help this project achieve its goal.`;
+  const title = campaignName ? `${campaignName} | FunRaisingIt` : `Campaign Details - ${code} | FunRaisingIt`;
+  const description = campaignStory
+    ? campaignStory.slice(0, 155) + "..."
+    : `Support campaign ${code} on FunRaisingIt! Join supporters to help this project achieve its goal.`;
   const shareUrl = `${baseUrl}/campaign/${code}`;
 
   return {
@@ -29,11 +48,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: shareUrl,
       type: "website",
       siteName: "FunRaisingIt",
+      images: organizerProfileImage ? [{ url: organizerProfileImage }] : [],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: organizerProfileImage ? [organizerProfileImage] : [],
     },
   };
 }

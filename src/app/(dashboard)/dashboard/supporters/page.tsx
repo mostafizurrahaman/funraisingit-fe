@@ -24,8 +24,9 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useGetAllSupportersQuery, useGetSupportersOverviewQuery } from "@/redux/features/SupportersApi/SupportersApi";
+import { useGetAllSupportersQuery, useGetSupportersOverviewQuery, useSendEmailToSupportersMutation } from "@/redux/features/SupportersApi/SupportersApi";
 import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
+import { X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const toneStyles = {
@@ -40,6 +41,15 @@ const toneStyles = {
 export default function SupportersPage() {
   const [campaignId, setCampaignId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Email Compose State
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("Important Campaign Update");
+  const [emailMessage, setEmailMessage] = useState(
+    `<p>We’re excited to share an important update about our campaign!</p><p>Thanks to your generous support, we’ve reached <strong>75% of our fundraising goal</strong>.</p><p>Your contribution is helping us get closer to making this campaign a success. We truly appreciate your support.</p><h3>What’s next?</h3><ul><li>We’ll continue working toward our fundraising goal.</li><li>We’ll keep you updated on our progress.</li><li>We’ll share more details as the campaign moves forward.</li></ul><p>Thank you again for being part of our journey!</p><p><strong>Best regards,</strong><br />The Campaign Team</p>`
+  );
+
+  const [sendEmailToSupporters, { isLoading: isSendingEmail }] = useSendEmailToSupportersMutation();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -201,8 +211,35 @@ export default function SupportersPage() {
       toast.error("No supporters to email.");
       return;
     }
-    const emails = supportersData.map((s: any) => s.email).filter(Boolean).join(",");
-    window.location.href = `mailto:?bcc=${emails}&subject=Thank%20You%20For%20Supporting%20Our%20Campaign`;
+    setIsEmailModalOpen(true);
+  };
+
+  const handleConfirmSendEmail = async () => {
+    if (!emailSubject.trim()) {
+      toast.error("Please enter a subject.");
+      return;
+    }
+    if (!emailMessage.trim()) {
+      toast.error("Please enter a message.");
+      return;
+    }
+
+    try {
+      const response = await sendEmailToSupporters({
+        campaignId,
+        subject: emailSubject,
+        message: emailMessage,
+      }).unwrap();
+
+      if (response?.success) {
+        toast.success("Email sent to supporters successfully!");
+        setIsEmailModalOpen(false);
+      } else {
+        toast.error(response?.message || "Failed to send email.");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Something went wrong while sending email.");
+    }
   };
 
   const isLoading = isLoadingList || isLoadingOverview;
@@ -430,6 +467,73 @@ export default function SupportersPage() {
           Send Email
         </Button>
       </section>
+
+      {/* Custom Composition Email Modal */}
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-slate-100 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setIsEmailModalOpen(false)}
+              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-slate-100 transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+            <h3 className="text-lg font-bold text-foreground mb-4">Compose Update Email</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Subject</label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Enter email subject"
+                  className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all duration-300 focus:border-secondary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Message (HTML/Text)</label>
+                <textarea
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Enter email body message..."
+                  rows={10}
+                  className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all duration-300 focus:border-secondary resize-none font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                onClick={() => setIsEmailModalOpen(false)}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSendEmail}
+                disabled={isSendingEmail}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-secondary px-5 text-sm font-semibold text-white transition-all duration-300 hover:bg-secondary/90 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+              >
+                {isSendingEmail ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="size-4" />
+                    Send Update
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
