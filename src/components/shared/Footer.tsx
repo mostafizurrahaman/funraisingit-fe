@@ -17,6 +17,18 @@ const footerLinks = [
   { label: "Login", href: "/login" },
 ] as const;
 
+const policyLinks = [
+  { label: "Acceptable Use Policy", href: "/content/acceptable_use_policy" },
+  { label: "Refund Policy", href: "/content/refund_policy" },
+  { label: "Seller Agreement", href: "/content/seller_agreement" },
+  { label: "Website Disclaimer", href: "/content/website_disclaimer" },
+  { label: "Cookie Policy", href: "/content/cookie_policy" },
+  { label: "Privacy Policy", href: "/content/privacy_policy" },
+  { label: "Buyer Terms & Conditions", href: "/content/buyer_terms_and_condition" },
+  { label: "Charge Back & Dispute Policy", href: "/content/charge_back_and_dispute_resolution_policy" },
+  { label: "Terms & Conditions", href: "/content/terms_and_conditions" },
+] as const;
+
 interface SocialLink {
   label: string;
   href: string;
@@ -97,6 +109,21 @@ const Footer = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Policy Tabs Section */}
+      <div className="border-t border-secondary/20">
+        <div className="container mx-auto px-5 py-6 sm:px-8 lg:px-10 flex flex-wrap justify-center items-center gap-x-6 gap-y-3 text-xs font-semibold text-muted-foreground">
+          {policyLinks.map((policy) => (
+            <Link
+              key={policy.href}
+              href={policy.href}
+              className="hover:text-secondary transition-colors duration-300"
+            >
+              {policy.label}
+            </Link>
+          ))}
         </div>
       </div>
 
