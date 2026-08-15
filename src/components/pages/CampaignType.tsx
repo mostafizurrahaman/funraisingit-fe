@@ -13,6 +13,7 @@ import {
 const campaignTypes = [
   {
     title: "Launch a Business",
+    id: "business",
     description: "Validate your idea and collect pre-orders before you invest.",
     icon: Rocket,
     bgColor: "bg-[#eaf4fe]",
@@ -23,6 +24,7 @@ const campaignTypes = [
   },
   {
     title: "School Fundraiser",
+    id:"school_fundraiser",
     description: "Raise money for your students, clubs, and classrooms.",
     icon: GraduationCap,
     bgColor: "bg-[#f5eeff]",
@@ -33,6 +35,7 @@ const campaignTypes = [
   },
   {
     title: "Church Campaign",
+    id:"church_campaign",
     description: "Support missions, ministries, and community outreach.",
     icon: Church,
     bgColor: "bg-[#edf7ed]",
@@ -43,6 +46,7 @@ const campaignTypes = [
   },
   {
     title: "Sports Teams",
+    id:"sports_team",
     description: "Fund uniforms, travel, tournaments, and equipment.",
     icon: Trophy,
     bgColor: "bg-[#fff5eb]",
@@ -53,6 +57,7 @@ const campaignTypes = [
   },
   {
     title: "Products & Pre-Orders",
+    id:"products_pre_orders",
     description: "Sell food, merchandise, baked goods, apparel, gifts & more.",
     icon: Utensils,
     bgColor: "bg-[#ffebee]",
@@ -63,7 +68,9 @@ const campaignTypes = [
   },
   {
     title: "Events & Tickets",
-    description: "Pre-sell tickets for concerts, conferences, parties, classes & more.",
+    id:"events_tickets",
+    description:
+      "Pre-sell tickets for concerts, conferences, parties, classes & more.",
     icon: Ticket,
     bgColor: "bg-[#eef2fa]",
     iconColor: "text-[#1565c0]",
@@ -73,7 +80,9 @@ const campaignTypes = [
   },
   {
     title: "Digital Products",
-    description: "Sell e-books, guides, templates, courses & downloadable products.",
+    id:"digital_products",
+    description:
+      "Sell e-books, guides, templates, courses & downloadable products.",
     icon: Tablet,
     bgColor: "bg-[#ede7f6]",
     iconColor: "text-[#4527a0]",
@@ -83,6 +92,7 @@ const campaignTypes = [
   },
   {
     title: "Community & Nonprofits",
+    id:"community_nonprofit",
     description: "Collect donations and rally support for your cause.",
     icon: Heart,
     bgColor: "bg-[#fce4ec]",
@@ -140,7 +150,9 @@ const CampaignType = () => {
               </div>
 
               {/* Title */}
-              <h3 className={`font-bold text-base ${item.textColor} mb-3 leading-snug`}>
+              <h3
+                className={`font-bold text-base ${item.textColor} mb-3 leading-snug`}
+              >
                 {item.title}
               </h3>
 
