@@ -12,8 +12,19 @@ const BrandBuilderApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    getMyBrands: builder.query({
+      query: (params) => ({
+        url: "/brand/my",
+        method: "GET",
+        params,
+      }),
+    }),
   }),
 });
 
-export const { useGetBrandBuilderQuery, useCreateBrandBuilderMutation } = BrandBuilderApi;
+export const {
+  useGetBrandBuilderQuery,
+  useCreateBrandBuilderMutation,
+  useGetMyBrandsQuery,
+} = BrandBuilderApi;
 export default BrandBuilderApi;

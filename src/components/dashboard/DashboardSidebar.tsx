@@ -18,6 +18,7 @@ import {
   Sparkles,
   UploadCloud,
   WalletCards,
+  Palette,
   type LucideIcon,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -39,6 +40,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
   { label: "Payouts", href: "/dashboard/payouts", icon: WalletCards },
   { label: "Update Campaign", href: "/dashboard/campaign", icon: UploadCloud },
+  { label: "My Brand", href: "/dashboard/my-brand", icon: Palette },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;
 
