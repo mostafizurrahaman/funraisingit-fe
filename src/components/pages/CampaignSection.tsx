@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -13,22 +14,16 @@ import toast from "react-hot-toast";
 const CampaignSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryQuery = searchParams.get("category");
+  const categoryQuery = searchParams.get("campaignCategory");
 
   const [page, setPage] = useState(1);
   const limit = 6;
 
-  // Resolve category mapping: "products_pre_orders" maps to "physical_product"
-  const resolvedCategory =
-    categoryQuery === "products_pre_orders" || categoryQuery === "physical_product"
-      ? "physical_product"
-      : categoryQuery;
-
-  // Pass resolved campaignCategory parameter to backend API
+  // Pass campaignCategory parameter to backend API
   const { data: campaignsResponse, isLoading } = useGetAllActiveCampaignsQuery({
     page,
     limit,
-    ...(resolvedCategory ? { campaignCategory: resolvedCategory } : {}),
+    ...(categoryQuery ? { campaignCategory: categoryQuery } : {}),
   });
 
   const campaigns = campaignsResponse?.data || [];
@@ -46,7 +41,7 @@ const CampaignSection = () => {
     if (!categoryQuery) return true;
     const category = campaign.campaignCategory;
     if (categoryQuery === "products_pre_orders" || categoryQuery === "physical_product") {
-      return category === "products_pre_orders" || category === "physical_product";
+      return category === "physical_product" || category === "products_pre_orders";
     }
     return category === categoryQuery;
   });
@@ -132,20 +127,21 @@ const CampaignSection = () => {
                           {campaign.story}
                         </p>
 
-                        {campaign.fundUsage && campaign.fundUsage.length > 0 && (
-                          <div className="mt-2.5 flex flex-wrap gap-1">
-                            {campaign.fundUsage.map(
-                              (fund: string, idx: number) => (
-                                <span
-                                  key={idx}
-                                  className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
-                                >
-                                  {fund}
-                                </span>
-                              ),
-                            )}
-                          </div>
-                        )}
+                        {campaign.fundUsage &&
+                          campaign.fundUsage.length > 0 && (
+                            <div className="mt-2.5 flex flex-wrap gap-1">
+                              {campaign.fundUsage.map(
+                                (fund: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
+                                  >
+                                    {fund}
+                                  </span>
+                                ),
+                              )}
+                            </div>
+                          )}
                       </div>
                     </div>
 

@@ -25,7 +25,7 @@ const campaignTypes = [
   },
   {
     title: "School Fundraiser",
-    id:"school_fundraiser",
+    id: "school_fundraiser",
     description: "Raise money for your students, clubs, and classrooms.",
     icon: GraduationCap,
     bgColor: "bg-[#f5eeff]",
@@ -36,7 +36,7 @@ const campaignTypes = [
   },
   {
     title: "Church Campaign",
-    id:"church_campaign",
+    id: "church_campaign",
     description: "Support missions, ministries, and community outreach.",
     icon: Church,
     bgColor: "bg-[#edf7ed]",
@@ -47,7 +47,7 @@ const campaignTypes = [
   },
   {
     title: "Sports Teams",
-    id:"sports_team",
+    id: "sports_team",
     description: "Fund uniforms, travel, tournaments, and equipment.",
     icon: Trophy,
     bgColor: "bg-[#fff5eb]",
@@ -58,7 +58,7 @@ const campaignTypes = [
   },
   {
     title: "Products & Pre-Orders",
-    id:"products_pre_orders",
+    id: "products_pre_orders",
     description: "Sell food, merchandise, baked goods, apparel, gifts & more.",
     icon: Utensils,
     bgColor: "bg-[#ffebee]",
@@ -69,7 +69,7 @@ const campaignTypes = [
   },
   {
     title: "Events & Tickets",
-    id:"events_tickets",
+    id: "events_tickets",
     description:
       "Pre-sell tickets for concerts, conferences, parties, classes & more.",
     icon: Ticket,
@@ -81,7 +81,7 @@ const campaignTypes = [
   },
   {
     title: "Digital Products",
-    id:"digital_products",
+    id: "digital_products",
     description:
       "Sell e-books, guides, templates, courses & downloadable products.",
     icon: Tablet,
@@ -93,7 +93,7 @@ const campaignTypes = [
   },
   {
     title: "Community & Nonprofits",
-    id:"community_nonprofit",
+    id: "community_nonprofit",
     description: "Collect donations and rally support for your cause.",
     icon: Heart,
     bgColor: "bg-[#fce4ec]",
@@ -141,7 +141,7 @@ const CampaignType = () => {
           return (
             <Link
               key={idx}
-              href={`/campaign?category=${item.id}`}
+              href={`/campaign?campaignCategory=${item.id}`}
               className={`flex flex-col items-center text-center p-5 bg-white border border-[#e7e9ee] rounded-2xl transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg hover:cursor-pointer ${item.shadowColor} ${item.borderColor}`}
             >
               {/* Icon Container */}
