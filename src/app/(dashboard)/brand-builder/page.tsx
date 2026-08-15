@@ -1,5 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import type { ComponentType, ReactNode } from "react";
+import { useState } from "react";
+import { useCreateBrandBuilderMutation } from "@/redux/features/brandBuilder/BrandBuilderApi";
+import toast from "react-hot-toast";
 import {
   ArrowRight,
   BadgeCheck,
@@ -17,6 +22,7 @@ import {
   Star,
   Upload,
   Wand2,
+  Loader2,
 } from "lucide-react";
 import shopping from "../../../assets/shopping.png";
 import { Button } from "@/components/ui/button";
@@ -79,12 +85,14 @@ const brandStyles = [
   "Bold",
   "Let Designer Decide",
 ] as const;
+
 const budgets = [
   "Under $500",
   "$500-$1,000",
   "$1,000-$2,500",
   "$2,500+",
 ] as const;
+
 const designBullets = [
   "2 Custom Brand Concepts",
   "7 Business Days Turnaround",
@@ -118,12 +126,6 @@ const howItWorks = [
   },
 ] as const;
 
-const uploadCards = [
-  { title: "Upload Photos", detail: "Add images that inspire your brand" },
-  { title: "Upload Logo", detail: "Upload your current logo if you have one" },
-  { title: "Upload Colors", detail: "Share color ideas or palettes you love" },
-] as const;
-
 const trustItems = [
   {
     title: "Your information is safe with us.",
@@ -149,7 +151,140 @@ const stepToneStyles = {
   pink: "bg-pink-100 text-pink-700",
 } as const;
 
+const presetColors = [
+  "#FF7600", // Orange (Primary)
+  "#00AAA6", // Teal (Secondary)
+  "#07122F", // Dark Navy
+  "#FF5733", // Coral Red
+  "#FFC107", // Amber
+  "#4CAF50", // Green
+  "#2196F3", // Blue
+  "#9C27B0", // Purple
+  "#E91E63", // Pink
+  "#000000", // Black
+  "#FFFFFF", // White
+];
+
 export default function BrandBuilder() {
+  const [createBrandBuilder, { isLoading: isSubmitting }] = useCreateBrandBuilderMutation();
+
+  // Form State
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([
+    "Tent", "Tablecloth", "Staff Shirts", "Aprons", "Cups", "Napkins", "Custom Hat", "Small Treat Boxes", "Table Cover", "Custom Box"
+  ]);
+  const [isOtherProductChecked, setIsOtherProductChecked] = useState(true);
+  const [otherProductText, setOtherProductText] = useState("");
+
+  const [businessName, setBusinessName] = useState("");
+  const [sellingItem, setSellingItem] = useState("example: Banana Pudding, Lemonade, Jewellery, etc.");
+  const [brandVision, setBrandVision] = useState(
+    "Example: \"I own Jenna's Banana Pudding. I want a fun but professional look with Tiffany blue and orange colors. I'd like my tent, shirts, cups, and banner to all match.\""
+  );
+
+  const [brandStyle, setBrandStyle] = useState<string>("Fun & Playful");
+  const [budget, setBudget] = useState<string>("Under $500");
+
+  // Colors & Files State
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [brandLogoFile, setBrandLogoFile] = useState<File | null>(null);
+  const [brandImageFile, setBrandImageFile] = useState<File | null>(null);
+
+  // File previews
+  const [logoName, setLogoName] = useState("");
+  const [imageName, setImageName] = useState("");
+
+  const handleProductToggle = (product: string) => {
+    setSelectedProducts((prev) =>
+      prev.includes(product) ? prev.filter((p) => p !== product) : [...prev, product]
+    );
+  };
+
+  const handleColorToggle = (color: string) => {
+    setSelectedColors((prev) => {
+      if (prev.includes(color)) {
+        return prev.filter((c) => c !== color);
+      }
+      return [...prev, color];
+    });
+  };
+
+  const handleCustomColorAdd = (color: string) => {
+    setSelectedColors((prev) => {
+      if (prev.includes(color)) return prev;
+      return [...prev, color];
+    });
+  };
+
+  const removeColor = (color: string) => {
+    setSelectedColors((prev) => prev.filter((c) => c !== color));
+  };
+
+  const handleSubmit = async () => {
+    if (!businessName) {
+      toast.error("Business Name is required.");
+      return;
+    }
+    if (!sellingItem) {
+      toast.error("Please specify what you sell.");
+      return;
+    }
+    if (!brandVision) {
+      toast.error("Please describe your brand vision.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Products
+    let productIndex = 0;
+    selectedProducts.forEach((prod) => {
+      formData.append(`products[${productIndex++}]`, prod);
+    });
+    if (isOtherProductChecked && otherProductText) {
+      formData.append(`products[${productIndex++}]`, otherProductText);
+    }
+
+    formData.append("businessName", businessName);
+    formData.append("sellingItem", sellingItem);
+    formData.append("brandStyle", brandStyle);
+
+    // Map budget
+    const budgetVal =
+      budget === "Under $500"
+        ? "500"
+        : budget === "$500-$1,000"
+        ? "1000"
+        : budget === "$1,000-$2,500"
+        ? "2500"
+        : "5000";
+    formData.append("budget", budgetVal);
+
+    // Colors
+    selectedColors.forEach((color, idx) => {
+      formData.append(`colors[${idx}]`, color);
+    });
+
+    // Files
+    if (brandLogoFile) {
+      formData.append("brandLogo", brandLogoFile);
+    }
+    if (brandImageFile) {
+      formData.append("brandImage", brandImageFile);
+    }
+
+    try {
+      const res = await createBrandBuilder(formData).unwrap();
+      if (res.success && res.data?.url) {
+        toast.success(res.message || "Brand builder created successfully!");
+        window.location.href = res.data.url;
+      } else {
+        toast.error(res.message || "Failed to create brand builder.");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "An error occurred during submission.");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1280px] space-y-5">
       <section className="grid gap-5 xl:grid-cols-[1fr_300px]">
@@ -228,6 +363,7 @@ export default function BrandBuilder() {
             })}
           </section>
 
+          {/* Section 1 */}
           <section className="rounded-lg border border-border bg-white p-4 shadow-sm">
             <SectionHeader
               number="1"
@@ -235,10 +371,13 @@ export default function BrandBuilder() {
               detail="Select everything you may need for your business."
             />
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {productOptions.map((product, index) => (
+              {productOptions.map((product) => (
                 <label
                   key={product}
-                  className="flex h-10 cursor-pointer items-center justify-between gap-2 rounded-md border border-border px-3 text-sm transition-all duration-300 hover:border-secondary hover:bg-secondary/5"
+                  className={cn(
+                    "flex h-10 cursor-pointer items-center justify-between gap-2 rounded-md border px-3 text-sm transition-all duration-300 hover:border-secondary hover:bg-secondary/5",
+                    selectedProducts.includes(product) ? "border-secondary bg-secondary/5" : "border-border"
+                  )}
                 >
                   <span className="flex items-center gap-2">
                     <Boxes className="size-4 text-muted-foreground" />
@@ -246,85 +385,185 @@ export default function BrandBuilder() {
                   </span>
                   <input
                     type="checkbox"
-                    defaultChecked={[
-                      0, 1, 2, 3, 4, 5, 7, 12, 13, 14, 15,
-                    ].includes(index)}
+                    checked={selectedProducts.includes(product)}
+                    onChange={() => handleProductToggle(product)}
                     className="size-4 accent-secondary"
                   />
                 </label>
               ))}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-[180px_1fr]">
-              <label className="flex h-10 cursor-pointer items-center gap-2 rounded-md border border-secondary/40 px-3 text-sm text-secondary transition-all duration-300 hover:bg-secondary/5">
+              <label className={cn(
+                "flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm transition-all duration-300 hover:bg-secondary/5",
+                isOtherProductChecked ? "border-secondary text-secondary bg-secondary/5" : "border-secondary/40 text-secondary"
+              )}>
                 <input
                   type="checkbox"
-                  defaultChecked
+                  checked={isOtherProductChecked}
+                  onChange={(e) => setIsOtherProductChecked(e.target.checked)}
                   className="size-4 accent-secondary"
                 />
                 Other
               </label>
               <Input
                 placeholder="Tell us what else you need..."
+                value={otherProductText}
+                onChange={(e) => setOtherProductText(e.target.value)}
+                disabled={!isOtherProductChecked}
                 className="h-10 rounded-md border-border text-sm"
               />
             </div>
           </section>
 
+          {/* Section 2 */}
           <section className="rounded-lg border border-border bg-white p-4 shadow-sm">
             <SectionHeader number="2" title="Tell Us About Your Business" />
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field label="Business Name *">
                 <Input
                   placeholder="Enter your business name"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
                   className="h-10 rounded-md border-border text-sm"
                 />
               </Field>
               <Field label="What Do You Sell? *">
                 <Input
-                  defaultValue="example: Banana Pudding, Lemonade, Jewellery, etc."
+                  value={sellingItem}
+                  onChange={(e) => setSellingItem(e.target.value)}
                   className="h-10 rounded-md border-border text-sm"
                 />
               </Field>
             </div>
             <Field label="Describe Your Vision *" className="mt-4">
               <Textarea
-                defaultValue={
-                  "Example: \"I own Jenna's Banana Pudding. I want a fun but professional look with Tiffany blue and orange colors. I'd like my tent, shirts, cups, and banner to all match.\""
-                }
+                value={brandVision}
+                onChange={(e) => setBrandVision(e.target.value)}
                 className="min-h-28 rounded-md border-border text-sm"
               />
             </Field>
           </section>
 
+          {/* Section 3 */}
           <section className="rounded-lg border border-border bg-white p-4 shadow-sm">
             <SectionHeader
               number="3"
-              title="Upload Inspiration"
-              detail="Optional"
+              title="Upload Inspiration & Select Colors"
+              detail="Choose brand colors and upload optional files"
             />
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {uploadCards.map((card) => (
-                <label
-                  key={card.title}
-                  className="flex cursor-pointer items-center gap-3 rounded-md border border-secondary bg-secondary/10 p-3 text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/15 hover:shadow-sm"
-                >
-                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-secondary bg-white">
-                    <Upload className="size-5" />
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {/* Photo Upload */}
+              <label className="flex cursor-pointer items-center gap-3 rounded-md border border-secondary bg-secondary/10 p-3 text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/15 hover:shadow-sm">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-secondary bg-white">
+                  <Upload className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold truncate">
+                    {logoName || "Upload Photos"}
                   </span>
-                  <span>
-                    <span className="block text-sm font-semibold">
-                      {card.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {card.detail}
-                    </span>
+                  <span className="block text-xs text-muted-foreground truncate">
+                    Add images that inspire your brand
                   </span>
-                  <input type="file" accept="image/*" className="sr-only" />
-                </label>
-              ))}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setBrandLogoFile(e.target.files[0]);
+                      setLogoName(e.target.files[0].name);
+                    }
+                  }}
+                  className="sr-only"
+                />
+              </label>
+
+              {/* Logo Upload */}
+              <label className="flex cursor-pointer items-center gap-3 rounded-md border border-secondary bg-secondary/10 p-3 text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/15 hover:shadow-sm">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-secondary bg-white">
+                  <Upload className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold truncate">
+                    {imageName || "Upload Logo"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground truncate">
+                    Upload your current logo if you have one
+                  </span>
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setBrandImageFile(e.target.files[0]);
+                      setImageName(e.target.files[0].name);
+                    }
+                  }}
+                  className="sr-only"
+                />
+              </label>
+
+              {/* Color Palette Picker */}
+              <div className="flex flex-col gap-2 rounded-md border border-border bg-slate-50/50 p-3">
+                <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                  <Palette className="size-4 text-secondary" />
+                  Select Colors
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {presetColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleColorToggle(color)}
+                      className={cn(
+                        "size-6 rounded-full border border-slate-200 transition-all relative cursor-pointer",
+                        selectedColors.includes(color) ? "ring-2 ring-secondary scale-105" : ""
+                      )}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    >
+                      {selectedColors.includes(color) && (
+                        <span className="absolute inset-0 flex items-center justify-center text-[8px] text-white font-bold drop-shadow">✓</span>
+                      )}
+                    </button>
+                  ))}
+                  {/* Custom color selector */}
+                  <label className="relative size-6 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer">
+                    <input
+                      type="color"
+                      onChange={(e) => handleCustomColorAdd(e.target.value)}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                    <span className="text-xs font-semibold text-slate-500">+</span>
+                  </label>
+                </div>
+                {/* Selection Indicators */}
+                {selectedColors.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {selectedColors.map((color, idx) => (
+                      <div
+                        key={idx}
+                        className="inline-flex items-center gap-1 bg-white border border-border px-1.5 py-0.5 rounded text-[10px] font-semibold text-foreground"
+                      >
+                        <span className="size-2.5 rounded-full border border-slate-100" style={{ backgroundColor: color }} />
+                        <span>{color}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeColor(color)}
+                          className="text-red-500 hover:text-red-700 font-bold ml-0.5"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
 
+          {/* Style & Budget */}
           <section className="grid gap-4 lg:grid-cols-3">
             <OptionCard
               number="4"
@@ -332,15 +571,16 @@ export default function BrandBuilder() {
               detail="What style best represents your brand?"
             >
               <div className="mt-3 space-y-2">
-                {brandStyles.map((style, index) => (
+                {brandStyles.map((style) => (
                   <label
                     key={style}
-                    className="flex items-center gap-2 text-sm"
+                    className="flex items-center gap-2 text-sm cursor-pointer"
                   >
                     <input
                       type="radio"
                       name="brandStyle"
-                      defaultChecked={index === 0}
+                      checked={brandStyle === style}
+                      onChange={() => setBrandStyle(style)}
                       className="size-4 accent-secondary"
                     />
                     {style}
@@ -355,18 +595,19 @@ export default function BrandBuilder() {
               detail="What is your estimated budget for your branded items?"
             >
               <div className="mt-3 space-y-2">
-                {budgets.map((budget, index) => (
+                {budgets.map((budgetItem) => (
                   <label
-                    key={budget}
-                    className="flex items-center gap-2 text-sm"
+                    key={budgetItem}
+                    className="flex items-center gap-2 text-sm cursor-pointer"
                   >
                     <input
                       type="radio"
                       name="budget"
-                      defaultChecked={index === 0}
+                      checked={budget === budgetItem}
+                      onChange={() => setBudget(budgetItem)}
                       className="size-4 accent-secondary"
                     />
-                    {budget}
+                    {budgetItem}
                   </label>
                 ))}
               </div>
@@ -439,12 +680,12 @@ export default function BrandBuilder() {
               <SummaryFeature
                 icon={ShieldCheck}
                 title="Satisfaction Guaranteed"
-                detail="We'll make it right"
+                detail="We&apos;ll make it right"
               />
             </div>
           </section>
 
-          <Button className="h-12 w-full bg-amber-400 text-base font-semibold text-foreground hover:bg-amber-500">
+          <Button className="h-12 w-full bg-amber-400 text-base font-semibold text-foreground hover:bg-amber-500 cursor-pointer">
             How It Works
           </Button>
 
@@ -472,9 +713,22 @@ export default function BrandBuilder() {
             <p className="text-sm">We make dreams look amazing!</p>
           </section>
 
-          <Button className="h-12 w-full bg-primary text-sm font-semibold hover:bg-primary-hover">
-            Start My Brand Project
-            <ArrowRight className="size-4" />
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="h-12 w-full bg-primary text-sm font-semibold hover:bg-primary-hover cursor-pointer"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin mr-2" />
+                Processing...
+              </>
+            ) : (
+              <>
+                Start My Brand Project
+                <ArrowRight className="size-4" />
+              </>
+            )}
           </Button>
           <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <LockKeyhole className="size-4" />
