@@ -26,6 +26,7 @@ import { useGetDashboardAnalyticsQuery } from "@/redux/features/DashboardAnalyti
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
+import toast from "react-hot-toast";
 
 const quickActions = [
   { label: "Copy Link", className: "bg-blue-600 hover:bg-blue-700" },
@@ -82,6 +83,38 @@ export default function DashboardPage() {
 
   const isLoading =
     isLoadingCampaigns || (selectedCampaignId ? isLoadingAnalytics : true);
+
+  const selectedCampaign = campaignsList.find((c: any) => c._id === selectedCampaignId);
+  const campaignCode = selectedCampaign?.campaignCode || "";
+
+  const handleShareAction = (label: string) => {
+    if (!campaignCode) {
+      toast.error("No active campaign selected to share.");
+      return;
+    }
+    const shareUrl = `${window.location.origin}/campaign/${campaignCode}`;
+
+    switch (label) {
+      case "Copy Link":
+        navigator.clipboard.writeText(shareUrl);
+        toast.success("Campaign link copied to clipboard!");
+        break;
+      case "Facebook":
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
+        break;
+      case "Text Message":
+        window.location.href = `sms:?&body=${encodeURIComponent(shareUrl)}`;
+        break;
+      case "Email":
+        window.location.href = `mailto:?subject=${encodeURIComponent("Support my campaign")}&body=${encodeURIComponent(shareUrl)}`;
+        break;
+      case "WhatsApp":
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareUrl)}`, "_blank");
+        break;
+      default:
+        break;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -441,6 +474,7 @@ export default function DashboardPage() {
                 <button
                   key={action.label}
                   type="button"
+                  onClick={() => handleShareAction(action.label)}
                   className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${action.className}`}
                 >
                   <Send className="size-4" />
