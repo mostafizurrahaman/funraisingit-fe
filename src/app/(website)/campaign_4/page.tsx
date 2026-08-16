@@ -91,19 +91,20 @@ export default function CampaignFourPage() {
     useLaunchCampaignMutation();
 
   const previewData = previewResponse?.data;
-  // console.log("Current Campaign ID in State:", campaignId);
-  // console.log("previewBody Data:", previewBody);
-  // console.log("Preview Data:", previewResponse);
+ 
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     if (!agreed) {
       setError(
         "Please confirm the campaign details and agree to the terms before launching.",
       );
       return;
     }
+
     setError("");
+
     if (!campaignId) {
       setError("Campaign ID not found. Please start from Step 1.");
       return;
@@ -111,20 +112,34 @@ export default function CampaignFourPage() {
 
     try {
       const launchBody = promoCode ? { promoCode } : {};
+
       const response = await launchCampaign({
         campaignId,
         body: launchBody,
       }).unwrap();
-      toast.success(response?.message || "Campaign launched successfully!");
-      resetDraft();
 
-      router.push(response?.data?.url);
+      toast.success(response?.message || "Campaign launched successfully!");
+
+      resetDraft();
       removeCampaignIdFromLocalStorage();
+      router.push(response?.data?.url);
     } catch (err: any) {
       const errMsg =
         err?.data?.message || "Failed to launch campaign. Please try again.";
+
+      if (
+        errMsg === "Before launching campaign setup organization bank account."
+      ) {
+        toast.error(errMsg);
+
+        setTimeout(() => {
+          router.push("/dashboard/settings");
+        }, 1500);
+
+        return;
+      }
+
       setError(errMsg);
-      // toast.error(errMsg);
     }
   }
 
