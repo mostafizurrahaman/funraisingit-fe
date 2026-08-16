@@ -1,20 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
-import {
-  Tag,
-  Search,
-  Package,
-  Layers,
-  FileCode,
-  Loader2,
-} from "lucide-react";
+import { Tag, Search, Package, Layers, FileCode, Loader2 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   useGetAllMyCampaignsQuery,
+  useGetCampaignByIdQuery,
 } from "@/redux/features/campaign/campaignApi";
 import {
   Product,
@@ -26,23 +19,21 @@ import {
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0); // 0: All, 1: Physical, 2: Digital
-
-  const campaignId =
-    typeof window !== "undefined" ? localStorage.getItem("campaignId") : null;
-  console.log("Campaign ID:", campaignId);
-  // const { data: campaignResponse, isLoading, isError } = useGetCampaignByIdQuery(
-  //   campaignId || "",
-  //   { skip: !campaignId }
-  // );
+  const { data: myCampaignsResponse, } =
+    useGetAllMyCampaignsQuery({});
+  const campaignId = myCampaignsResponse?.data[0]?._id;
+  // console.log("Campaigns List:", campaignsList);
   const {
     data: campaignResponse,
-    isLoading,
+    isLoading: isLoading,
     isError,
-  } = useGetAllMyCampaignsQuery({});
+  } = useGetCampaignByIdQuery(campaignId);
 
   const campaignData = campaignResponse?.data;
   const campaignStatus = campaignData?.status;
   const products: Product[] = campaignData?.products || [];
+  console.log("campaignData:", campaignData);
+
   // Statistics calculation
   const totalProducts = products.length;
   const physicalProducts = products.filter(
@@ -51,9 +42,7 @@ export default function ProductsPage() {
   const digitalProducts = products.filter(
     (p) => p.productType === "digital",
   ).length;
-  const outOfStockProducts = products.filter(
-    (p) => !p.isUnlimited && p.stock <= 0,
-  ).length;
+
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -109,7 +98,7 @@ export default function ProductsPage() {
   ] as const;
 
   return (
-    <div className="mx-auto max-w-[1440px] space-y-5">
+    <div className="mx-auto max-w-360 space-y-5">
       <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4">
           <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-lg bg-white text-foreground shadow-sm ring-1 ring-border">
@@ -189,14 +178,14 @@ export default function ProductsPage() {
 
         <div className="overflow-x-auto">
           {isLoading ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center gap-2">
+            <div className="flex min-h-50 flex-col items-center justify-center gap-2">
               <Loader2 className="size-8 animate-spin text-secondary" />
               <p className="text-sm text-muted-foreground">
                 Loading products...
               </p>
             </div>
           ) : isError || !campaignId ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center">
+            <div className="flex min-h-50 flex-col items-center justify-center">
               <p className="text-sm text-red-500 font-semibold">
                 {!campaignId
                   ? "No campaign found. Please select a campaign first."
@@ -204,13 +193,13 @@ export default function ProductsPage() {
               </p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center">
+            <div className="flex min-h-50 flex-col items-center justify-center">
               <p className="text-sm text-muted-foreground">
                 No products found.
               </p>
             </div>
           ) : (
-            <table className="w-full min-w-[980px] text-left text-sm">
+            <table className="w-full min-w-245 text-left text-sm">
               <thead className="border-b border-border bg-[#f8ffff] text-xs font-semibold text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">Product Name</th>

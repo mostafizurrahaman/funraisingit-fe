@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useGetDashboardAnalyticsQuery } from "@/redux/features/DashboardAnalytics/DashboardAnalyticsApi";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
 
@@ -38,23 +37,14 @@ const quickActions = [
 ] as const;
 
 export default function DashboardPage() {
-  const searchParams = useSearchParams();
-  const initialCampaignId =
-    searchParams.get("campaignId") ||
-    (typeof window !== "undefined"
-      ? localStorage.getItem("campaignId")
-      : null) ||
-    "";
-  console.log("Initial Campaign ID:", initialCampaignId);
-  const [selectedCampaignId, setSelectedCampaignId] =
-    useState<string>(initialCampaignId);
-
   const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } =
-    useGetAllMyCampaignsQuery(undefined, {
-      skip: !selectedCampaignId && !initialCampaignId,
-    });
+    useGetAllMyCampaignsQuery({});
   const campaignsList = myCampaignsResponse?.data || [];
-  console.log("Campaigns List:", campaignsList);
+  const campaignId = myCampaignsResponse?.data[0]?._id;
+
+  const [selectedCampaignId, setSelectedCampaignId] =
+    useState<string>(campaignId);
+
   // Sort campaigns by createdAt descending to get the most recent first
   const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
     const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -86,9 +76,6 @@ export default function DashboardPage() {
   const isLoading =
     isLoadingCampaigns || (selectedCampaignId ? isLoadingAnalytics : true);
 
-  const selectedCampaign = campaignsList.find(
-    (c: any) => c._id === selectedCampaignId,
-  );
 
   const handleShareAction = (label: string) => {
     if (!campaignCode) {
@@ -161,7 +148,7 @@ export default function DashboardPage() {
   const data = response?.data || {};
 
   return (
-    <div className="mx-auto max-w-[1440px] space-y-5">
+    <div className="mx-auto max-w-360 space-y-5">
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
@@ -308,7 +295,7 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Activity</h3>
               </div>
-              <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-75 overflow-y-auto pr-1">
                 {!data.recentActivities ||
                 data.recentActivities.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
@@ -345,7 +332,7 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Orders</h3>
               </div>
-              <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-55 overflow-y-auto pr-1">
                 {!data.recentOrders || data.recentOrders.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No recent orders.
@@ -384,7 +371,7 @@ export default function DashboardPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Recent Donations</h3>
               </div>
-              <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-55 overflow-y-auto pr-1">
                 {!data.recentDonations || data.recentDonations.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No recent donations.
@@ -503,7 +490,7 @@ export default function DashboardPage() {
             </div>
           </DashboardCard>
 
-          <DashboardCard>
+          {/* <DashboardCard>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h3 className="text-base font-semibold">Current Goal</h3>
@@ -517,7 +504,7 @@ export default function DashboardPage() {
               <div className="h-full w-[64%] rounded-full bg-primary" />
             </div>
             <p className="mt-2 text-right text-sm font-semibold">64%</p>
-          </DashboardCard>
+          </DashboardCard> */}
         </aside>
       </section>
 
