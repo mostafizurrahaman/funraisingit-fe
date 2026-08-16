@@ -35,9 +35,9 @@ const durations = [2, 3, 5, 7] as const;
 const shippingFees = [5, 8, 10] as const;
 
 const deliveryOptions = [
-  { id: "pickup", title: "Local Pickup", detail: "Customers pick up in person", icon: Store },
-  { id: "delivery", title: "Local Delivery", detail: "You deliver locally", icon: Truck },
-  { id: "shipping", title: "Shipping", detail: "We ship to supporters", icon: PackageCheck },
+  { id: "pickup", title: "Local Pickup", detail: "I will pick up from supporters", icon: Store },
+  { id: "delivery", title: "Local Delivery", detail: "I will deliver to supporters", icon: Truck },
+  { id: "shipping", title: "Shipping", detail: "I will ship to supporters", icon: PackageCheck },
 ] as const;
 
 import { useSelector } from "react-redux";
@@ -295,10 +295,10 @@ export default function CampaignThreePage() {
         <div className="mx-auto mt-14 grid w-full max-w-6xl items-start gap-10 lg:mt-20 lg:grid-cols-[1.25fr_0.75fr] xl:gap-16">
           <form onSubmit={handleSubmit} className="space-y-11">
             <header>
-              <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* <div className="flex flex-wrap items-center justify-between gap-4">
                 <span className="inline-flex bg-secondary/10 px-3 py-1.5 text-base font-medium text-secondary">Step 3 of 4</span>
                 <Button type="button" variant="outline" onClick={handleAddProductToList} className="border-secondary text-secondary"><Plus className="size-4" />Add Product to Campaign</Button>
-              </div>
+              </div> */}
               <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">Set Up Your Campaign</h1>
               <p className="mt-4 text-lg leading-7 text-muted-foreground">Just a few more details before we create your fundraiser.</p>
               {products.length > 0 ? <p className="mt-2 text-sm font-medium text-secondary">{products.length} campaign items added</p> : null}
