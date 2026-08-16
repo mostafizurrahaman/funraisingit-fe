@@ -51,7 +51,7 @@ export default function SignUpPage() {
       router.push(`/verify-otp?email=${encodeURIComponent(email)}&flow=signup`);
     } catch (err: any) {
       const errMsg = err?.data?.message || "Sign up failed. Please try again.";
-      toast.error(errMsg);
+      // toast.error(errMsg);
       setError(errMsg);
     }
   }

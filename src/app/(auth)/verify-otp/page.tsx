@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -119,7 +120,7 @@ function VerifyOtpForm() {
         }
       }
     } catch (err: any) {
-      setError(err?.data?.message || "Verification failed. Please check your OTP.");
+      // setError(err?.data?.message || "Verification failed. Please check your OTP.");
       toast.error(err?.data?.message || "Verification failed.");
     }
   }

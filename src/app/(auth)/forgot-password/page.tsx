@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
       }
       router.push(`/verify-otp?email=${encodeURIComponent(email)}&flow=forgot-password`);
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to request password reset. Please try again.");
+      // toast.error(err?.data?.message || "Failed to request password reset. Please try again.");
     }
   }
 
