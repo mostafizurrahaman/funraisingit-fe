@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   ArrowUpRight,
@@ -54,18 +55,29 @@ const defaultPurposes = [
 ] as const;
 
 export default function CampaignSettingsPage() {
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const router = useRouter();
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
+    null,
+  );
 
   // 1. Get draft campaigns list
-  const { data: draftCampaignsResponse, isLoading: isLoadingDrafts, error: draftsError } = useGetDraftCampaignsQuery(undefined);
-  
+  const {
+    data: draftCampaignsResponse,
+    isLoading: isLoadingDrafts,
+    error: draftsError,
+  } = useGetDraftCampaignsQuery(undefined);
+
   // Normalize drafts response (data could be a single object or an array)
   const draftsData = draftCampaignsResponse?.data;
+  console.log("Draft Campaigns Response:", draftsData);
   const draftCampaigns = Array.isArray(draftsData)
     ? draftsData
     : draftsData && typeof draftsData === "object" && draftsData._id
       ? [draftsData]
       : [];
+
+  const draftCampaignId =
+    draftsData?._id || (Array.isArray(draftsData) ? draftsData[0]?._id : undefined);
 
   // 2. Get single campaign details
   const {
@@ -73,9 +85,12 @@ export default function CampaignSettingsPage() {
     isLoading: isDetailsLoading,
     error: detailsError,
     refetch,
-  } = useGetCampaignByIdQuery(selectedCampaignId, { skip: !selectedCampaignId });
+  } = useGetCampaignByIdQuery(selectedCampaignId, {
+    skip: !selectedCampaignId,
+  });
 
-  const [updateCampaign, { isLoading: isUpdating }] = useUpdateCampaignMutation();
+  const [updateCampaign, { isLoading: isUpdating }] =
+    useUpdateCampaignMutation();
 
   // State for modals
   const [isEditBasicOpen, setIsEditBasicOpen] = useState(false);
@@ -89,14 +104,14 @@ export default function CampaignSettingsPage() {
   const [durationDays, setDurationDays] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState("");
-  
+
   const [story, setStory] = useState("");
-  
+
   const [allowLocalPickup, setAllowLocalPickup] = useState(false);
   const [allowLocalDelivery, setAllowLocalDelivery] = useState(false);
   const [allowShipping, setAllowShipping] = useState(false);
   const [shippingFee, setShippingFee] = useState("");
-  
+
   const [allowDonation, setAllowDonation] = useState(false);
   const [fundUsage, setFundUsage] = useState<string[]>([]);
 
@@ -107,7 +122,9 @@ export default function CampaignSettingsPage() {
     if (campaign) {
       setName(campaign.name || "");
       setGoalAmount(campaign.goalAmount ? String(campaign.goalAmount) : "");
-      setDurationDays(campaign.durationDays ? String(campaign.durationDays) : "");
+      setDurationDays(
+        campaign.durationDays ? String(campaign.durationDays) : "",
+      );
       setThumbnailPreview(campaign.thumbnail || "");
       setStory(campaign.story || "");
       setAllowLocalPickup(!!campaign.allowLocalPickup);
@@ -124,7 +141,9 @@ export default function CampaignSettingsPage() {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 animate-spin text-secondary" />
-        <p className="text-sm text-muted-foreground">Loading campaign details...</p>
+        <p className="text-sm text-muted-foreground">
+          Loading campaign details...
+        </p>
       </div>
     );
   }
@@ -132,9 +151,13 @@ export default function CampaignSettingsPage() {
   if (selectedCampaignId && detailsError) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
-        <p className="text-lg font-semibold text-rose-500">Failed to load campaign data.</p>
+        <p className="text-lg font-semibold text-rose-500">
+          Failed to load campaign data.
+        </p>
         <div className="flex gap-2">
-          <Button onClick={() => setSelectedCampaignId(null)} variant="outline">Back to Drafts</Button>
+          <Button onClick={() => setSelectedCampaignId(null)} variant="outline">
+            Back to Drafts
+          </Button>
           <Button onClick={() => refetch()}>Retry</Button>
         </div>
       </div>
@@ -147,7 +170,9 @@ export default function CampaignSettingsPage() {
       return (
         <div className="flex h-96 flex-col items-center justify-center gap-3">
           <Loader2 className="size-8 animate-spin text-secondary" />
-          <p className="text-sm text-muted-foreground">Loading draft campaigns...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading draft campaigns...
+          </p>
         </div>
       );
     }
@@ -157,7 +182,9 @@ export default function CampaignSettingsPage() {
       if (errMsg !== "No Draft campaign exists.") {
         return (
           <div className="flex h-96 flex-col items-center justify-center gap-3">
-            <p className="text-lg font-semibold text-rose-500">Failed to load draft campaigns.</p>
+            <p className="text-lg font-semibold text-rose-500">
+              Failed to load draft campaigns.
+            </p>
           </div>
         );
       }
@@ -166,8 +193,12 @@ export default function CampaignSettingsPage() {
     return (
       <div className="mx-auto max-w-[1180px] space-y-5">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Draft Campaigns</h2>
-          <p className="text-sm text-muted-foreground mt-1">Select a draft campaign to continue setup and editing.</p>
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Draft Campaigns
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Select a draft campaign to continue setup and editing.
+          </p>
         </div>
 
         <DashboardCard className="p-0 border border-slate-100 overflow-hidden bg-white shadow-sm">
@@ -175,7 +206,8 @@ export default function CampaignSettingsPage() {
             <div className="flex h-60 flex-col items-center justify-center text-center p-4">
               <Package className="size-10 text-slate-300 mb-2" />
               <p className="text-sm font-semibold text-muted-foreground">
-                {(draftsError as any)?.data?.message || "No draft campaigns found."}
+                {(draftsError as any)?.data?.message ||
+                  "No draft campaigns found."}
               </p>
             </div>
           ) : (
@@ -188,12 +220,17 @@ export default function CampaignSettingsPage() {
                     <th className="px-5 py-4 font-semibold">Category</th>
                     <th className="px-5 py-4 font-semibold">Goal Amount</th>
                     <th className="px-5 py-4 font-semibold">Status</th>
-                    <th className="px-5 py-4 text-right font-semibold">Action</th>
+                    <th className="px-5 py-4 text-right font-semibold">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {draftCampaigns.map((camp: any) => (
-                    <tr key={camp._id} className="transition-colors duration-300 hover:bg-slate-50/50">
+                    <tr
+                      key={camp._id}
+                      className="transition-colors duration-300 hover:bg-slate-50/50"
+                    >
                       <td className="px-5 py-4">
                         {camp.thumbnail ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -208,9 +245,18 @@ export default function CampaignSettingsPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-5 py-4 font-semibold text-slate-800">{camp.name || "Unnamed"}</td>
-                      <td className="px-5 py-4 capitalize text-slate-600">{(camp.campaignCategory || "physical_product").replace("_", " ")}</td>
-                      <td className="px-5 py-4 font-semibold text-slate-700">${camp.goalAmount?.toLocaleString() || "0"}</td>
+                      <td className="px-5 py-4 font-semibold text-slate-800">
+                        {camp.name || "Unnamed"}
+                      </td>
+                      <td className="px-5 py-4 capitalize text-slate-600">
+                        {(camp.campaignCategory || "physical_product").replace(
+                          "_",
+                          " ",
+                        )}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-slate-700">
+                        ${camp.goalAmount?.toLocaleString() || "0"}
+                      </td>
                       <td className="px-5 py-4">
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 capitalize">
                           <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -233,17 +279,37 @@ export default function CampaignSettingsPage() {
             </div>
           )}
         </DashboardCard>
+
+        {draftCampaigns.length > 0 && draftCampaignId && (
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={() => {
+                localStorage.setItem("campaignId", draftCampaignId);
+                router.push("/campaign_4");
+              }}
+              className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer py-2 px-5 font-semibold shadow-sm"
+            >
+              Launch Your Campaign &rarr;
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
 
   // Handle updates
-  const handleUpdate = async (e: React.FormEvent, closeCallback: () => void) => {
+  const handleUpdate = async (
+    e: React.FormEvent,
+    closeCallback: () => void,
+  ) => {
     e.preventDefault();
     if (!campaign) return;
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("campaignCategory", campaign.campaignCategory || "physical_product");
+    formData.append(
+      "campaignCategory",
+      campaign.campaignCategory || "physical_product",
+    );
     formData.append("story", story);
     formData.append("goalAmount", goalAmount);
     formData.append("durationDays", durationDays);
@@ -252,7 +318,7 @@ export default function CampaignSettingsPage() {
     formData.append("allowShipping", String(allowShipping));
     formData.append("shippingFee", shippingFee);
     formData.append("allowDonation", String(allowDonation));
-    
+
     fundUsage.forEach((item) => {
       formData.append("fundUsage", item);
     });
@@ -262,7 +328,10 @@ export default function CampaignSettingsPage() {
     }
 
     try {
-      const res = await updateCampaign({ campaignId: campaign._id, formData }).unwrap();
+      const res = await updateCampaign({
+        campaignId: campaign._id,
+        formData,
+      }).unwrap();
       if (res.success) {
         toast.success(res.message || "Campaign updated successfully!");
         refetch();
@@ -271,7 +340,9 @@ export default function CampaignSettingsPage() {
         toast.error(res.message || "Failed to update campaign.");
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || "An error occurred while updating the campaign.");
+      toast.error(
+        err?.data?.message || "An error occurred while updating the campaign.",
+      );
     }
   };
 
@@ -322,23 +393,52 @@ export default function CampaignSettingsPage() {
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
             <div className="space-y-2.5">
               <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={cn("size-4 fill-secondary text-white", !campaign.thumbnail && "opacity-40")} />
+                <CheckCircle2
+                  className={cn(
+                    "size-4 fill-secondary text-white",
+                    !campaign.thumbnail && "opacity-40",
+                  )}
+                />
                 Photo Added
               </p>
               <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={cn("size-4 fill-secondary text-white", !campaign.story && "opacity-40")} />
+                <CheckCircle2
+                  className={cn(
+                    "size-4 fill-secondary text-white",
+                    !campaign.story && "opacity-40",
+                  )}
+                />
                 Story Added
               </p>
               <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={cn("size-4 fill-secondary text-white", (!campaign.products || campaign.products.length === 0) && "opacity-40")} />
+                <CheckCircle2
+                  className={cn(
+                    "size-4 fill-secondary text-white",
+                    (!campaign.products || campaign.products.length === 0) &&
+                      "opacity-40",
+                  )}
+                />
                 Product Added
               </p>
               <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={cn("size-4 fill-secondary text-white", !campaign.allowShipping && !campaign.allowLocalPickup && !campaign.allowLocalDelivery && "opacity-40")} />
+                <CheckCircle2
+                  className={cn(
+                    "size-4 fill-secondary text-white",
+                    !campaign.allowShipping &&
+                      !campaign.allowLocalPickup &&
+                      !campaign.allowLocalDelivery &&
+                      "opacity-40",
+                  )}
+                />
                 Delivery Selected
               </p>
               <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className={cn("size-4 fill-secondary text-white", !campaign.allowDonation && "opacity-40")} />
+                <CheckCircle2
+                  className={cn(
+                    "size-4 fill-secondary text-white",
+                    !campaign.allowDonation && "opacity-40",
+                  )}
+                />
                 Donation Enabled
               </p>
             </div>
@@ -347,17 +447,25 @@ export default function CampaignSettingsPage() {
                 <div>
                   <p className="text-4xl font-semibold">
                     {Math.round(
-                      ((campaign.thumbnail ? 20 : 0) +
+                      (campaign.thumbnail ? 20 : 0) +
                         (campaign.story ? 20 : 0) +
-                        (campaign.products && campaign.products.length > 0 ? 20 : 0) +
-                        (campaign.allowShipping || campaign.allowLocalPickup || campaign.allowLocalDelivery ? 20 : 0) +
-                        (campaign.allowDonation ? 20 : 0))
+                        (campaign.products && campaign.products.length > 0
+                          ? 20
+                          : 0) +
+                        (campaign.allowShipping ||
+                        campaign.allowLocalPickup ||
+                        campaign.allowLocalDelivery
+                          ? 20
+                          : 0) +
+                        (campaign.allowDonation ? 20 : 0),
                     )}
                   </p>
                   <p className="text-xs font-medium">/100</p>
                 </div>
               </div>
-              <p className="mt-2 text-xs font-semibold text-muted-foreground">Campaign Score</p>
+              <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                Campaign Score
+              </p>
               <div className="mt-1 flex justify-center gap-0.5 text-amber-400">
                 {Array.from({ length: 5 }).map((_, index) => (
                   <Star key={index} className="size-4 fill-current" />
@@ -379,7 +487,9 @@ export default function CampaignSettingsPage() {
                 <Edit3 className="size-4 text-foreground" />
                 Campaign Name
               </span>
-              <span className="font-semibold truncate pr-2">{campaign.name}</span>
+              <span className="font-semibold truncate pr-2">
+                {campaign.name}
+              </span>
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
@@ -394,7 +504,9 @@ export default function CampaignSettingsPage() {
                 <Target className="size-4 text-foreground" />
                 Fundraising Goal
               </span>
-              <span className="font-semibold">${campaign.goalAmount?.toLocaleString() || "0"}</span>
+              <span className="font-semibold">
+                ${campaign.goalAmount?.toLocaleString() || "0"}
+              </span>
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
@@ -409,7 +521,9 @@ export default function CampaignSettingsPage() {
                 <CalendarDays className="size-4 text-foreground" />
                 Campaign Length
               </span>
-              <span className="font-semibold">{campaign.durationDays} Days</span>
+              <span className="font-semibold">
+                {campaign.durationDays} Days
+              </span>
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
@@ -433,7 +547,11 @@ export default function CampaignSettingsPage() {
                     className="size-12 rounded-md object-cover"
                   />
                 ) : (
-                  <Image src={order} alt="Fallback" className="size-12 rounded-md object-cover" />
+                  <Image
+                    src={order}
+                    alt="Fallback"
+                    className="size-12 rounded-md object-cover"
+                  />
                 )}
               </span>
               <button
@@ -459,7 +577,9 @@ export default function CampaignSettingsPage() {
                 <Heart className="size-4 text-rose-500" />
                 Supporters
               </span>
-              <span className="font-semibold">{campaign.totalSupporters || 0}</span>
+              <span className="font-semibold">
+                {campaign.totalSupporters || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between gap-3 text-xs">
               <span className="flex items-center gap-2 font-semibold text-muted-foreground">
@@ -473,7 +593,9 @@ export default function CampaignSettingsPage() {
                 <Sparkles className="size-4 text-secondary" />
                 Raised
               </span>
-              <span className="font-semibold">${campaign.raisedAmount || 0}</span>
+              <span className="font-semibold">
+                ${campaign.raisedAmount || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between gap-3 text-xs">
               <span className="flex items-center gap-2 font-semibold text-muted-foreground">
@@ -481,7 +603,13 @@ export default function CampaignSettingsPage() {
                 Goal
               </span>
               <span className="font-semibold">
-                {campaign.goalAmount ? Math.round(((campaign.raisedAmount || 0) / campaign.goalAmount) * 100) : 0}%
+                {campaign.goalAmount
+                  ? Math.round(
+                      ((campaign.raisedAmount || 0) / campaign.goalAmount) *
+                        100,
+                    )
+                  : 0}
+                %
               </span>
             </div>
           </div>
@@ -499,14 +627,20 @@ export default function CampaignSettingsPage() {
                 style={{
                   width: `${Math.min(
                     100,
-                    campaign.goalAmount ? Math.round(((campaign.raisedAmount || 0) / campaign.goalAmount) * 100) : 0
+                    campaign.goalAmount
+                      ? Math.round(
+                          ((campaign.raisedAmount || 0) / campaign.goalAmount) *
+                            100,
+                        )
+                      : 0,
                   )}%`,
                 }}
               />
             </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            ${campaign.raisedAmount || 0} of ${campaign.goalAmount?.toLocaleString() || "0"} goal
+            ${campaign.raisedAmount || 0} of $
+            {campaign.goalAmount?.toLocaleString() || "0"} goal
           </p>
         </DashboardCard>
       </section>
@@ -528,15 +662,24 @@ export default function CampaignSettingsPage() {
               />
               <div className="text-sm">
                 <p className="font-semibold">Product</p>
-                <p className="truncate max-w-[120px]">{campaign.products[0].name}</p>
+                <p className="truncate max-w-[120px]">
+                  {campaign.products[0].name}
+                </p>
                 <p className="mt-2 font-semibold">Price</p>
                 <p>${campaign.products[0].price?.toFixed(2)}</p>
                 <p className="mt-2 font-semibold">Shipping Fee</p>
-                <p>${campaign.shippingFee ? Number(campaign.shippingFee).toFixed(2) : "0.00"}</p>
+                <p>
+                  $
+                  {campaign.shippingFee
+                    ? Number(campaign.shippingFee).toFixed(2)
+                    : "0.00"}
+                </p>
               </div>
             </div>
           ) : (
-            <div className="mt-4 text-sm text-muted-foreground">No products added yet.</div>
+            <div className="mt-4 text-sm text-muted-foreground">
+              No products added yet.
+            </div>
           )}
           <Link
             href="/dashboard/products"
@@ -557,42 +700,51 @@ export default function CampaignSettingsPage() {
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowLocalPickup && "opacity-20"
+                  !campaign.allowLocalPickup && "opacity-20",
                 )}
               />
               <div>
                 <p className="font-semibold">Pickup</p>
-                <p className="text-xs leading-5 text-muted-foreground">Local pickup at a designated location</p>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Local pickup at a designated location
+                </p>
               </div>
             </div>
             <div className="flex gap-2 text-sm">
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowLocalDelivery && "opacity-20"
+                  !campaign.allowLocalDelivery && "opacity-20",
                 )}
               />
               <div>
                 <p className="font-semibold">Local Delivery</p>
-                <p className="text-xs leading-5 text-muted-foreground">Delivered to local addresses</p>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Delivered to local addresses
+                </p>
               </div>
             </div>
             <div className="flex gap-2 text-sm">
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowShipping && "opacity-20"
+                  !campaign.allowShipping && "opacity-20",
                 )}
               />
               <div>
                 <p className="font-semibold">Shipping</p>
-                <p className="text-xs leading-5 text-muted-foreground">Shipped anywhere</p>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Shipped anywhere
+                </p>
               </div>
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between">
             <div className="rounded-md bg-secondary/10 px-3 py-2 text-center text-xs font-semibold text-secondary">
-              Shipping Fee: ${campaign.shippingFee ? Number(campaign.shippingFee).toFixed(2) : "0.00"}
+              Shipping Fee: $
+              {campaign.shippingFee
+                ? Number(campaign.shippingFee).toFixed(2)
+                : "0.00"}
             </div>
             <button
               type="button"
@@ -611,7 +763,9 @@ export default function CampaignSettingsPage() {
             Story &amp; About Section
           </h3>
           <div className="mt-4 max-h-[160px] overflow-y-auto rounded-lg bg-[#f8ffff] p-4 text-sm leading-6 text-muted-foreground">
-            <p className="whitespace-pre-line">{campaign.story || "No story added yet."}</p>
+            <p className="whitespace-pre-line">
+              {campaign.story || "No story added yet."}
+            </p>
           </div>
           <Button
             variant="outline"
@@ -631,23 +785,27 @@ export default function CampaignSettingsPage() {
             Donation Settings
           </h3>
           <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-secondary">Donations Enabled</p>
+            <p className="text-sm font-semibold text-secondary">
+              Donations Enabled
+            </p>
             <span
               className={cn(
                 "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                campaign.allowDonation ? "bg-secondary" : "bg-gray-200"
+                campaign.allowDonation ? "bg-secondary" : "bg-gray-200",
               )}
             >
               <span
                 className={cn(
                   "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                  campaign.allowDonation ? "translate-x-5" : "translate-x-0"
+                  campaign.allowDonation ? "translate-x-5" : "translate-x-0",
                 )}
               />
             </span>
           </div>
           <div className="mt-4">
-            <p className="text-xs font-semibold text-muted-foreground">Fund Usage Goals:</p>
+            <p className="text-xs font-semibold text-muted-foreground">
+              Fund Usage Goals:
+            </p>
             <div className="mt-2 flex flex-wrap gap-1.5 max-h-[70px] overflow-y-auto">
               {campaign.fundUsage && campaign.fundUsage.length > 0 ? (
                 campaign.fundUsage.map((usage: string, i: number) => (
@@ -659,7 +817,9 @@ export default function CampaignSettingsPage() {
                   </span>
                 ))
               ) : (
-                <span className="text-xs text-muted-foreground">None specified</span>
+                <span className="text-xs text-muted-foreground">
+                  None specified
+                </span>
               )}
             </div>
           </div>
@@ -685,7 +845,9 @@ export default function CampaignSettingsPage() {
             <div className="flex w-full items-start gap-3 rounded-md border border-secondary bg-secondary/5 p-3 text-left">
               <span className="mt-0.5 size-4 rounded-full border border-secondary bg-secondary" />
               <span>
-                <span className="block text-sm font-semibold capitalize">{campaign.status}</span>
+                <span className="block text-sm font-semibold capitalize">
+                  {campaign.status}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   {campaign.status === "draft"
                     ? "This campaign is in draft. Complete all sections to launch it."
@@ -736,7 +898,8 @@ export default function CampaignSettingsPage() {
           </h3>
           <div className="mt-5 space-y-3">
             <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
-              Only live/active campaigns can be paused or ended. This campaign is currently in <strong>{campaign.status}</strong> status.
+              Only live/active campaigns can be paused or ended. This campaign
+              is currently in <strong>{campaign.status}</strong> status.
             </div>
           </div>
         </DashboardCard>
@@ -751,10 +914,14 @@ export default function CampaignSettingsPage() {
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
-            <form onSubmit={(e) => handleUpdate(e, () => setIsEditBasicOpen(false))}>
+            <form
+              onSubmit={(e) => handleUpdate(e, () => setIsEditBasicOpen(false))}
+            >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
-                  <Dialog.Title className="text-xl font-semibold">Edit Campaign Details</Dialog.Title>
+                  <Dialog.Title className="text-xl font-semibold">
+                    Edit Campaign Details
+                  </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                     Update the campaign name, goal, length, and photo.
                   </Dialog.Description>
@@ -777,7 +944,9 @@ export default function CampaignSettingsPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">Goal Amount ($)</label>
+                    <label className="text-sm font-semibold">
+                      Goal Amount ($)
+                    </label>
                     <Input
                       required
                       type="number"
@@ -788,7 +957,9 @@ export default function CampaignSettingsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">Duration (Days)</label>
+                    <label className="text-sm font-semibold">
+                      Duration (Days)
+                    </label>
                     <Input
                       required
                       type="number"
@@ -801,7 +972,9 @@ export default function CampaignSettingsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold">Campaign Photo / Thumbnail</label>
+                  <label className="text-sm font-semibold">
+                    Campaign Photo / Thumbnail
+                  </label>
                   <div className="flex items-center gap-4">
                     {thumbnailPreview && (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -813,7 +986,9 @@ export default function CampaignSettingsPage() {
                     )}
                     <label className="flex flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 py-4 hover:bg-slate-100 transition-colors duration-300">
                       <UploadCloud className="size-6 text-slate-500" />
-                      <span className="mt-1 text-xs text-slate-600 font-medium">Click to select photo</span>
+                      <span className="mt-1 text-xs text-slate-600 font-medium">
+                        Click to select photo
+                      </span>
                       <input
                         type="file"
                         accept="image/*"
@@ -833,9 +1008,19 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="gap-2 cursor-pointer"
+                >
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -850,10 +1035,14 @@ export default function CampaignSettingsPage() {
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
-            <form onSubmit={(e) => handleUpdate(e, () => setIsEditStoryOpen(false))}>
+            <form
+              onSubmit={(e) => handleUpdate(e, () => setIsEditStoryOpen(false))}
+            >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
-                  <Dialog.Title className="text-xl font-semibold">Edit Campaign Story</Dialog.Title>
+                  <Dialog.Title className="text-xl font-semibold">
+                    Edit Campaign Story
+                  </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                     Describe your campaign to inspire supporters.
                   </Dialog.Description>
@@ -878,9 +1067,19 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="gap-2 cursor-pointer"
+                >
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -891,14 +1090,23 @@ export default function CampaignSettingsPage() {
       </Dialog.Root>
 
       {/* 3. EDIT DELIVERY OPTIONS MODAL */}
-      <Dialog.Root open={isEditDeliveryOpen} onOpenChange={setIsEditDeliveryOpen}>
+      <Dialog.Root
+        open={isEditDeliveryOpen}
+        onOpenChange={setIsEditDeliveryOpen}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
-            <form onSubmit={(e) => handleUpdate(e, () => setIsEditDeliveryOpen(false))}>
+            <form
+              onSubmit={(e) =>
+                handleUpdate(e, () => setIsEditDeliveryOpen(false))
+              }
+            >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
-                  <Dialog.Title className="text-xl font-semibold">Edit Delivery Options</Dialog.Title>
+                  <Dialog.Title className="text-xl font-semibold">
+                    Edit Delivery Options
+                  </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                     Select how products will be delivered and set shipping fees.
                   </Dialog.Description>
@@ -918,8 +1126,12 @@ export default function CampaignSettingsPage() {
                       className="size-4 text-secondary accent-secondary"
                     />
                     <div>
-                      <span className="block text-sm font-semibold">Allow Local Pickup</span>
-                      <span className="text-xs text-muted-foreground">Customers can pick up the products locally.</span>
+                      <span className="block text-sm font-semibold">
+                        Allow Local Pickup
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Customers can pick up the products locally.
+                      </span>
                     </div>
                   </label>
 
@@ -931,8 +1143,12 @@ export default function CampaignSettingsPage() {
                       className="size-4 text-secondary accent-secondary"
                     />
                     <div>
-                      <span className="block text-sm font-semibold">Allow Local Delivery</span>
-                      <span className="text-xs text-muted-foreground">Offer delivery to local addresses.</span>
+                      <span className="block text-sm font-semibold">
+                        Allow Local Delivery
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Offer delivery to local addresses.
+                      </span>
                     </div>
                   </label>
 
@@ -944,14 +1160,20 @@ export default function CampaignSettingsPage() {
                       className="size-4 text-secondary accent-secondary"
                     />
                     <div>
-                      <span className="block text-sm font-semibold">Allow Shipping</span>
-                      <span className="text-xs text-muted-foreground">Ship products to any location.</span>
+                      <span className="block text-sm font-semibold">
+                        Allow Shipping
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Ship products to any location.
+                      </span>
                     </div>
                   </label>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold">Shipping Fee ($)</label>
+                  <label className="text-sm font-semibold">
+                    Shipping Fee ($)
+                  </label>
                   <Input
                     type="number"
                     min="0"
@@ -966,9 +1188,19 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="gap-2 cursor-pointer"
+                >
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
@@ -979,16 +1211,26 @@ export default function CampaignSettingsPage() {
       </Dialog.Root>
 
       {/* 4. EDIT DONATION & FUND USAGE MODAL */}
-      <Dialog.Root open={isEditDonationOpen} onOpenChange={setIsEditDonationOpen}>
+      <Dialog.Root
+        open={isEditDonationOpen}
+        onOpenChange={setIsEditDonationOpen}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
-            <form onSubmit={(e) => handleUpdate(e, () => setIsEditDonationOpen(false))}>
+            <form
+              onSubmit={(e) =>
+                handleUpdate(e, () => setIsEditDonationOpen(false))
+              }
+            >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
-                  <Dialog.Title className="text-xl font-semibold">Edit Donation &amp; Fund Usage</Dialog.Title>
+                  <Dialog.Title className="text-xl font-semibold">
+                    Edit Donation &amp; Fund Usage
+                  </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
-                    Configure donations and select where the raised funds will be allocated.
+                    Configure donations and select where the raised funds will
+                    be allocated.
                   </Dialog.Description>
                 </div>
                 <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
@@ -1005,14 +1247,22 @@ export default function CampaignSettingsPage() {
                     className="size-4 text-secondary accent-secondary"
                   />
                   <div>
-                    <span className="block text-sm font-semibold">Enable Donations</span>
-                    <span className="text-xs text-muted-foreground">Allow supporters to donate directly to the campaign.</span>
+                    <span className="block text-sm font-semibold">
+                      Enable Donations
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Allow supporters to donate directly to the campaign.
+                    </span>
                   </div>
                 </label>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold block">Fund Allocation Purposes</label>
-                  <p className="text-xs text-muted-foreground mb-3">Select all options that apply:</p>
+                  <label className="text-sm font-semibold block">
+                    Fund Allocation Purposes
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Select all options that apply:
+                  </p>
                   <div className="grid grid-cols-2 gap-2">
                     {defaultPurposes.map((purpose) => {
                       const isSelected = fundUsage.includes(purpose);
@@ -1022,7 +1272,9 @@ export default function CampaignSettingsPage() {
                           type="button"
                           onClick={() => {
                             if (isSelected) {
-                              setFundUsage(fundUsage.filter((item) => item !== purpose));
+                              setFundUsage(
+                                fundUsage.filter((item) => item !== purpose),
+                              );
                             } else {
                               setFundUsage([...fundUsage, purpose]);
                             }
@@ -1031,11 +1283,13 @@ export default function CampaignSettingsPage() {
                             "flex items-center justify-between rounded-md border p-2.5 text-left text-xs font-semibold transition-all duration-300 cursor-pointer",
                             isSelected
                               ? "border-secondary bg-secondary/10 text-secondary"
-                              : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
+                              : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700",
                           )}
                         >
                           {purpose}
-                          {isSelected && <CheckCircle2 className="size-4 fill-secondary text-white shrink-0 ml-1.5" />}
+                          {isSelected && (
+                            <CheckCircle2 className="size-4 fill-secondary text-white shrink-0 ml-1.5" />
+                          )}
                         </button>
                       );
                     })}
@@ -1045,9 +1299,19 @@ export default function CampaignSettingsPage() {
 
               <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                 <Dialog.Close asChild>
-                  <Button type="button" variant="outline" className="cursor-pointer">Cancel</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
                 </Dialog.Close>
-                <Button type="submit" disabled={isUpdating} className="gap-2 cursor-pointer">
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="gap-2 cursor-pointer"
+                >
                   {isUpdating && <Loader2 className="size-4 animate-spin" />}
                   Save Changes
                 </Button>
