@@ -303,7 +303,7 @@ export default function BrandBuilder() {
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] space-y-5">
+    <div className="mx-auto max-w-7xl space-y-5">
       <section className="grid gap-5 xl:grid-cols-[1fr_300px]">
         <div className="space-y-5">
           <section className="grid items-center gap-6 rounded-lg border border-border bg-white p-4 shadow-sm lg:grid-cols-[0.9fr_1.1fr]">

@@ -128,6 +128,7 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
+        
       </section>
     </main>
   );
