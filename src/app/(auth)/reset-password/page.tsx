@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, Suspense } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
@@ -16,6 +17,8 @@ function ResetPasswordForm() {
   const token = searchParams.get("token") || "";
   const [error, setError] = useState("");
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,11 +62,29 @@ function ResetPasswordForm() {
       <form onSubmit={handleSubmit} className="mt-5 space-y-5">
         <div>
           <label htmlFor="password" className="mb-1.5 block text-sm font-medium">New Password</label>
-          <input id="password" name="password" type="password" placeholder="***********" autoComplete="new-password" minLength={8} required className={inputStyles} />
+          <div className="relative">
+            <input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="***********" autoComplete="new-password" minLength={8} required className={`${inputStyles} pr-10`} />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+            </button>
+          </div>
         </div>
         <div>
           <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium">Confirm Password</label>
-          <input id="confirm-password" name="confirmPassword" type="password" placeholder="***********" autoComplete="new-password" minLength={8} required aria-invalid={Boolean(error)} aria-describedby={error ? "password-error" : undefined} className={`${inputStyles} ${error ? "border-red-500" : ""}`} />
+          <div className="relative">
+            <input id="confirm-password" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="***********" autoComplete="new-password" minLength={8} required aria-invalid={Boolean(error)} aria-describedby={error ? "password-error" : undefined} className={`${inputStyles} pr-10 ${error ? "border-red-500" : ""}`} />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
+            >
+              {showConfirmPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+            </button>
+          </div>
           {error ? <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">{error}</p> : null}
         </div>
         <Button type="submit" disabled={isLoading} className="h-12 w-full rounded-lg text-sm font-medium">

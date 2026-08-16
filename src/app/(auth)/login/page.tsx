@@ -4,8 +4,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 
@@ -22,21 +23,44 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
+  const [email, setEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedEmail = localStorage.getItem("rememberedEmail");
+      const savedRemember = localStorage.getItem("rememberMe") === "true";
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      setRememberMe(savedRemember);
+    }
+  }, []);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const email = data.get("email") as string;
+    const emailVal = data.get("email") as string;
     const password = data.get("password") as string;
 
+    if (rememberMe) {
+      localStorage.setItem("rememberedEmail", emailVal);
+      localStorage.setItem("rememberMe", "true");
+    } else {
+      localStorage.removeItem("rememberedEmail");
+      localStorage.setItem("rememberMe", "false");
+    }
+
     try {
-      const response = await login({ email, password }).unwrap();
+      const response = await login({ email: emailVal, password }).unwrap();
       const token =
         response?.token ||
         response?.data?.token ||
         response?.accessToken ||
         response?.data?.accessToken ||
         response?.data?.data?.token;
-      const user = response?.user || response?.data?.user || { email };
+      const user = response?.user || response?.data?.user || { email: emailVal };
 
       if (token) {
         dispatch(setUser({ user, token }));
@@ -76,6 +100,8 @@ export default function LoginPage() {
               id="email"
               name="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
               required
@@ -89,21 +115,32 @@ export default function LoginPage() {
             >
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-              className={inputStyles}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                required
+                className={inputStyles}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
           </div>
           <div className="flex flex-col items-start justify-between gap-3 text-sm sm:flex-row sm:items-center">
             <label className="flex cursor-pointer items-center gap-1.5">
               <input
                 type="checkbox"
                 name="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="size-5 accent-primary"
               />
               Remember me

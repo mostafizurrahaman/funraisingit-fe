@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,8 @@ export default function SignUpPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [signUp, { isLoading }] = useSignUpMutation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,6 +27,12 @@ export default function SignUpPage() {
     const email = data.get("email") as string;
     const password = data.get("password") as string;
     const confirmPassword = data.get("confirmPassword") as string;
+
+    const termsChecked = data.get("terms");
+    if (!termsChecked) {
+      setError("You must agree to the Terms & Conditions and Privacy Policy.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -90,34 +99,52 @@ export default function SignUpPage() {
             <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
               Password
             </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Create a password"
-              autoComplete="new-password"
-              minLength={8}
-              className="text-sm"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                autoComplete="new-password"
+                minLength={8}
+                className="text-sm pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
           </div>
 
           <div>
             <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium">
               Confirm Password
             </label>
-            <Input
-              id="confirm-password"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              autoComplete="new-password"
-              minLength={8}
-              aria-invalid={Boolean(error)}
-              aria-describedby={error ? "password-error" : undefined}
-              className="text-sm"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="confirm-password"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                autoComplete="new-password"
+                minLength={8}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "password-error" : undefined}
+                className="text-sm pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
+              >
+                {showConfirmPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
             {error ? (
               <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">
                 {error}
