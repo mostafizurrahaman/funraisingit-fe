@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 export interface CampaignDraft {
   id?: string;
   name: string;
+  campaignCategory: string;
   goalAmount: number;
   thumbnail: File | null;
   thumbnailPreview: string;
@@ -23,6 +24,7 @@ export interface CampaignDraft {
 const initialDraft: CampaignDraft = {
   id: "",
   name: "",
+  campaignCategory: "business",
   goalAmount: 2500,
   thumbnail: null,
   thumbnailPreview: "",

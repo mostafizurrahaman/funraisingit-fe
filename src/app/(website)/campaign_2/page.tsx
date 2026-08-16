@@ -89,7 +89,7 @@ export default function CampaignTwoPage() {
       try {
          const payload = {
             name: draft.name || "Help Build a Community Library",
-            campaignCategory: "physical_product",
+            campaignCategory: draft.campaignCategory || "business",
             story: draft.story || initialStory,
             fundUsage:
                selectedPurposes.length > 0
@@ -149,7 +149,7 @@ export default function CampaignTwoPage() {
             "name",
             draft.name || "Help Build a Community Library",
          );
-         formData.append("campaignCategory", "physical_product");
+         formData.append("campaignCategory", draft.campaignCategory || "business");
          formData.append("story", story);
 
          // Append fundUsage values
@@ -289,6 +289,37 @@ export default function CampaignTwoPage() {
                               : "Generate My Story"}
                         </Button>
                      </div>
+                  </section>
+
+                  <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
+                     <label
+                        htmlFor="campaignCategory"
+                        className="mb-2 block text-lg font-semibold"
+                     >
+                        Campaign Category
+                     </label>
+                     <p className="mt-1 text-sm text-muted-foreground mb-4">
+                        Select a category that best describes your campaign.
+                     </p>
+                     <select
+                        id="campaignCategory"
+                        value={draft.campaignCategory || "business"}
+                        onChange={(event) => {
+                           updateDraft({
+                              campaignCategory: event.target.value,
+                           });
+                        }}
+                        className="w-full h-12 rounded-md border border-slate-400 px-4 text-base bg-white text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                     >
+                        <option value="business">Launch a Business</option>
+                        <option value="school_fundraiser">School Fundraiser</option>
+                        <option value="church_campaign">Church Campaign</option>
+                        <option value="sports_team">Sports Team</option>
+                        <option value="products_pre_orders">Products & Pre-Orders</option>
+                        <option value="events_tickets">Events & Tickets</option>
+                        <option value="digital_products">Digital Products</option>
+                        <option value="community_nonprofit">Community & Nonprofits</option>
+                     </select>
                   </section>
 
                   <section className="rounded-lg border border-slate-400 p-5 sm:p-6">

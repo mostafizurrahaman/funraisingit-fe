@@ -532,7 +532,7 @@ export default function CampaignFourPage() {
                 <span>
                   I’ve reviewed my campaign details and agree to the{" "}
                   <Link
-                    href="#"
+                    href="/terms_and_conditions"
                     className="font-medium text-secondary hover:underline"
                   >
                     Terms &amp; Conditions
