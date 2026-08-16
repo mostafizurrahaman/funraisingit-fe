@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent,  } from "react";
+import { FormEvent } from "react";
 import { FcGoogle } from "react-icons/fc";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,12 @@ export default function LoginPage() {
 
     try {
       const response = await login({ email, password }).unwrap();
-      const token = response?.token || response?.data?.token || response?.accessToken || response?.data?.accessToken || response?.data?.data?.token;
+      const token =
+        response?.token ||
+        response?.data?.token ||
+        response?.accessToken ||
+        response?.data?.accessToken ||
+        response?.data?.data?.token;
       const user = response?.user || response?.data?.user || { email };
 
       if (token) {
@@ -118,7 +123,7 @@ export default function LoginPage() {
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
-    
+
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
@@ -128,7 +133,15 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
-        
+
+        <p>
+          <Link
+            href="/"
+            className="font-medium text-foreground transition-colors duration-300 hover:text-primary text-sm flex items-center gap-2 justify-center mt-4 underline"
+          >
+            Go Back Home
+          </Link>
+        </p>
       </section>
     </main>
   );

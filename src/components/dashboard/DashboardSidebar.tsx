@@ -57,7 +57,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
     e.preventDefault();
     dispatch(logout());
     // toast.success("Logged out successfully");
-    router.push("/");
+    router.push("/login");
   };
 
   return (
