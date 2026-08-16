@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
 
 export interface CampaignDraft {
   id?: string;
@@ -51,13 +51,13 @@ const CampaignDraftContext = createContext<CampaignDraftContextType | undefined>
 export const CampaignDraftProvider = ({ children }: { children: ReactNode }) => {
   const [draft, setDraft] = useState<CampaignDraft>(initialDraft);
 
-  const updateDraft = (updates: Partial<CampaignDraft>) => {
+  const updateDraft = useCallback((updates: Partial<CampaignDraft>) => {
     setDraft((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
 
-  const resetDraft = () => {
+  const resetDraft = useCallback(() => {
     setDraft(initialDraft);
-  };
+  }, []);
 
   return (
     <CampaignDraftContext.Provider value={{ draft, updateDraft, resetDraft }}>

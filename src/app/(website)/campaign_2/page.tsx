@@ -291,7 +291,7 @@ export default function CampaignTwoPage() {
                      </div>
                   </section>
 
-                  <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
+                  {/* <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
                      <label
                         htmlFor="campaignCategory"
                         className="mb-2 block text-lg font-semibold"
@@ -320,7 +320,7 @@ export default function CampaignTwoPage() {
                         <option value="digital_products">Digital Products</option>
                         <option value="community_nonprofit">Community & Nonprofits</option>
                      </select>
-                  </section>
+                  </section> */}
 
                   <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
                      <h2 className="text-lg font-semibold">

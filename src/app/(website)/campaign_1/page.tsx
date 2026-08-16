@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
   FormEvent,
   useEffect,
   useState,
   useTransition,
+  Suspense,
 } from "react";
 import {
   ArrowRight,
@@ -23,6 +24,7 @@ import {
   Package,
   Check,
   DollarSign,
+  Tag,
 } from "lucide-react";
 import hero from "@/assets/hero.png";
 import { Button } from "@/components/ui/button";
@@ -46,9 +48,18 @@ import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
 
 
-export default function CampaignOnePage() {
+function CampaignOneForm() {
   const router = useRouter();
   const token = useSelector(userCurrentToken);
+  const { draft, updateDraft } = useCampaignDraft();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("campaignCategory");
+
+  useEffect(() => {
+    if (categoryParam && draft.campaignCategory !== categoryParam) {
+      updateDraft({ campaignCategory: categoryParam });
+    }
+  }, [categoryParam, draft.campaignCategory, updateDraft]);
 
   useEffect(() => {
     const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -58,10 +69,9 @@ export default function CampaignOnePage() {
     }
   }, [token, router]);
 
-  const { draft, updateDraft } = useCampaignDraft();
-
   const [customAmount, setCustomAmount] = useState("");
   const [fileError, setFileError] = useState("");
+  const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const selectedAmount = amounts.includes(draft.goalAmount as any) ? (draft.goalAmount as number | "custom") : "custom";
@@ -101,17 +111,61 @@ export default function CampaignOnePage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (
-      selectedAmount === "custom" &&
-      (!customAmount || Number(customAmount) < 1)
-    )
+    setError("");
+
+    // 1. Campaign Name Validation
+    if (!draft.name || draft.name.trim().length < 3) {
+      setError("Campaign name must be at least 3 characters long.");
       return;
-    if (
-      draft.allowShipping &&
-      selectedShippingAmount === "custom" &&
-      (!customShipping || Number(customShipping) < 0)
-    )
+    }
+
+    // 2. Campaign Category Validation
+    if (!draft.campaignCategory) {
+      setError("Please select a campaign category.");
       return;
+    }
+
+    // 3. Campaign Photo Validation
+    if (!draft.thumbnail && !draft.thumbnailPreview) {
+      setError("Campaign photo is required. Please upload an image.");
+      return;
+    }
+
+    // 4. Goal Amount Validation
+    if (selectedAmount === "custom") {
+      if (!customAmount || Number(customAmount) < 1) {
+        setError("Please enter a custom goal amount of at least $1.");
+        return;
+      }
+    } else {
+      if (!draft.goalAmount || draft.goalAmount < 1) {
+        setError("Please select a valid goal amount.");
+        return;
+      }
+    }
+
+    // 5. Campaign Length Validation
+    if (!draft.durationDays || draft.durationDays <= 0) {
+      setError("Please select a campaign duration.");
+      return;
+    }
+
+    // 6. Delivery Options Validation (At least one must be selected)
+    if (!draft.allowLocalPickup && !draft.allowLocalDelivery && !draft.allowShipping) {
+      setError("Please select at least one delivery option (Local Pickup, Local Delivery, or Shipping).");
+      return;
+    }
+
+    // 7. Shipping Fee Validation
+    if (draft.allowShipping) {
+      if (selectedShippingAmount === "custom") {
+        if (customShipping === "" || Number(customShipping) < 0) {
+          setError("Please enter a valid shipping fee.");
+          return;
+        }
+      }
+    }
+
     startTransition(() => router.push("/campaign_2"));
   }
 
@@ -213,6 +267,39 @@ export default function CampaignOnePage() {
                   Use your business name, fundraiser name, or organization name.
                 </span>
               </p>
+            </div>
+          </section>
+
+          <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr]">
+            <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+              <Tag className="size-10" />
+            </span>
+            <div className="w-full">
+              <h2 className="text-[32px] font-semibold leading-tight">
+                Campaign Category
+              </h2>
+              <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                Select the category that best fits your campaign.
+              </p>
+              <select
+                id="campaignCategory"
+                value={draft.campaignCategory || "business"}
+                onChange={(event) => {
+                  updateDraft({
+                    campaignCategory: event.target.value,
+                  });
+                }}
+                className="mt-4 w-full h-12 rounded-md border border-slate-400 px-4 text-base bg-white text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+              >
+                <option value="business">Launch a Business</option>
+                <option value="school_fundraiser">School Fundraiser</option>
+                <option value="church_campaign">Church Campaign</option>
+                <option value="sports_team">Sports Team</option>
+                <option value="products_pre_orders">Products & Pre-Orders</option>
+                <option value="events_tickets">Events & Tickets</option>
+                <option value="digital_products">Digital Products</option>
+                <option value="community_nonprofit">Community & Nonprofits</option>
+              </select>
             </div>
           </section>
 
@@ -571,6 +658,11 @@ export default function CampaignOnePage() {
             </div>
           </section>
 
+          {error ? (
+            <p role="alert" className="text-lg text-red-600 text-center mb-4 font-semibold">
+              {error}
+            </p>
+          ) : null}
           <div className="mx-auto flex max-w-sm flex-col items-center">
             <Button
               type="submit"
@@ -588,5 +680,20 @@ export default function CampaignOnePage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function CampaignOnePage() {
+  return (
+    <Suspense fallback={
+      <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+        <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
+          <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+          <p className="text-muted-foreground font-medium">Loading campaign details...</p>
+        </div>
+      </main>
+    }>
+      <CampaignOneForm />
+    </Suspense>
   );
 }

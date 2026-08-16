@@ -60,7 +60,7 @@ export default function SettingsPage() {
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logged out successfully");
-    router.push("/login");
+    router.push("/");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

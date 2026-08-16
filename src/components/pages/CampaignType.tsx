@@ -141,7 +141,7 @@ const CampaignType = () => {
           return (
             <Link
               key={idx}
-              href={`/campaign?campaignCategory=${item.id}`}
+              href={`/campaign_1?campaignCategory=${item.id}`}
               className={`flex flex-col items-center text-center p-5 bg-white border border-[#e7e9ee] rounded-2xl transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg hover:cursor-pointer ${item.shadowColor} ${item.borderColor}`}
             >
               {/* Icon Container */}
