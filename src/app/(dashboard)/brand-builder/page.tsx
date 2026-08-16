@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useGetSiteInfoQuery } from "@/redux/features/settingsManagement/settingsManagementApi";
 
 const processSteps = [
   {
@@ -166,19 +167,33 @@ const presetColors = [
 ];
 
 export default function BrandBuilder() {
-  const [createBrandBuilder, { isLoading: isSubmitting }] = useCreateBrandBuilderMutation();
-
+  const [createBrandBuilder, { isLoading: isSubmitting }] =
+    useCreateBrandBuilderMutation();
+  const { data: getPriceData } = useGetSiteInfoQuery({});
+  console.log("getPriceData", getPriceData?.data?.brandBuilderPricing);
+  const price = getPriceData?.data?.brandBuilderPricing;
   // Form State
   const [selectedProducts, setSelectedProducts] = useState<string[]>([
-    "Tent", "Tablecloth", "Staff Shirts", "Aprons", "Cups", "Napkins", "Custom Hat", "Small Treat Boxes", "Table Cover", "Custom Box"
+    "Tent",
+    "Tablecloth",
+    "Staff Shirts",
+    "Aprons",
+    "Cups",
+    "Napkins",
+    "Custom Hat",
+    "Small Treat Boxes",
+    "Table Cover",
+    "Custom Box",
   ]);
   const [isOtherProductChecked, setIsOtherProductChecked] = useState(true);
   const [otherProductText, setOtherProductText] = useState("");
 
   const [businessName, setBusinessName] = useState("");
-  const [sellingItem, setSellingItem] = useState("example: Banana Pudding, Lemonade, Jewellery, etc.");
+  const [sellingItem, setSellingItem] = useState(
+    "example: Banana Pudding, Lemonade, Jewellery, etc.",
+  );
   const [brandVision, setBrandVision] = useState(
-    "Example: \"I own Jenna's Banana Pudding. I want a fun but professional look with Tiffany blue and orange colors. I'd like my tent, shirts, cups, and banner to all match.\""
+    "Example: \"I own Jenna's Banana Pudding. I want a fun but professional look with Tiffany blue and orange colors. I'd like my tent, shirts, cups, and banner to all match.\"",
   );
 
   const [brandStyle, setBrandStyle] = useState<string>("Fun & Playful");
@@ -195,7 +210,9 @@ export default function BrandBuilder() {
 
   const handleProductToggle = (product: string) => {
     setSelectedProducts((prev) =>
-      prev.includes(product) ? prev.filter((p) => p !== product) : [...prev, product]
+      prev.includes(product)
+        ? prev.filter((p) => p !== product)
+        : [...prev, product],
     );
   };
 
@@ -253,10 +270,10 @@ export default function BrandBuilder() {
       budget === "Under $500"
         ? "500"
         : budget === "$500-$1,000"
-        ? "1000"
-        : budget === "$1,000-$2,500"
-        ? "2500"
-        : "5000";
+          ? "1000"
+          : budget === "$1,000-$2,500"
+            ? "2500"
+            : "5000";
     formData.append("budget", budgetVal);
 
     // Colors
@@ -300,10 +317,10 @@ export default function BrandBuilder() {
             </div>
 
             <div className="relative">
-              <div className="absolute right-0 top-0 hidden size-28 items-center justify-center rounded-full bg-pink-500 text-center text-white shadow-lg sm:flex">
+              <div className="absolute right-0 top-0 hidden size-34 items-center justify-center rounded-full bg-pink-500 text-center text-white shadow-lg sm:flex">
                 <div>
                   <p className="text-3xl font-semibold">
-                    $39<span className="text-base">.99</span>
+                    ${price?.toFixed(2) || "0.00"}
                   </p>
                   <p className="text-xs font-semibold uppercase leading-4">
                     One-Time
@@ -376,7 +393,9 @@ export default function BrandBuilder() {
                   key={product}
                   className={cn(
                     "flex h-10 cursor-pointer items-center justify-between gap-2 rounded-md border px-3 text-sm transition-all duration-300 hover:border-secondary hover:bg-secondary/5",
-                    selectedProducts.includes(product) ? "border-secondary bg-secondary/5" : "border-border"
+                    selectedProducts.includes(product)
+                      ? "border-secondary bg-secondary/5"
+                      : "border-border",
                   )}
                 >
                   <span className="flex items-center gap-2">
@@ -393,10 +412,14 @@ export default function BrandBuilder() {
               ))}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-[180px_1fr]">
-              <label className={cn(
-                "flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm transition-all duration-300 hover:bg-secondary/5",
-                isOtherProductChecked ? "border-secondary text-secondary bg-secondary/5" : "border-secondary/40 text-secondary"
-              )}>
+              <label
+                className={cn(
+                  "flex h-10 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm transition-all duration-300 hover:bg-secondary/5",
+                  isOtherProductChecked
+                    ? "border-secondary text-secondary bg-secondary/5"
+                    : "border-secondary/40 text-secondary",
+                )}
+              >
                 <input
                   type="checkbox"
                   checked={isOtherProductChecked}
@@ -518,13 +541,17 @@ export default function BrandBuilder() {
                       onClick={() => handleColorToggle(color)}
                       className={cn(
                         "size-6 rounded-full border border-slate-200 transition-all relative cursor-pointer",
-                        selectedColors.includes(color) ? "ring-2 ring-secondary scale-105" : ""
+                        selectedColors.includes(color)
+                          ? "ring-2 ring-secondary scale-105"
+                          : "",
                       )}
                       style={{ backgroundColor: color }}
                       title={color}
                     >
                       {selectedColors.includes(color) && (
-                        <span className="absolute inset-0 flex items-center justify-center text-[8px] text-white font-bold drop-shadow">✓</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-[8px] text-white font-bold drop-shadow">
+                          ✓
+                        </span>
                       )}
                     </button>
                   ))}
@@ -535,7 +562,9 @@ export default function BrandBuilder() {
                       onChange={(e) => handleCustomColorAdd(e.target.value)}
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
-                    <span className="text-xs font-semibold text-slate-500">+</span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      +
+                    </span>
                   </label>
                 </div>
                 {/* Selection Indicators */}
@@ -546,7 +575,10 @@ export default function BrandBuilder() {
                         key={idx}
                         className="inline-flex items-center gap-1 bg-white border border-border px-1.5 py-0.5 rounded text-[10px] font-semibold text-foreground"
                       >
-                        <span className="size-2.5 rounded-full border border-slate-100" style={{ backgroundColor: color }} />
+                        <span
+                          className="size-2.5 rounded-full border border-slate-100"
+                          style={{ backgroundColor: color }}
+                        />
                         <span>{color}</span>
                         <button
                           type="button"
@@ -656,11 +688,15 @@ export default function BrandBuilder() {
                     One-Time Design Fee
                   </p>
                 </div>
-                <span className="font-semibold">$39.99</span>
+                <span className="font-semibold">
+                  ${price?.toFixed(2) || "0.00"}
+                </span>
               </div>
               <div className="flex items-center justify-between border-t border-border pt-4">
                 <p className="text-2xl font-semibold text-pink-600">Total</p>
-                <p className="text-2xl font-semibold text-pink-600">$39.99</p>
+                <p className="text-2xl font-semibold text-pink-600">
+                  ${price?.toFixed(2) || "0.00"}
+                </p>
               </div>
               <SummaryFeature
                 icon={Sparkles}
@@ -680,7 +716,7 @@ export default function BrandBuilder() {
               <SummaryFeature
                 icon={ShieldCheck}
                 title="Satisfaction Guaranteed"
-                detail="We&apos;ll make it right"
+                detail="We'll make it right"
               />
             </div>
           </section>
