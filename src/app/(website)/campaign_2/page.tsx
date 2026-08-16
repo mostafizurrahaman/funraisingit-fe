@@ -63,9 +63,16 @@ export default function CampaignTwoPage() {
    }, [token, router]);
 
    const { draft, updateDraft } = useCampaignDraft();
-   const story = draft.story || initialStory;
+   const story = draft.story;
    const selectedPurposes = draft.fundUsage;
    const donationChoice = draft.allowDonation ? "allow" : "purchase";
+
+   useEffect(() => {
+      if (!draft.story) {
+         updateDraft({ story: initialStory });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
    const [error, setError] = useState("");
    const [isGenerating, setIsGenerating] = useState(false);
    const [createCampaign, { isLoading: isCreating }] =
