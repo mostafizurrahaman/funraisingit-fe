@@ -38,6 +38,7 @@ export default function SettingsPage() {
   const profile = profileResponse?.data;
   const accountInfo = accountResponse?.data;
 
+
   async function handleConnectAccount() {
     try {
       const response = await connectAccount(undefined).unwrap();

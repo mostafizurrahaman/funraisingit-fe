@@ -30,7 +30,6 @@ import {
 } from "@/redux/features/Payout/PayoutApi";
 import {
   useGetAccountQuery,
-  useConnectAccountMutation,
 } from "@/redux/features/auth/authApi";
 
 const faqItems = [
@@ -83,7 +82,7 @@ export default function PayoutsPage() {
 
   // 4. Get onboarding account details
   const { data: accountResponse, isLoading: isLoadingAccount } =
-    useGetAccountQuery(undefined);
+    useGetAccountQuery({});
   const accountInfo = accountResponse?.data;
 
   // 3. Get payout history
