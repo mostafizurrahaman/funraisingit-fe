@@ -137,8 +137,8 @@ export default function CampaignTwoPage() {
          setError("Please tell supporters a little more about your campaign.");
          return;
       }
-      if (!selectedPurposes.length) {
-         setError("Select at least one way the money will be used.");
+      if (selectedPurposes.length < 2) {
+         setError("Select at least two ways the money will be used.");
          return;
       }
       setError("");
