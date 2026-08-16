@@ -147,7 +147,7 @@ export default function SettingsPage() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Account Settings</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Manage your profile, security, and notification preferences.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Manage your profile and security preferences.</p>
         </div>
         <Button
           onClick={handleLogout}

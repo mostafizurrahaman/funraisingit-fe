@@ -42,9 +42,9 @@ const baseQueryWithRefreshToken: BaseQueryFn<
     if (status === 500) {
       toast.error(errorMessage, { id: errorMessage });
     }
-    // if (status === 404 && errorMessage !== "No Draft campaign exists.") {
-    //   toast.error(errorMessage, { id: errorMessage });
-    // }
+    if (status === 404 && errorMessage !== "No Draft campaign exists.") {
+      toast.error(errorMessage, { id: errorMessage });
+    }
     if (status === 403) {
       toast.error(errorMessage, { id: errorMessage });
     }

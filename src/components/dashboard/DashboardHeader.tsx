@@ -45,9 +45,9 @@ export function DashboardHeader() {
             View All Campaign
           </Button>
           </Link>
-          <button type="button" aria-label="Notifications" className="inline-flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary/10 hover:text-secondary">
+          {/* <button type="button" aria-label="Notifications" className="inline-flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary/10 hover:text-secondary">
             <Bell className="size-4" />
-          </button>
+          </button> */}
           {/* <button type="button" aria-label="Favorites" className="hidden size-10 items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-300 hover:bg-secondary hover:text-white sm:inline-flex">
             <Heart className="size-4 fill-current" />
           </button> */}
