@@ -129,11 +129,11 @@ export default function SignUpPage() {
             <input type="checkbox" name="terms" className="mt-1 size-4 shrink-0 accent-primary" required />
             <span>
               I agree to the{" "}
-              <Link href="#" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
+              <Link href="/terms_and_conditions" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
                 Terms &amp; Conditions
               </Link>{" "}
               and{" "}
-              <Link href="#" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
+              <Link href="/privacy_policy" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
                 Privacy Policy
               </Link>
             </span>
