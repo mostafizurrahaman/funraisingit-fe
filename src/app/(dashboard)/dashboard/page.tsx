@@ -45,7 +45,7 @@ export default function DashboardPage() {
       ? localStorage.getItem("campaignId")
       : null) ||
     "";
-
+  console.log("Initial Campaign ID:", initialCampaignId);
   const [selectedCampaignId, setSelectedCampaignId] =
     useState<string>(initialCampaignId);
 
@@ -89,7 +89,6 @@ export default function DashboardPage() {
   const selectedCampaign = campaignsList.find(
     (c: any) => c._id === selectedCampaignId,
   );
-  
 
   const handleShareAction = (label: string) => {
     if (!campaignCode) {
@@ -125,6 +124,16 @@ export default function DashboardPage() {
         break;
     }
   };
+
+  if (!selectedCampaignId) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <p className="text-lg font-semibold text-muted-foreground">
+          Create a campaign to view dashboard analytics.
+        </p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

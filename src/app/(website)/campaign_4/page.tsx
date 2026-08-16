@@ -77,14 +77,16 @@ export default function CampaignFourPage() {
       setIsInitialized(true);
     }
   }, [draft.id, updateDraft]);
+  const removeCampaignIdFromLocalStorage = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("campaignId");
+    }
+  };
 
   const previewBody = promoCode ? { promoCode } : {};
 
   const { data: previewResponse, isLoading: isPreviewLoading } =
-    useGetCampaignPreviewQuery(
-      { campaignId },
-      { skip: !campaignId }
-    );
+    useGetCampaignPreviewQuery({ campaignId }, { skip: !campaignId });
   const [launchCampaign, { isLoading: isLaunching }] =
     useLaunchCampaignMutation();
 
@@ -116,7 +118,8 @@ export default function CampaignFourPage() {
       toast.success(response?.message || "Campaign launched successfully!");
       resetDraft();
 
-      router.push(response?.data?.url );
+      router.push(response?.data?.url);
+      removeCampaignIdFromLocalStorage();
     } catch (err: any) {
       const errMsg =
         err?.data?.message || "Failed to launch campaign. Please try again.";
@@ -145,9 +148,12 @@ export default function CampaignFourPage() {
           <div className="size-16 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-2">
             <Heart className="size-8 text-secondary fill-secondary" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground">Campaign Not Found</h2>
+          <h2 className="text-2xl font-bold text-foreground">
+            Campaign Not Found
+          </h2>
           <p className="text-muted-foreground max-w-md">
-            We couldn&apos;t find an active campaign session. Please create a campaign first to see the preview.
+            We couldn&apos;t find an active campaign session. Please create a
+            campaign first to see the preview.
           </p>
           <Link
             href="/campaign_1"

@@ -28,15 +28,34 @@ import {
   useGetPayoutHistoryQuery,
   useGetPayoutOverviewQuery,
 } from "@/redux/features/Payout/PayoutApi";
-import { useGetAccountQuery, useConnectAccountMutation } from "@/redux/features/auth/authApi";
+import {
+  useGetAccountQuery,
+  useConnectAccountMutation,
+} from "@/redux/features/auth/authApi";
 
 const faqItems = [
-  { question: "When do I get paid?", answer: "Within 1 business day after your campaign ends.", icon: CalendarDays },
-  { question: "Why are funds processing?", answer: "This allows payment verification and fraud protection.", icon: ShieldCheck },
-  { question: "Can I see my payout before the campaign ends?", answer: "Yes, estimated earnings update in real time.", icon: CheckCircle2 },
+  {
+    question: "When do I get paid?",
+    answer: "Within 1 business day after your campaign ends.",
+    icon: CalendarDays,
+  },
+  {
+    question: "Why are funds processing?",
+    answer: "This allows payment verification and fraud protection.",
+    icon: ShieldCheck,
+  },
+  {
+    question: "Can I see my payout before the campaign ends?",
+    answer: "Yes, estimated earnings update in real time.",
+    icon: CheckCircle2,
+  },
 ] as const;
 
-const taxDocuments = ["1099 Forms", "Annual Earnings Summary", "Payment History"] as const;
+const taxDocuments = [
+  "1099 Forms",
+  "Annual Earnings Summary",
+  "Payment History",
+] as const;
 
 export default function PayoutsPage() {
   const [campaignId, setCampaignId] = useState("");
@@ -49,28 +68,30 @@ export default function PayoutsPage() {
   }, []);
 
   // 1. Get campaign details
-  const { data: campaignResponse, isLoading: isLoadingCampaign } = useGetCampaignByIdQuery(campaignId, {
-    skip: !campaignId,
-  });
+  const { data: campaignResponse, isLoading: isLoadingCampaign } =
+    useGetCampaignByIdQuery(campaignId, {
+      skip: !campaignId,
+    });
   const campaign = campaignResponse?.data;
 
   // 2. Get payout overview
-  const { data: overviewResponse, isLoading: isLoadingOverview } = useGetPayoutOverviewQuery(campaignId, {
-    skip: !campaignId,
-  });
+  const { data: overviewResponse, isLoading: isLoadingOverview } =
+    useGetPayoutOverviewQuery(campaignId, {
+      skip: !campaignId,
+    });
   const overview = overviewResponse?.data;
 
   // 4. Get onboarding account details
-  const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined);
+  const { data: accountResponse, isLoading: isLoadingAccount } =
+    useGetAccountQuery(undefined);
   const accountInfo = accountResponse?.data;
 
-
-
   // 3. Get payout history
-  const { data: historyResponse, isLoading: isLoadingHistory } = useGetPayoutHistoryQuery(
-    { campaignId, page, limit: 10 },
-    { skip: !campaignId }
-  );
+  const { data: historyResponse, isLoading: isLoadingHistory } =
+    useGetPayoutHistoryQuery(
+      { campaignId, page, limit: 10 },
+      { skip: !campaignId },
+    );
   const payoutHistories = historyResponse?.data || [];
   const meta = historyResponse?.meta;
 
@@ -87,11 +108,17 @@ export default function PayoutsPage() {
     if (!start && !end) return "N/A";
     if (start && !end) return formatDate(start);
     if (!start && end) return formatDate(end);
-    
+
     const startDate = new Date(start!);
     const endDate = new Date(end!);
-    const startStr = startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    const endStr = endDate.toLocaleDateString("en-US", { day: "numeric", year: "numeric" });
+    const startStr = startDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const endStr = endDate.toLocaleDateString("en-US", {
+      day: "numeric",
+      year: "numeric",
+    });
     return `${startStr} - ${endStr}`;
   };
 
@@ -100,7 +127,11 @@ export default function PayoutsPage() {
     return `$${amount.toFixed(2)}`;
   };
 
-  const isLoading = isLoadingCampaign || isLoadingOverview || isLoadingHistory || isLoadingAccount;
+  const isLoading =
+    isLoadingCampaign ||
+    isLoadingOverview ||
+    isLoadingHistory ||
+    isLoadingAccount;
 
   if (!campaignId) {
     return (
@@ -116,28 +147,79 @@ export default function PayoutsPage() {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-2">
         <Loader2 className="size-8 animate-spin text-secondary" />
-        <p className="text-xs text-muted-foreground">Loading payout details...</p>
+        <p className="text-xs text-muted-foreground">
+          Loading payout details...
+        </p>
+      </div>
+    );
+  }
+  if (isLoadingAccount) {
+    return (
+      <div className="flex h-96 flex-col items-center justify-center gap-2">
+        <Loader2 className="size-8 animate-spin text-secondary" />
+        <p className="text-xs text-muted-foreground">
+          Loading account details...
+        </p>
       </div>
     );
   }
 
   const payoutTimeline = [
-    { label: "Campaign ends", date: formatDate(overview?.endedAt), icon: CalendarDays },
-    { label: "Funds processing", date: formatDate(overview?.fundProcessingAt), icon: Building2 },
-    { label: "Payout sent", date: formatDate(overview?.estimatedDepositFirstDate), icon: Rocket },
-    { label: "Estimated deposit", date: formatDateRange(overview?.estimatedDepositFirstDate, overview?.estimatedDepositLastDate), icon: WalletCards },
+    {
+      label: "Campaign ends",
+      date: formatDate(overview?.endedAt),
+      icon: CalendarDays,
+    },
+    {
+      label: "Funds processing",
+      date: formatDate(overview?.fundProcessingAt),
+      icon: Building2,
+    },
+    {
+      label: "Payout sent",
+      date: formatDate(overview?.estimatedDepositFirstDate),
+      icon: Rocket,
+    },
+    {
+      label: "Estimated deposit",
+      date: formatDateRange(
+        overview?.estimatedDepositFirstDate,
+        overview?.estimatedDepositLastDate,
+      ),
+      icon: WalletCards,
+    },
   ] as const;
 
   const earningsBreakdown = [
-    { label: "Gross Sales", amount: formatAmount(overview?.financialBreakdown?.totalOrderAmount), highlight: false, danger: false },
-    { label: "Donations", amount: formatAmount(overview?.financialBreakdown?.totalDonationAmount), highlight: false, danger: false },
-    { label: "Total Raised", amount: formatAmount(overview?.financialBreakdown?.totalAmount), highlight: true, danger: false },
-    { label: "Platform Fee", amount: `-${formatAmount(overview?.financialBreakdown?.platformFee)}`, highlight: false, danger: true },
+    {
+      label: "Gross Sales",
+      amount: formatAmount(overview?.financialBreakdown?.totalOrderAmount),
+      highlight: false,
+      danger: false,
+    },
+    {
+      label: "Donations",
+      amount: formatAmount(overview?.financialBreakdown?.totalDonationAmount),
+      highlight: false,
+      danger: false,
+    },
+    {
+      label: "Total Raised",
+      amount: formatAmount(overview?.financialBreakdown?.totalAmount),
+      highlight: true,
+      danger: false,
+    },
+    {
+      label: "Platform Fee",
+      amount: `-${formatAmount(overview?.financialBreakdown?.platformFee)}`,
+      highlight: false,
+      danger: true,
+    },
   ] as const;
 
-  const displayBankAccount = accountInfo?.account 
+  const displayBankAccount = accountInfo?.account
     ? `**** **** **** ${accountInfo.account.slice(-4)}`
-    : overview?.bankAccount 
+    : overview?.bankAccount
       ? `**** **** **** ${overview.bankAccount.slice(-4)}`
       : "Not Connected";
 
@@ -150,7 +232,9 @@ export default function PayoutsPage() {
           </span>
           <div>
             <h2 className="text-2xl font-semibold">Payouts</h2>
-            <p className="mt-2 text-sm font-semibold">{campaign?.name || "Loading..."}</p>
+            <p className="mt-2 text-sm font-semibold">
+              {campaign?.name || "Loading..."}
+            </p>
             <p className="mt-3 flex items-center gap-2 text-sm font-medium">
               Campaign Status:
               <span className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary capitalize">
@@ -183,12 +267,16 @@ export default function PayoutsPage() {
 
               return (
                 <div key={item.label} className="relative text-center">
-                  {index < payoutTimeline.length - 1 && <span className="absolute left-1/2 top-6 hidden h-px w-full bg-blue-500 sm:block" />}
+                  {index < payoutTimeline.length - 1 && (
+                    <span className="absolute left-1/2 top-6 hidden h-px w-full bg-blue-500 sm:block" />
+                  )}
                   <span className="relative z-10 mx-auto inline-flex size-12 items-center justify-center rounded-full border border-blue-500 bg-blue-50 text-blue-600">
                     <Icon className="size-5" />
                   </span>
                   <p className="mt-3 text-xs font-semibold">{item.label}</p>
-                  <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{item.date}</p>
+                  <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+                    {item.date}
+                  </p>
                 </div>
               );
             })}
@@ -210,7 +298,13 @@ export default function PayoutsPage() {
                   item.danger && "text-rose-500",
                 )}
               >
-                <span className={cn(!item.highlight && !item.danger && "text-foreground")}>{item.label}</span>
+                <span
+                  className={cn(
+                    !item.highlight && !item.danger && "text-foreground",
+                  )}
+                >
+                  {item.label}
+                </span>
                 <span>{item.amount}</span>
               </div>
             ))}
@@ -233,7 +327,9 @@ export default function PayoutsPage() {
           <h3 className="text-base font-semibold">Recent Payout Activity</h3>
           <div className="mt-4 overflow-x-auto">
             {payoutHistories.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No payout history found.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No payout history found.
+              </p>
             ) : (
               <table className="w-full min-w-[520px] text-left text-sm">
                 <thead className="text-xs text-muted-foreground">
@@ -246,20 +342,31 @@ export default function PayoutsPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {payoutHistories.map((activity: any, index: number) => (
-                    <tr key={`${activity.payoutId}-${index}`} className="transition-colors duration-300 hover:bg-secondary/5">
-                      <td className="py-2.5">{formatDate(activity.createdAt)}</td>
+                    <tr
+                      key={`${activity.payoutId}-${index}`}
+                      className="transition-colors duration-300 hover:bg-secondary/5"
+                    >
+                      <td className="py-2.5">
+                        {formatDate(activity.createdAt)}
+                      </td>
                       <td className="py-2.5">
                         <span className="inline-flex items-center gap-2 font-semibold">
                           <Heart className="size-4 fill-rose-500 text-rose-500" />
                           {activity.stripeAccountId || "Stripe"}
                         </span>
                       </td>
-                      <td className="py-2.5 font-semibold">{formatAmount(activity.amount)}</td>
+                      <td className="py-2.5 font-semibold">
+                        {formatAmount(activity.amount)}
+                      </td>
                       <td className="py-2.5 text-right">
-                        <span className={cn(
-                          "inline-flex rounded-md px-3 py-1 text-xs font-semibold capitalize",
-                          activity.status === "failed" ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
-                        )}>
+                        <span
+                          className={cn(
+                            "inline-flex rounded-md px-3 py-1 text-xs font-semibold capitalize",
+                            activity.status === "failed"
+                              ? "bg-rose-100 text-rose-700"
+                              : "bg-emerald-100 text-emerald-700",
+                          )}
+                        >
                           {activity.status}
                         </span>
                       </td>
@@ -327,15 +434,22 @@ export default function PayoutsPage() {
           <h3 className="mt-3 text-base font-semibold">Payout Account</h3>
           <p className="mt-3 text-sm font-semibold">Bank Account</p>
           <p className="text-sm font-semibold">{displayBankAccount}</p>
-          <span className={cn(
-            "mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold",
-            accountInfo?.status === "active" || overview?.isBankConnected ? "bg-secondary/10 text-secondary" : "bg-rose-100 text-rose-700"
-          )}>
+          <span
+            className={cn(
+              "mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold",
+              accountInfo?.status === "active" || overview?.isBankConnected
+                ? "bg-secondary/10 text-secondary"
+                : "bg-rose-100 text-rose-700",
+            )}
+          >
             <CheckCircle2 className="size-3" />
-            {accountInfo?.status === "active" || overview?.isBankConnected ? "Connected" : "Disconnected"}
+            {accountInfo?.status === "active" || overview?.isBankConnected
+              ? "Connected"
+              : "Disconnected"}
           </span>
-          <p className="mx-auto mt-5 max-w-44 text-sm text-muted-foreground">Need to update your banking information?</p>
-         
+          <p className="mx-auto mt-5 max-w-44 text-sm text-muted-foreground">
+            Need to update your banking information?
+          </p>
         </DashboardCard>
 
         <DashboardCard className="text-center">
@@ -343,7 +457,9 @@ export default function PayoutsPage() {
             <CalendarDays className="size-7" />
           </span>
           <h3 className="mt-3 text-base font-semibold">Upcoming Payout</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Estimated Deposit</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Estimated Deposit
+          </p>
           <p className="mt-2 text-lg font-semibold">
             {formatAmount(overview?.financialBreakdown?.organizerAmount)}
           </p>
@@ -364,19 +480,32 @@ export default function PayoutsPage() {
           </div>
           <div className="mt-4 space-y-3">
             {payoutHistories.slice(0, 3).map((item: any) => (
-              <div key={item.payoutId} className="grid grid-cols-[1fr_auto_auto] items-center gap-3 text-sm">
-                <span className="font-medium">{formatDate(item.createdAt)}</span>
-                <span className="font-semibold">{formatAmount(item.amount)}</span>
-                <span className={cn(
-                  "rounded-md px-2 py-1 text-xs font-semibold capitalize",
-                  item.status === "failed" ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
-                )}>
+              <div
+                key={item.payoutId}
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-3 text-sm"
+              >
+                <span className="font-medium">
+                  {formatDate(item.createdAt)}
+                </span>
+                <span className="font-semibold">
+                  {formatAmount(item.amount)}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-md px-2 py-1 text-xs font-semibold capitalize",
+                    item.status === "failed"
+                      ? "bg-rose-100 text-rose-700"
+                      : "bg-emerald-100 text-emerald-700",
+                  )}
+                >
                   {item.status}
                 </span>
               </div>
             ))}
             {payoutHistories.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-2">No history.</p>
+              <p className="text-xs text-muted-foreground text-center py-2">
+                No history.
+              </p>
             )}
           </div>
           <Button variant="outline" size="sm" className="mt-5 w-full text-xs">
@@ -384,8 +513,6 @@ export default function PayoutsPage() {
             Download Payout Report
           </Button>
         </DashboardCard>
-
-       
       </section>
 
       <section className="grid gap-4 rounded-lg border border-border bg-white p-4 shadow-sm xl:grid-cols-[1fr_1.2fr_1.35fr_1.45fr]">
@@ -405,7 +532,9 @@ export default function PayoutsPage() {
               </span>
               <div>
                 <p className="text-sm font-semibold">{item.question}</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.answer}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  {item.answer}
+                </p>
               </div>
             </div>
           );

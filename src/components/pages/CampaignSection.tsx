@@ -34,7 +34,7 @@ const CampaignSection = () => {
     totalPages: 1,
   };
   const totalPages = meta.totalPages || 1;
-  console.log("Campaigns Response:", campaignsResponse);
+  // console.log("Campaigns Response:", campaignsResponse);
 
   // Client-side filtering as fallback/guarantee
   const filteredCampaigns = campaigns.filter((campaign: any) => {

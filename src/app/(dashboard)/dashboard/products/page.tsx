@@ -8,13 +8,14 @@ import {
   Package,
   Layers,
   FileCode,
-  AlertTriangle,
   Loader2,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
+import {
+  useGetAllMyCampaignsQuery,
+} from "@/redux/features/campaign/campaignApi";
 import {
   Product,
   ProductDetailsModal,
@@ -26,21 +27,33 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0); // 0: All, 1: Physical, 2: Digital
 
-  const campaignId = typeof window !== "undefined" ? localStorage.getItem("campaignId") : null;
-
-  const { data: campaignResponse, isLoading, isError } = useGetCampaignByIdQuery(
-    campaignId || "",
-    { skip: !campaignId }
-  );
+  const campaignId =
+    typeof window !== "undefined" ? localStorage.getItem("campaignId") : null;
+  console.log("Campaign ID:", campaignId);
+  // const { data: campaignResponse, isLoading, isError } = useGetCampaignByIdQuery(
+  //   campaignId || "",
+  //   { skip: !campaignId }
+  // );
+  const {
+    data: campaignResponse,
+    isLoading,
+    isError,
+  } = useGetAllMyCampaignsQuery({});
 
   const campaignData = campaignResponse?.data;
   const campaignStatus = campaignData?.status;
   const products: Product[] = campaignData?.products || [];
   // Statistics calculation
   const totalProducts = products.length;
-  const physicalProducts = products.filter((p) => p.productType === "physical").length;
-  const digitalProducts = products.filter((p) => p.productType === "digital").length;
-  const outOfStockProducts = products.filter((p) => !p.isUnlimited && p.stock <= 0).length;
+  const physicalProducts = products.filter(
+    (p) => p.productType === "physical",
+  ).length;
+  const digitalProducts = products.filter(
+    (p) => p.productType === "digital",
+  ).length;
+  const outOfStockProducts = products.filter(
+    (p) => !p.isUnlimited && p.stock <= 0,
+  ).length;
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -124,7 +137,7 @@ export default function ProductsPage() {
                 <span
                   className={cn(
                     "inline-flex size-11 shrink-0 items-center justify-center rounded-full",
-                    stat.colorClass
+                    stat.colorClass,
                   )}
                 >
                   <Icon className="size-5" />
@@ -154,7 +167,7 @@ export default function ProductsPage() {
                 onClick={() => setActiveTab(index)}
                 className={cn(
                   "shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary",
-                  index === activeTab && "bg-secondary/10 text-secondary"
+                  index === activeTab && "bg-secondary/10 text-secondary",
                 )}
               >
                 {tab}
@@ -178,7 +191,9 @@ export default function ProductsPage() {
           {isLoading ? (
             <div className="flex min-h-[200px] flex-col items-center justify-center gap-2">
               <Loader2 className="size-8 animate-spin text-secondary" />
-              <p className="text-sm text-muted-foreground">Loading products...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading products...
+              </p>
             </div>
           ) : isError || !campaignId ? (
             <div className="flex min-h-[200px] flex-col items-center justify-center">
@@ -190,7 +205,9 @@ export default function ProductsPage() {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="flex min-h-[200px] flex-col items-center justify-center">
-              <p className="text-sm text-muted-foreground">No products found.</p>
+              <p className="text-sm text-muted-foreground">
+                No products found.
+              </p>
             </div>
           ) : (
             <table className="w-full min-w-[980px] text-left text-sm">
@@ -239,7 +256,7 @@ export default function ProductsPage() {
                           "inline-flex rounded-md px-2 py-1 text-xs font-semibold capitalize",
                           product.productType === "physical"
                             ? "bg-blue-100 text-blue-700"
-                            : "bg-violet-100 text-violet-700"
+                            : "bg-violet-100 text-violet-700",
                         )}
                       >
                         {product.productType}
@@ -262,7 +279,8 @@ export default function ProductsPage() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-muted-foreground">
-                      {product.productType === "physical" && product.weight !== undefined
+                      {product.productType === "physical" &&
+                      product.weight !== undefined
                         ? `${product.weight} kg`
                         : "N/A"}
                     </td>
