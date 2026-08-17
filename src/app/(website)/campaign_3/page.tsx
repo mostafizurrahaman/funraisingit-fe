@@ -132,20 +132,82 @@ export default function CampaignThreePage() {
     }
   }, [shippingFee, draft.shippingFee]);
 
-  function handleProductImage(event: ChangeEvent<HTMLInputElement>) {
+  async function compressImage(file: File): Promise<File> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          
+          const MAX_DIM = 1200;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                    type: "image/jpeg",
+                    lastModified: Date.now(),
+                  });
+                  resolve(compressedFile);
+                } else {
+                  resolve(file);
+                }
+              },
+              "image/jpeg",
+              0.75
+            );
+          } else {
+            resolve(file);
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleProductImage(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
-      setProductImageError("Choose a JPG, PNG, or WEBP image under 5 MB.");
+    if (!allowedTypes.includes(file.type)) {
+      setProductImageError("Choose a JPG, PNG, or WEBP image.");
       event.target.value = "";
       return;
     }
 
-    setProductImage(file);
-    setProductImagePreview(URL.createObjectURL(file));
-    setProductImageError("");
+    try {
+      setProductImageError("Compressing image...");
+      const processedFile = await compressImage(file);
+      setProductImage(processedFile);
+      setProductImagePreview(URL.createObjectURL(processedFile));
+      setProductImageError("");
+    } catch (e) {
+      console.error(e);
+      setProductImage(file);
+      setProductImagePreview(URL.createObjectURL(file));
+      setProductImageError("");
+    }
   }
 
   function handleDownloadFile(event: ChangeEvent<HTMLInputElement>) {
@@ -268,13 +330,15 @@ export default function CampaignThreePage() {
       toast.success("Products added successfully!");
       router.push("/campaign_4");
     } catch (err: any) {
+      console.error("Product creation handleSubmit error:", err);
       const rawErr = err?.data;
       const errMsg =
         rawErr?.message ||
         (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
         (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+        err?.error ||
         err?.message ||
-        "Failed to add products. Please try again.";
+        (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
       setError(errMsg);
       toast.error(errMsg);
     }
