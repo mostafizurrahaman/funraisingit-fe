@@ -106,14 +106,14 @@ const Hero = () => {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-white px-3 text-xs font-bold text-secondary transition-all duration-300 hover:bg-secondary/5 hover:-translate-y-0.5 active:translate-y-0"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-white px-3 text-xs font-bold text-secondary "
                 >
                   <Heart className="size-4 text-secondary fill-current" />
                   Donate
                 </button>
                 <button
                   type="button"
-                  className="flex h-11 items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white shadow-sm transition-all duration-300 hover:bg-[#E06600] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex h-11 items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white  "
                 >
                   Buy Now
                 </button>
