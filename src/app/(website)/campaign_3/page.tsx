@@ -339,7 +339,8 @@ export default function CampaignThreePage() {
         err?.error ||
         err?.message ||
         (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
-      setError(errMsg);
+      
+      setError(`${errMsg} [Status: ${err?.status || "unknown"}] [Details: ${JSON.stringify(err)}]`);
       toast.error(errMsg);
     }
   }
