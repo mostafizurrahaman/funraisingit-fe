@@ -90,23 +90,88 @@ function CampaignOneForm() {
     }
   }, [selectedShippingAmount, draft.shippingFee]);
 
-  function handlePhoto(event: ChangeEvent<HTMLInputElement>) {
+  async function compressImage(file: File): Promise<File> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          
+          const MAX_DIM = 1200;
+          if (width > height) {
+            if (width > MAX_DIM) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            }
+          } else {
+            if (height > MAX_DIM) {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                    type: "image/jpeg",
+                    lastModified: Date.now(),
+                  });
+                  resolve(compressedFile);
+                } else {
+                  resolve(file);
+                }
+              },
+              "image/jpeg",
+              0.75
+            );
+          } else {
+            resolve(file);
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handlePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type) || file.size > 5 * 1024 * 1024) {
-      setFileError("Choose a JPG, PNG, or WEBP image under 5 MB.");
+    if (!allowedTypes.includes(file.type)) {
+      setFileError("Choose a JPG, PNG, or WEBP image.");
       event.target.value = "";
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    updateDraft({
-      thumbnail: file,
-      thumbnailPreview: objectUrl,
-    });
-    setFileError("");
+    try {
+      setFileError("Compressing image...");
+      const processedFile = await compressImage(file);
+      const objectUrl = URL.createObjectURL(processedFile);
+      updateDraft({
+        thumbnail: processedFile,
+        thumbnailPreview: objectUrl,
+      });
+      setFileError("");
+    } catch (e) {
+      console.error(e);
+      const objectUrl = URL.createObjectURL(file);
+      updateDraft({
+        thumbnail: file,
+        thumbnailPreview: objectUrl,
+      });
+      setFileError("");
+    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
