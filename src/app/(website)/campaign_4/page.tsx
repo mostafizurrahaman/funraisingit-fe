@@ -126,24 +126,7 @@ export default function CampaignFourPage() {
     } catch (err: any) {
       const rawErr = err?.data;
       const errMsg =
-        rawErr?.message ||
-        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
-        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
-        err?.message ||
-        "Failed to launch campaign. Please try again.";
-
-      if (
-        errMsg === "Before launching campaign setup organization bank account."
-      ) {
-        toast.error(errMsg);
-
-        setTimeout(() => {
-          router.push("/dashboard/settings");
-        }, 1500);
-
-        return;
-      }
-
+        err?.data?.message || "Failed to launch campaign. Please try again.";
       setError(errMsg);
     }
   }
