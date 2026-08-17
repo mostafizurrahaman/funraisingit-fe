@@ -124,10 +124,30 @@ export default function CampaignFourPage() {
       removeCampaignIdFromLocalStorage();
       router.push(response?.data?.url);
     } catch (err: any) {
+      console.error("Launch campaign error:", err);
       const rawErr = err?.data;
       const errMsg =
-        err?.data?.message || "Failed to launch campaign. Please try again.";
+        rawErr?.message ||
+        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+        err?.error ||
+        err?.message ||
+        (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
+      
       setError(errMsg);
+      toast.error(errMsg);
+
+      const lowerMsg = errMsg.toLowerCase();
+      if (
+        lowerMsg.includes("bank account") ||
+        lowerMsg.includes("payout") ||
+        lowerMsg.includes("stripe") ||
+        lowerMsg.includes("organization")
+      ) {
+        setTimeout(() => {
+          router.push("/dashboard/settings");
+        }, 2000);
+      }
     }
   }
 
