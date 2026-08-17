@@ -42,7 +42,11 @@ function FormField({ label, required, ...props }: FormFieldProps) {
   return (
     <label className="block text-xs font-medium text-foreground">
       {label} {required && <span className="text-red-500">*</span>}
-      <input required={required} className={`mt-2 ${inputClassName}`} {...props} />
+      <input
+        required={required}
+        className={`mt-2 ${inputClassName}`}
+        {...props}
+      />
     </label>
   );
 }
@@ -52,13 +56,20 @@ const OrderSummery = () => {
   const searchParams = useSearchParams();
   const code = searchParams.get("code") || "";
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
   const [quantity, setQuantity] = useState(1);
-  const [shippingId, setShippingId] = useState<"pickup" | "delivery" | "shipping">("shipping");
+  const [shippingId, setShippingId] = useState<
+    "pickup" | "delivery" | "shipping"
+  >("shipping");
 
-  const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(code, {
-    skip: !code,
-  });
+  const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(
+    code,
+    {
+      skip: !code,
+    },
+  );
 
   const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
 
@@ -73,15 +84,20 @@ const OrderSummery = () => {
   }, [products, selectedProductId]);
 
   // Find currently selected product
-  const product = products.find((p: any) => p._id === selectedProductId) || (products.length === 1 ? products[0] : null);
+  const product =
+    products.find((p: any) => p._id === selectedProductId) ||
+    (products.length === 1 ? products[0] : null);
 
   // Dynamic variables from API
   const productName = product?.name || campaign?.name || "Premium Item";
   const productPrice = product?.price || 10;
-  const productImageSrc = product?.productImage || campaign?.thumbnail || defaultProductImage;
+  const productImageSrc =
+    product?.productImage || campaign?.thumbnail || defaultProductImage;
   const organizerName = campaign?.organizerName || "Organizer";
-  const organizerImageSrc = campaign?.organizerProfileImage || defaultCampaignOwner;
-  const campaignStory = campaign?.story || "Thank you for supporting our campaign!";
+  const organizerImageSrc =
+    campaign?.organizerProfileImage || defaultCampaignOwner;
+  const campaignStory =
+    campaign?.story || "Thank you for supporting our campaign!";
   const campaignShippingFee = campaign?.shippingFee || 0;
 
   // Stock values
@@ -92,7 +108,12 @@ const OrderSummery = () => {
 
   // Reset quantity if it exceeds stock of a newly selected product
   useEffect(() => {
-    if (isPhysical && isLimited && quantity > availableStock && availableStock > 0) {
+    if (
+      isPhysical &&
+      isLimited &&
+      quantity > availableStock &&
+      availableStock > 0
+    ) {
       setQuantity(availableStock);
     } else if (isPhysical && isLimited && availableStock <= 0) {
       setQuantity(1);
@@ -114,7 +135,10 @@ const OrderSummery = () => {
       icon: MapPin,
     });
   }
-  if (campaign?.allowLocalDelivery || campaign?.allowLocalDelivery === undefined) {
+  if (
+    campaign?.allowLocalDelivery ||
+    campaign?.allowLocalDelivery === undefined
+  ) {
     shippingMethods.push({
       id: "delivery",
       title: "Local Delivery",
@@ -139,7 +163,9 @@ const OrderSummery = () => {
     ? shippingId
     : activeMethods[0] || "shipping";
 
-  const selectedShippingFee = shippingMethods.find((method) => method.id === currentShippingId)?.price ?? 0;
+  const selectedShippingFee =
+    shippingMethods.find((method) => method.id === currentShippingId)?.price ??
+    0;
   const total = subtotal + selectedShippingFee + tax;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -196,13 +222,16 @@ const OrderSummery = () => {
     try {
       const res = await createOrder(orderPayload).unwrap();
       if (res.success && res.data?.url) {
-        toast.success(res.message || "Order created! Redirecting to payment...");
+        toast.success(
+          res.message || "Order created! Redirecting to payment...",
+        );
         window.location.href = res.data.url;
       } else {
         toast.error(res.message || "Failed to create order");
       }
     } catch (err: any) {
-      const errMsg = err?.data?.message || err?.message || "Failed to create order";
+      const errMsg =
+        err?.data?.message || err?.message || "Failed to create order";
       toast.error(errMsg);
     }
   };
@@ -211,7 +240,9 @@ const OrderSummery = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-background">
         <Loader2 className="size-8 animate-spin text-secondary" />
-        <p className="text-sm text-muted-foreground">Loading order details...</p>
+        <p className="text-sm text-muted-foreground">
+          Loading order details...
+        </p>
       </div>
     );
   }
@@ -221,19 +252,28 @@ const OrderSummery = () => {
     return (
       <main className="min-h-screen bg-background py-14 sm:py-20">
         <div className="container mx-auto px-5 sm:px-8 lg:px-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors duration-300 hover:text-secondary mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors duration-300 hover:text-secondary mb-6"
+          >
             <ArrowLeft className="size-4" aria-hidden="true" />
             Back
           </Link>
           <div className="text-center max-w-xl mx-auto mb-10">
-            <h2 className="text-3xl font-semibold text-foreground">Select a Product</h2>
+            <h2 className="text-3xl font-semibold text-foreground">
+              Select a Product
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Please choose a product from {campaign?.name || "the campaign"} to continue with your purchase.
+              Please choose a product from {campaign?.name || "the campaign"} to
+              continue with your purchase.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {products.map((p: any) => {
-              const outOfStock = p.productType === "physical" && p.isUnlimited === false && p.stock <= 0;
+              const outOfStock =
+                p.productType === "physical" &&
+                p.isUnlimited === false &&
+                p.stock <= 0;
               return (
                 <div
                   key={p._id}
@@ -249,19 +289,27 @@ const OrderSummery = () => {
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="text-base font-semibold text-foreground truncate">{p.name}</h3>
+                      <h3 className="text-base font-semibold text-foreground truncate">
+                        {p.name}
+                      </h3>
                       {outOfStock ? (
                         <span className="mt-1 inline-block rounded bg-red-100 px-2.5 py-0.5 text-[10px] font-semibold text-red-600">
                           Out of Stock
                         </span>
                       ) : (
-                        <p className="mt-1 text-xs text-muted-foreground capitalize">{p.productType} Product</p>
+                        <p className="mt-1 text-xs text-muted-foreground capitalize">
+                          {p.productType} Product
+                        </p>
                       )}
-                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{p.description}</p>
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                        {p.description}
+                      </p>
                     </div>
                   </div>
                   <div className="p-4 border-t border-border flex items-center justify-between gap-4">
-                    <span className="text-lg font-bold text-secondary">${p.price.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-secondary">
+                      ${p.price.toFixed(2)}
+                    </span>
                     <button
                       type="button"
                       disabled={outOfStock}
@@ -287,7 +335,10 @@ const OrderSummery = () => {
   return (
     <main className="min-h-screen bg-background py-6 sm:py-10">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors duration-300 hover:text-secondary">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors duration-300 hover:text-secondary"
+        >
           <ArrowLeft className="size-4" aria-hidden="true" />
           Back
         </Link>
@@ -297,32 +348,57 @@ const OrderSummery = () => {
             <section className="rounded-xl border border-muted-foreground/60 p-4 sm:p-5">
               <div className="relative aspect-[1.55/1] overflow-hidden rounded-xl bg-slate-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={typeof productImageSrc === "string" ? productImageSrc : (productImageSrc as any).src} alt={productName} className="absolute inset-0 size-full object-cover object-top" />
+                <img
+                  src={
+                    typeof productImageSrc === "string"
+                      ? productImageSrc
+                      : (productImageSrc as any).src
+                  }
+                  alt={productName}
+                  className="absolute inset-0 size-full object-cover object-top"
+                />
               </div>
 
               <div className="mt-4 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm bg-slate-50">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={typeof organizerImageSrc === "string" ? organizerImageSrc : (organizerImageSrc as any).src} alt={organizerName} className="absolute inset-0 size-full object-cover rounded-full" />
+                    <img
+                      src={
+                        typeof organizerImageSrc === "string"
+                          ? organizerImageSrc
+                          : (organizerImageSrc as any).src
+                      }
+                      alt={organizerName}
+                      className="absolute inset-0 size-full object-cover rounded-full"
+                    />
                   </div>
                   <h1 className="text-lg font-semibold leading-6 text-foreground sm:text-xl truncate">
-                    {organizerName}&apos;s<br />Fundraiser
+                    {organizerName}&apos;s
+                    <br />
+                    Fundraiser
                   </h1>
                 </div>
                 <p className="whitespace-nowrap text-3xl font-semibold text-secondary">
-                  ${productPrice}<span className="ml-1 text-xs font-normal text-foreground">each</span>
+                  ${productPrice}
+                  <span className="ml-1 text-xs font-normal text-foreground">
+                    each
+                  </span>
                 </p>
               </div>
 
               <div className="mt-5">
-                <p className="text-xs font-semibold text-foreground">Quantity</p>
+                <p className="text-xs font-semibold text-foreground">
+                  Quantity
+                </p>
                 <div className="mt-2 flex flex-col items-start gap-1">
                   <div className="inline-flex items-center overflow-hidden rounded-lg border border-muted-foreground/60">
                     <button
                       type="button"
                       disabled={isProductOutOfStock}
-                      onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                      onClick={() =>
+                        setQuantity((current) => Math.max(1, current - 1))
+                      }
                       className="flex size-9 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
                       aria-label="Decrease quantity"
                     >
@@ -333,8 +409,18 @@ const OrderSummery = () => {
                     </span>
                     <button
                       type="button"
-                      disabled={isProductOutOfStock || (isPhysical && isLimited && quantity >= availableStock)}
-                      onClick={() => setQuantity((current) => Math.min(isPhysical && isLimited ? availableStock : 9999, current + 1))}
+                      disabled={
+                        isProductOutOfStock ||
+                        (isPhysical && isLimited && quantity >= availableStock)
+                      }
+                      onClick={() =>
+                        setQuantity((current) =>
+                          Math.min(
+                            isPhysical && isLimited ? availableStock : 9999,
+                            current + 1,
+                          ),
+                        )
+                      }
                       className="flex size-9 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
                       aria-label="Increase quantity"
                     >
@@ -342,15 +428,21 @@ const OrderSummery = () => {
                     </button>
                   </div>
                   {isPhysical && isLimited && (
-                    <p className={`text-xs font-medium mt-1 ${isProductOutOfStock ? "text-red-500 animate-pulse" : "text-orange-600"}`}>
-                      {isProductOutOfStock ? "Out of Stock" : `Only ${availableStock} units available`}
+                    <p
+                      className={`text-xs font-medium mt-1 ${isProductOutOfStock ? "text-red-500 animate-pulse" : "text-orange-600"}`}
+                    >
+                      {isProductOutOfStock
+                        ? "Out of Stock"
+                        : `Only ${availableStock} units available`}
                     </p>
                   )}
                 </div>
               </div>
 
               <div className="mt-5 text-sm leading-6 text-muted-foreground whitespace-pre-line">
-                <h2 className="font-semibold text-foreground">About This Campaign</h2>
+                <h2 className="font-semibold text-foreground">
+                  About This Campaign
+                </h2>
                 <p className="mt-3">{campaignStory}</p>
               </div>
             </section>
@@ -374,10 +466,16 @@ const OrderSummery = () => {
                       >
                         <Icon className="size-5 shrink-0 text-secondary" />
                         <span className="flex-1">
-                          <span className="block text-sm font-semibold">{method.title}</span>
-                          <span className="block text-[11px] text-muted-foreground">{method.description}</span>
+                          <span className="block text-sm font-semibold">
+                            {method.title}
+                          </span>
+                          <span className="block text-[11px] text-muted-foreground">
+                            {method.description}
+                          </span>
                         </span>
-                        <span className="text-xs font-medium">{method.price === 0 ? "Free" : `$${method.price}`}</span>
+                        <span className="text-xs font-medium">
+                          {method.price === 0 ? "Free" : `$${method.price}`}
+                        </span>
                       </button>
                     );
                   })}
@@ -388,15 +486,29 @@ const OrderSummery = () => {
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
-              <h2 className="text-xl font-semibold text-black">Order Summary</h2>
+              <h2 className="text-xl font-semibold text-black">
+                Order Summary
+              </h2>
               <div className="mt-5 flex items-center gap-4 border-b border-muted-foreground/30 pb-4">
                 <div className="relative size-14 overflow-hidden rounded-lg bg-slate-50">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={typeof productImageSrc === "string" ? productImageSrc : (productImageSrc as any).src} alt={productName} className="absolute inset-0 size-full object-cover rounded-lg" />
+                  <img
+                    src={
+                      typeof productImageSrc === "string"
+                        ? productImageSrc
+                        : (productImageSrc as any).src
+                    }
+                    alt={productName}
+                    className="absolute inset-0 size-full object-cover rounded-lg"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{productName}</p>
-                  <p className="text-xs text-muted-foreground">${productPrice} × {isProductOutOfStock ? 0 : quantity}</p>
+                  <p className="text-sm font-semibold truncate">
+                    {productName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    ${productPrice} × {isProductOutOfStock ? 0 : quantity}
+                  </p>
                   {products.length > 1 && (
                     <button
                       type="button"
@@ -407,38 +519,145 @@ const OrderSummery = () => {
                     </button>
                   )}
                 </div>
-                <p className="text-sm font-semibold">${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</p>
+                <p className="text-sm font-semibold">
+                  ${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}
+                </p>
               </div>
               <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
-                <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>${(isProductOutOfStock ? 0 : selectedShippingFee).toFixed(2)}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Subtotal</dt>
+                  <dd>${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Shipping</dt>
+                  <dd>
+                    $
+                    {(isProductOutOfStock ? 0 : selectedShippingFee).toFixed(2)}
+                  </dd>
+                </div>
                 {/* <div className="flex justify-between"><dt className="text-muted-foreground">Estimated tax (8%)</dt><dd>${(isProductOutOfStock ? 0 : tax).toFixed(2)}</dd></div> */}
               </dl>
               <div className="flex items-center justify-between pt-4 text-sm font-semibold">
-                <span>Total</span><span className="text-xl text-secondary">${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</span>
+                <span>Total</span>
+                <span className="text-xl text-secondary">
+                  ${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}
+                </span>
               </div>
             </section>
 
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
-              <h2 className="text-xl font-semibold text-black">Contact Information</h2>
+              <h2 className="text-xl font-semibold text-black">
+                Contact Information
+              </h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <FormField label="First Name" name="firstName" placeholder="Jane" required disabled={isProductOutOfStock} />
-                <FormField label="Last Name" name="lastName" placeholder="Smith" required disabled={isProductOutOfStock} />
-                <div className="sm:col-span-2"><FormField label="Email Address" name="email" type="email" placeholder="jane@email.com" required disabled={isProductOutOfStock} /></div>
-                <div className="sm:col-span-2"><FormField label="Phone Number" name="phone" type="tel" placeholder="+1 (555) 000-0000" required disabled={isProductOutOfStock} /></div>
+                <FormField
+                  label="First Name"
+                  name="firstName"
+                  placeholder="Jane"
+                  required
+                  disabled={isProductOutOfStock}
+                />
+                <FormField
+                  label="Last Name"
+                  name="lastName"
+                  placeholder="Smith"
+                  required
+                  disabled={isProductOutOfStock}
+                />
+                <div className="sm:col-span-2">
+                  <FormField
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    placeholder="jane@email.com"
+                    required
+                    disabled={isProductOutOfStock}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <FormField
+                    label="Phone Number"
+                    name="phone"
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    required
+                    disabled={isProductOutOfStock}
+                  />
+                </div>
               </div>
             </section>
 
             {currentShippingId !== "pickup" && (
               <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
-                <h2 className="text-xl font-semibold text-black">Delivery Address</h2>
+                <h2 className="text-xl font-semibold text-black">
+                  Delivery Address
+                </h2>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2"><FormField label="Address Line 1" name="address1" placeholder="123 Main Street" required={true} disabled={isProductOutOfStock} /></div>
-                  <div className="sm:col-span-2"><FormField label="Address Line 2" name="address2" placeholder="Apt, suite, unit (optional)" disabled={isProductOutOfStock} /></div>
-                  <FormField label="City" name="city" placeholder="Springfield" required={true} disabled={isProductOutOfStock} />
-                  <label className="block text-xs font-medium">State <span className="text-red-500">*</span><select name="state" required={true} disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select state</option><option>California</option><option>New York</option><option>Texas</option></select></label>
-                  <FormField label="ZIP / Postal Code" name="postalCode" placeholder="62701" required={true} disabled={isProductOutOfStock} />
-                  <label className="block text-xs font-medium">Country <span className="text-red-500">*</span><select name="country" required={true} disabled={isProductOutOfStock} className={`mt-2 ${inputClassName}`} defaultValue=""><option value="" disabled>Select country</option><option>United States</option><option>Canada</option><option>United Kingdom</option></select></label>
+                  <div className="sm:col-span-2">
+                    <FormField
+                      label="Address Line 1"
+                      name="address1"
+                      placeholder="123 Main Street"
+                      required={true}
+                      disabled={isProductOutOfStock}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <FormField
+                      label="Address Line 2"
+                      name="address2"
+                      placeholder="Apt, suite, unit (optional)"
+                      disabled={isProductOutOfStock}
+                    />
+                  </div>
+                  <FormField
+                    label="City"
+                    name="city"
+                    placeholder="Springfield"
+                    required={true}
+                    disabled={isProductOutOfStock}
+                  />
+                  <label className="block text-xs font-medium">
+                    State <span className="text-red-500">*</span>
+                    <select
+                      name="state"
+                      required={true}
+                      disabled={isProductOutOfStock}
+                      className={`mt-2 ${inputClassName}`}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        Select state
+                      </option>
+                      <option>California</option>
+                      <option>New York</option>
+                      <option>Texas</option>
+                    </select>
+                  </label>
+                  <FormField
+                    label="ZIP / Postal Code"
+                    name="postalCode"
+                    placeholder="62701"
+                    required={true}
+                    disabled={isProductOutOfStock}
+                  />
+                  <label className="block text-xs font-medium">
+                    Country <span className="text-red-500">*</span>
+                    <select
+                      name="country"
+                      required={true}
+                      disabled={isProductOutOfStock}
+                      className={`mt-2 ${inputClassName}`}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        Select country
+                      </option>
+                      <option>United States</option>
+                      <option>Canada</option>
+                      <option>United Kingdom</option>
+                    </select>
+                  </label>
                 </div>
               </section>
             )}
@@ -456,11 +675,18 @@ const OrderSummery = () => {
               ) : (
                 <>
                   <ShieldCheck className="size-4" />
-                  {isProductOutOfStock ? "Product Out of Stock" : `Place Order · $${subtotal.toFixed(2)}`}
+                  {isProductOutOfStock
+                    ? "Product Out of Stock"
+                    : `Place Order · $${subtotal.toFixed(2)}`}
                 </>
               )}
             </button>
-            <p className="text-center text-[10px] leading-4 text-muted-foreground">By placing your order you agree to our Terms of Service and Privacy Policy.<br />Your payment is secured and encrypted by Stripe.</p>
+            <p className="text-center text-[10px] leading-4 text-muted-foreground">
+              By placing your order you agree to our Terms of Service and
+              Privacy Policy.
+              <br />
+              Your payment is secured and encrypted by Stripe.
+            </p>
           </form>
         </div>
       </div>

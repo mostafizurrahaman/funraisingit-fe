@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { BASE_URL } from "@/utils/baseUrl";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -43,6 +48,47 @@ const socialLinks: SocialLink[] = [
 ];
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/newsletter`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data?.success !== false) {
+        toast.success(data?.message || "Successfully subscribed to our newsletter!");
+        setEmail("");
+      } else {
+        toast.error(data?.message || "Failed to subscribe. Please try again.");
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-background text-foreground">
       <div className="container mx-auto px-5 py-10 sm:px-8 lg:px-10 lg:py-12">
@@ -99,13 +145,23 @@ const Footer = () => {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSubscribe();
+                  }
+                }}
+                disabled={isLoading}
                 className="h-12 min-w-0 flex-1 rounded-lg border border-muted-foreground bg-white px-4 text-sm outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/20"
               />
               <button
                 type="button"
-                className="h-12 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
+                onClick={handleSubscribe}
+                disabled={isLoading}
+                className="h-12 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Subscribe
+                {isLoading ? "Subscribing..." : "Subscribe"}
               </button>
             </div>
           </div>
