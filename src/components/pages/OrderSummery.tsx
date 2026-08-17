@@ -56,10 +56,7 @@ const OrderSummery = () => {
   const searchParams = useSearchParams();
   const code = searchParams.get("code") || "";
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(
-    null,
-  );
-  const [quantity, setQuantity] = useState(1);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [shippingId, setShippingId] = useState<
     "pickup" | "delivery" | "shipping"
   >("shipping");
@@ -76,23 +73,29 @@ const OrderSummery = () => {
   const campaign = campaignResponse?.data;
   const products = campaign?.products || [];
 
-  // Auto-select if there is exactly 1 product
+  // Auto-initialize quantities when products load
   useEffect(() => {
-    if (products.length === 1 && !selectedProductId) {
-      setSelectedProductId(products[0]._id);
+    if (products.length > 0) {
+      const initialQuantities: Record<string, number> = {};
+      products.forEach((p: any) => {
+        initialQuantities[p._id] = 0;
+      });
+      // Default the first available/in-stock product to 1
+      const firstAvailable = products.find(
+        (p: any) =>
+          p.productType !== "physical" ||
+          p.isUnlimited === true ||
+          (p.stock && p.stock > 0),
+      );
+      if (firstAvailable) {
+        initialQuantities[firstAvailable._id] = 1;
+      } else if (products[0]) {
+        initialQuantities[products[0]._id] = 1;
+      }
+      setQuantities(initialQuantities);
     }
-  }, [products, selectedProductId]);
+  }, [products]);
 
-  // Find currently selected product
-  const product =
-    products.find((p: any) => p._id === selectedProductId) ||
-    (products.length === 1 ? products[0] : null);
-
-  // Dynamic variables from API
-  const productName = product?.name || campaign?.name || "Premium Item";
-  const productPrice = product?.price || 10;
-  const productImageSrc =
-    product?.productImage || campaign?.thumbnail || defaultProductImage;
   const organizerName = campaign?.organizerName || "Organizer";
   const organizerImageSrc =
     campaign?.organizerProfileImage || defaultCampaignOwner;
@@ -100,29 +103,11 @@ const OrderSummery = () => {
     campaign?.story || "Thank you for supporting our campaign!";
   const campaignShippingFee = campaign?.shippingFee || 0;
 
-  // Stock values
-  const isPhysical = product?.productType === "physical";
-  const isLimited = product?.isUnlimited === false;
-  const availableStock = product?.stock ?? 0;
-  const isProductOutOfStock = isPhysical && isLimited && availableStock <= 0;
-
-  // Reset quantity if it exceeds stock of a newly selected product
-  useEffect(() => {
-    if (
-      isPhysical &&
-      isLimited &&
-      quantity > availableStock &&
-      availableStock > 0
-    ) {
-      setQuantity(availableStock);
-    } else if (isPhysical && isLimited && availableStock <= 0) {
-      setQuantity(1);
-    }
-  }, [selectedProductId, availableStock, isPhysical, isLimited, quantity]);
-
   // Calculations
-  const subtotal = productPrice * quantity;
-  const tax = 2.24 * quantity;
+  const subtotal = products.reduce((acc: number, p: any) => {
+    const qty = quantities[p._id] || 0;
+    return acc + p.price * qty;
+  }, 0);
 
   // Dynamically build shipping options based on settings
   const shippingMethods: ShippingMethod[] = [];
@@ -166,17 +151,40 @@ const OrderSummery = () => {
   const selectedShippingFee =
     shippingMethods.find((method) => method.id === currentShippingId)?.price ??
     0;
-  const total = subtotal + selectedShippingFee + tax;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!product || !campaign) return;
+    if (!campaign) return;
 
-    if (isPhysical && isLimited && availableStock <= 0) {
-      return toast.error("This product is currently out of stock.");
+    const orderItems = Object.entries(quantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([productId, qty]) => {
+        const prod = products.find((p: any) => p._id === productId);
+        return {
+          product: productId,
+          quantity: qty,
+          price: prod.price,
+          productType: prod.productType,
+        };
+      });
+
+    if (orderItems.length === 0) {
+      return toast.error("Please select at least one product to order.");
     }
-    if (isPhysical && isLimited && quantity > availableStock) {
-      return toast.error(`You cannot order more than ${availableStock} items.`);
+
+    // Validate stocks for physical items
+    for (const item of orderItems) {
+      const prod = products.find((p: any) => p._id === item.product);
+      if (prod && prod.productType === "physical" && prod.isUnlimited === false) {
+        if (prod.stock <= 0) {
+          return toast.error(`Product "${prod.name}" is currently out of stock.`);
+        }
+        if (item.quantity > prod.stock) {
+          return toast.error(
+            `You cannot order more than ${prod.stock} units of "${prod.name}".`,
+          );
+        }
+      }
     }
 
     const formData = new FormData(event.currentTarget);
@@ -194,15 +202,6 @@ const OrderSummery = () => {
     let shippingType = "shipping";
     if (currentShippingId === "pickup") shippingType = "local_pickup";
     else if (currentShippingId === "delivery") shippingType = "local_delivery";
-
-    const orderItems = [
-      {
-        product: product._id,
-        quantity: quantity,
-        price: product.price,
-        productType: product.productType,
-      },
-    ];
 
     const orderPayload = {
       campaignId: campaign._id,
@@ -247,91 +246,6 @@ const OrderSummery = () => {
     );
   }
 
-  // Render product selection screen if no product is selected and there are multiple products
-  if (!product && products.length > 1) {
-    return (
-      <main className="min-h-screen bg-background py-14 sm:py-20">
-        <div className="container mx-auto px-5 sm:px-8 lg:px-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors duration-300 hover:text-secondary mb-6"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Back
-          </Link>
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <h2 className="text-3xl font-semibold text-foreground">
-              Select a Product
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Please choose a product from {campaign?.name || "the campaign"} to
-              continue with your purchase.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-            {products.map((p: any) => {
-              const outOfStock =
-                p.productType === "physical" &&
-                p.isUnlimited === false &&
-                p.stock <= 0;
-              return (
-                <div
-                  key={p._id}
-                  className="overflow-hidden rounded-lg border border-border bg-white shadow-sm flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-slate-50">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={p.productImage || defaultProductImage.src}
-                        alt={p.name}
-                        className="absolute inset-0 size-full object-cover"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-base font-semibold text-foreground truncate">
-                        {p.name}
-                      </h3>
-                      {outOfStock ? (
-                        <span className="mt-1 inline-block rounded bg-red-100 px-2.5 py-0.5 text-[10px] font-semibold text-red-600">
-                          Out of Stock
-                        </span>
-                      ) : (
-                        <p className="mt-1 text-xs text-muted-foreground capitalize">
-                          {p.productType} Product
-                        </p>
-                      )}
-                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                        {p.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="p-4 border-t border-border flex items-center justify-between gap-4">
-                    <span className="text-lg font-bold text-secondary">
-                      ${p.price.toFixed(2)}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={outOfStock}
-                      onClick={() => setSelectedProductId(p._id)}
-                      className={`inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold transition-all duration-300 ${
-                        outOfStock
-                          ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                          : "bg-primary text-white hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md cursor-pointer"
-                      }`}
-                    >
-                      {outOfStock ? "Out of Stock" : "Select"}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-background py-6 sm:py-10">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10">
@@ -346,110 +260,131 @@ const OrderSummery = () => {
         <div className="mt-7 grid items-start gap-8 lg:grid-cols-2">
           <div className="space-y-6">
             <section className="rounded-xl border border-muted-foreground/60 p-4 sm:p-5">
-              <div className="relative aspect-[1.55/1] overflow-hidden rounded-xl bg-slate-50">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={
-                    typeof productImageSrc === "string"
-                      ? productImageSrc
-                      : (productImageSrc as any).src
-                  }
-                  alt={productName}
-                  className="absolute inset-0 size-full object-cover object-top"
-                />
-              </div>
-
-              <div className="mt-4 flex items-start justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm bg-slate-50">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={
-                        typeof organizerImageSrc === "string"
-                          ? organizerImageSrc
-                          : (organizerImageSrc as any).src
-                      }
-                      alt={organizerName}
-                      className="absolute inset-0 size-full object-cover rounded-full"
-                    />
-                  </div>
-                  <h1 className="text-lg font-semibold leading-6 text-foreground sm:text-xl truncate">
-                    {organizerName}&apos;s
-                    <br />
-                    Fundraiser
-                  </h1>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm bg-slate-50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      typeof organizerImageSrc === "string"
+                        ? organizerImageSrc
+                        : (organizerImageSrc as any).src
+                    }
+                    alt={organizerName}
+                    className="absolute inset-0 size-full object-cover rounded-full"
+                  />
                 </div>
-                <p className="whitespace-nowrap text-3xl font-semibold text-secondary">
-                  ${productPrice}
-                  <span className="ml-1 text-xs font-normal text-foreground">
-                    each
-                  </span>
-                </p>
+                <h1 className="text-lg font-semibold leading-6 text-foreground sm:text-xl truncate">
+                  {organizerName}&apos;s
+                  <br />
+                  Fundraiser Products
+                </h1>
               </div>
 
-              <div className="mt-5">
-                <p className="text-xs font-semibold text-foreground">
-                  Quantity
-                </p>
-                <div className="mt-2 flex flex-col items-start gap-1">
-                  <div className="inline-flex items-center overflow-hidden rounded-lg border border-muted-foreground/60">
-                    <button
-                      type="button"
-                      disabled={isProductOutOfStock}
-                      onClick={() =>
-                        setQuantity((current) => Math.max(1, current - 1))
-                      }
-                      className="flex size-9 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
-                      aria-label="Decrease quantity"
+              {/* Products List */}
+              <div className="space-y-4">
+                {products.map((p: any) => {
+                  const qty = quantities[p._id] || 0;
+                  const isPhysical = p.productType === "physical";
+                  const isLimited = p.isUnlimited === false;
+                  const availableStock = p.stock ?? 0;
+                  const outOfStock = isPhysical && isLimited && availableStock <= 0;
+                  const imageSrc = p.productImage || defaultProductImage;
+                  return (
+                    <div
+                      key={p._id}
+                      className="rounded-xl border border-muted-foreground/30 p-4 bg-white flex gap-4 transition-all duration-300 hover:shadow-sm"
                     >
-                      <Minus className="size-3" />
-                    </button>
-                    <span className="min-w-8 text-center text-sm font-medium">
-                      {isProductOutOfStock ? 0 : quantity}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={
-                        isProductOutOfStock ||
-                        (isPhysical && isLimited && quantity >= availableStock)
-                      }
-                      onClick={() =>
-                        setQuantity((current) =>
-                          Math.min(
-                            isPhysical && isLimited ? availableStock : 9999,
-                            current + 1,
-                          ),
-                        )
-                      }
-                      className="flex size-9 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
-                      aria-label="Increase quantity"
-                    >
-                      <Plus className="size-3" />
-                    </button>
-                  </div>
-                  {isPhysical && isLimited && (
-                    <p
-                      className={`text-xs font-medium mt-1 ${isProductOutOfStock ? "text-red-500 animate-pulse" : "text-orange-600"}`}
-                    >
-                      {isProductOutOfStock
-                        ? "Out of Stock"
-                        : `Only ${availableStock} units available`}
-                    </p>
-                  )}
-                </div>
+                      <div className="relative aspect-[1.3/1] w-28 sm:w-32 shrink-0 overflow-hidden rounded-lg bg-slate-50 border border-slate-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={
+                            typeof imageSrc === "string"
+                              ? imageSrc
+                              : (imageSrc as any).src
+                          }
+                          alt={p.name}
+                          className="absolute inset-0 size-full object-cover object-top"
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between min-w-0">
+                        <div>
+                          <h3 className="text-sm font-semibold leading-tight text-foreground truncate">
+                            {p.name}
+                          </h3>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                            {p.description}
+                          </p>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
+                          <p className="text-base font-bold text-secondary">
+                            ${p.price.toFixed(2)}
+                          </p>
+
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="inline-flex items-center overflow-hidden rounded-lg border border-muted-foreground/60 bg-white h-8">
+                              <button
+                                type="button"
+                                disabled={outOfStock || qty <= 0}
+                                onClick={() =>
+                                  setQuantities((prev) => ({
+                                    ...prev,
+                                    [p._id]: Math.max(0, qty - 1),
+                                  }))
+                                }
+                                className="flex size-8 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="size-3" />
+                              </button>
+                              <span className="min-w-6 text-center text-xs font-semibold">
+                                {outOfStock ? 0 : qty}
+                              </span>
+                              <button
+                                type="button"
+                                disabled={
+                                  outOfStock ||
+                                  (isPhysical && isLimited && qty >= availableStock)
+                                }
+                                onClick={() =>
+                                  setQuantities((prev) => ({
+                                    ...prev,
+                                    [p._id]: qty + 1,
+                                  }))
+                                }
+                                className="flex size-8 items-center justify-center transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary disabled:opacity-50"
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="size-3" />
+                              </button>
+                            </div>
+                            {isPhysical && isLimited && (
+                              <p
+                                className={`text-[9px] font-medium leading-none ${
+                                  outOfStock ? "text-red-500" : "text-orange-600"
+                                }`}
+                              >
+                                {outOfStock ? "Out of stock" : `Only ${availableStock} left`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div className="mt-5 text-sm leading-6 text-muted-foreground whitespace-pre-line">
+              <div className="mt-6 text-sm leading-6 text-muted-foreground whitespace-pre-line border-t border-slate-100 pt-4">
                 <h2 className="font-semibold text-foreground">
                   About This Campaign
                 </h2>
-                <p className="mt-3">{campaignStory}</p>
+                <p className="mt-2 text-xs">{campaignStory}</p>
               </div>
             </section>
 
             {shippingMethods.length > 0 && (
               <section className="rounded-xl border border-muted-foreground/60 p-4 sm:p-5">
-                <h2 className="flex items-center gap-3 text-xl font-semibold text-foreground">
+                <h2 className="flex items-center gap-3 text-lg font-semibold text-foreground">
                   <Truck className="size-5 text-secondary" />
                   Shipping Method
                 </h2>
@@ -462,7 +397,9 @@ const OrderSummery = () => {
                         key={method.id}
                         type="button"
                         onClick={() => setShippingId(method.id)}
-                        className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all duration-300 hover:border-secondary hover:bg-secondary/5 ${selected ? "border-secondary bg-secondary/5" : "border-muted-foreground/50"}`}
+                        className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all duration-300 hover:border-secondary hover:bg-secondary/5 ${
+                          selected ? "border-secondary bg-secondary/5" : "border-muted-foreground/50"
+                        }`}
                       >
                         <Icon className="size-5 shrink-0 text-secondary" />
                         <span className="flex-1">
@@ -485,67 +422,75 @@ const OrderSummery = () => {
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
+            <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
               <h2 className="text-xl font-semibold text-black">
                 Order Summary
               </h2>
-              <div className="mt-5 flex items-center gap-4 border-b border-muted-foreground/30 pb-4">
-                <div className="relative size-14 overflow-hidden rounded-lg bg-slate-50">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      typeof productImageSrc === "string"
-                        ? productImageSrc
-                        : (productImageSrc as any).src
-                    }
-                    alt={productName}
-                    className="absolute inset-0 size-full object-cover rounded-lg"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">
-                    {productName}
+
+              {/* Selected Items Checkout List */}
+              <div className="mt-5 space-y-4 border-b border-muted-foreground/30 pb-4 max-h-60 overflow-y-auto pr-1">
+                {products
+                  .filter((p: any) => (quantities[p._id] || 0) > 0)
+                  .map((p: any) => {
+                    const qty = quantities[p._id] || 0;
+                    const imageSrc = p.productImage || defaultProductImage;
+                    return (
+                      <div key={p._id} className="flex items-center gap-4 text-xs sm:text-sm">
+                        <div className="relative size-12 overflow-hidden rounded-lg bg-slate-50 shrink-0 border border-slate-100">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={
+                              typeof imageSrc === "string"
+                                ? imageSrc
+                                : (imageSrc as any).src
+                            }
+                            alt={p.name}
+                            className="absolute inset-0 size-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">
+                            {p.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            ${p.price.toFixed(2)} × {qty}
+                          </p>
+                        </div>
+                        <p className="font-semibold text-right">
+                          ${(p.price * qty).toFixed(2)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                {products.filter((p: any) => (quantities[p._id] || 0) > 0).length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    No products selected. Please add items above.
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    ${productPrice} × {isProductOutOfStock ? 0 : quantity}
-                  </p>
-                  {products.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedProductId(null)}
-                      className="mt-1 text-xs text-secondary font-semibold hover:underline block cursor-pointer bg-transparent border-none p-0"
-                    >
-                      Change Product
-                    </button>
-                  )}
-                </div>
-                <p className="text-sm font-semibold">
-                  ${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}
-                </p>
+                )}
               </div>
+
               <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Subtotal</dt>
-                  <dd>${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}</dd>
+                  <dd>${subtotal.toFixed(2)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Shipping</dt>
                   <dd>
                     $
-                    {(isProductOutOfStock ? 0 : selectedShippingFee).toFixed(2)}
+                    {selectedShippingFee.toFixed(2)}
                   </dd>
                 </div>
-                {/* <div className="flex justify-between"><dt className="text-muted-foreground">Estimated tax (8%)</dt><dd>${(isProductOutOfStock ? 0 : tax).toFixed(2)}</dd></div> */}
               </dl>
               <div className="flex items-center justify-between pt-4 text-sm font-semibold">
                 <span>Total</span>
                 <span className="text-xl text-secondary">
-                  ${(isProductOutOfStock ? 0 : subtotal).toFixed(2)}
+                  ${(subtotal + selectedShippingFee).toFixed(2)}
                 </span>
               </div>
             </section>
 
-            <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
+            <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
               <h2 className="text-xl font-semibold text-black">
                 Contact Information
               </h2>
@@ -555,14 +500,12 @@ const OrderSummery = () => {
                   name="firstName"
                   placeholder="Jane"
                   required
-                  disabled={isProductOutOfStock}
                 />
                 <FormField
                   label="Last Name"
                   name="lastName"
                   placeholder="Smith"
                   required
-                  disabled={isProductOutOfStock}
                 />
                 <div className="sm:col-span-2">
                   <FormField
@@ -571,7 +514,6 @@ const OrderSummery = () => {
                     type="email"
                     placeholder="jane@email.com"
                     required
-                    disabled={isProductOutOfStock}
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -581,14 +523,13 @@ const OrderSummery = () => {
                     type="tel"
                     placeholder="+1 (555) 000-0000"
                     required
-                    disabled={isProductOutOfStock}
                   />
                 </div>
               </div>
             </section>
 
             {currentShippingId !== "pickup" && (
-              <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6">
+              <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
                 <h2 className="text-xl font-semibold text-black">
                   Delivery Address
                 </h2>
@@ -599,7 +540,6 @@ const OrderSummery = () => {
                       name="address1"
                       placeholder="123 Main Street"
                       required={true}
-                      disabled={isProductOutOfStock}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -607,7 +547,6 @@ const OrderSummery = () => {
                       label="Address Line 2"
                       name="address2"
                       placeholder="Apt, suite, unit (optional)"
-                      disabled={isProductOutOfStock}
                     />
                   </div>
                   <FormField
@@ -615,14 +554,12 @@ const OrderSummery = () => {
                     name="city"
                     placeholder="Springfield"
                     required={true}
-                    disabled={isProductOutOfStock}
                   />
                   <label className="block text-xs font-medium">
                     State <span className="text-red-500">*</span>
                     <select
                       name="state"
                       required={true}
-                      disabled={isProductOutOfStock}
                       className={`mt-2 ${inputClassName}`}
                       defaultValue=""
                     >
@@ -639,14 +576,12 @@ const OrderSummery = () => {
                     name="postalCode"
                     placeholder="62701"
                     required={true}
-                    disabled={isProductOutOfStock}
                   />
                   <label className="block text-xs font-medium">
                     Country <span className="text-red-500">*</span>
                     <select
                       name="country"
                       required={true}
-                      disabled={isProductOutOfStock}
                       className={`mt-2 ${inputClassName}`}
                       defaultValue=""
                     >
@@ -664,8 +599,8 @@ const OrderSummery = () => {
 
             <button
               type="submit"
-              disabled={isProductOutOfStock || isCreating}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-md disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              disabled={subtotal <= 0 || isCreating}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:bg-primary/90 hover:shadow-md disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
             >
               {isCreating ? (
                 <>
@@ -675,9 +610,9 @@ const OrderSummery = () => {
               ) : (
                 <>
                   <ShieldCheck className="size-4" />
-                  {isProductOutOfStock
-                    ? "Product Out of Stock"
-                    : `Place Order · $${subtotal.toFixed(2)}`}
+                  {subtotal <= 0
+                    ? "Add items to place order"
+                    : `Place Order · $${(subtotal + selectedShippingFee).toFixed(2)}`}
                 </>
               )}
             </button>
