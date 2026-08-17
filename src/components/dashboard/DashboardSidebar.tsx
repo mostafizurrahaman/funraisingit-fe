@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { ContactSupportModal } from "@/components/dashboard/ContactSupportModal";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,6 +49,7 @@ const navigationItems: NavigationItem[] = [
 
 export function DashboardSidebar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
   const token = useSelector(userCurrentToken);
@@ -104,7 +107,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
             <Sparkles className="mx-auto size-5 text-secondary" />
             <p className="mt-2 text-sm font-semibold text-secondary">Need Help?</p>
             <p className="mt-1 text-xs text-muted-foreground">Here to guide you</p>
-            <Button size="sm" className="mt-3 h-9 w-full text-xs">
+            <Button onClick={() => setIsSupportOpen(true)} size="sm" className="mt-3 h-9 w-full text-xs">
               Contact Support
             </Button>
           </div>
@@ -114,6 +117,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
           </button>
         </div>
       </div>
+      <ContactSupportModal open={isSupportOpen} onOpenChange={setIsSupportOpen} />
     </aside>
   );
 }
