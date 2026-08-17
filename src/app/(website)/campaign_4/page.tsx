@@ -124,8 +124,13 @@ export default function CampaignFourPage() {
       removeCampaignIdFromLocalStorage();
       router.push(response?.data?.url);
     } catch (err: any) {
+      const rawErr = err?.data;
       const errMsg =
-        err?.data?.message || "Failed to launch campaign. Please try again.";
+        rawErr?.message ||
+        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+        err?.message ||
+        "Failed to launch campaign. Please try again.";
 
       if (
         errMsg === "Before launching campaign setup organization bank account."

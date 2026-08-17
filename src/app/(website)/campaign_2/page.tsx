@@ -126,10 +126,12 @@ export default function CampaignTwoPage() {
             throw new Error("Unable to generate your story right now.");
          }
       } catch (err: unknown) {
+         const rawErr = (err as any)?.data;
          const errMsg =
-            (err as { data?: { message?: string }; message?: string })?.data
-               ?.message ||
-            (err as { message?: string })?.message ||
+            rawErr?.message ||
+            (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+            (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+            (err as any)?.message ||
             "Unable to generate your story right now.";
          setError(errMsg);
          toast.error(errMsg);
@@ -203,8 +205,12 @@ export default function CampaignTwoPage() {
             toast.error("Could not retrieve Campaign ID.");
          }
       } catch (err: unknown) {
+         const rawErr = (err as any)?.data;
          const errMsg =
-            (err as { data?: { message?: string } })?.data?.message ||
+            rawErr?.message ||
+            (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+            (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+            (err as any)?.message ||
             "Failed to create campaign. Please try again.";
          setError(errMsg);
          toast.error(errMsg);

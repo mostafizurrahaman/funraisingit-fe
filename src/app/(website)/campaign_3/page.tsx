@@ -268,7 +268,13 @@ export default function CampaignThreePage() {
       toast.success("Products added successfully!");
       router.push("/campaign_4");
     } catch (err: any) {
-      const errMsg = err?.data?.message || "Failed to add products. Please try again.";
+      const rawErr = err?.data;
+      const errMsg =
+        rawErr?.message ||
+        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+        err?.message ||
+        "Failed to add products. Please try again.";
       setError(errMsg);
       toast.error(errMsg);
     }

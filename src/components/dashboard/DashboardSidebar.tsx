@@ -34,6 +34,7 @@ type NavigationItem = {
 
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Create Campaign", href: "/campaign_1", icon: Sparkles },
   { label: "Products", href: "/dashboard/products", icon: ShoppingBag },
   { label: "Orders", href: "/dashboard/orders", icon: Package },
   { label: "Donations", href: "/dashboard/donation", icon: Heart },

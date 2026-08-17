@@ -114,10 +114,15 @@ export default function DashboardPage() {
 
   if (!selectedCampaignId) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-lg font-semibold text-muted-foreground">
+      <div className="flex h-96 flex-col items-center justify-center gap-4">
+        <p className="text-lg font-semibold text-muted-foreground text-center">
           Create a campaign to view dashboard analytics.
         </p>
+        <Link href="/campaign_1">
+          <Button className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300">
+            Create Campaign
+          </Button>
+        </Link>
       </div>
     );
   }

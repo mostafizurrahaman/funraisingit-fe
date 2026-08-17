@@ -203,12 +203,19 @@ export default function CampaignSettingsPage() {
 
         <DashboardCard className="p-0 border border-slate-100 overflow-hidden bg-white shadow-sm">
           {draftCampaigns.length === 0 ? (
-            <div className="flex h-60 flex-col items-center justify-center text-center p-4">
-              <Package className="size-10 text-slate-300 mb-2" />
-              <p className="text-sm font-semibold text-muted-foreground">
-                {(draftsError as any)?.data?.message ||
-                  "No draft campaigns found."}
-              </p>
+            <div className="flex h-60 flex-col items-center justify-center text-center p-4 gap-4">
+              <Package className="size-10 text-slate-300" />
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground">
+                  {(draftsError as any)?.data?.message ||
+                    "No draft campaigns found."}
+                </p>
+              </div>
+              <Link href="/campaign_1">
+                <Button className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300 text-xs">
+                  Create Campaign
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
