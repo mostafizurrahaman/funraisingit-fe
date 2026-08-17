@@ -92,9 +92,11 @@ export default function CampaignFourPage() {
 
   const previewData = previewResponse?.data;
  
+ 
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
 
     if (!agreed) {
       setError(
@@ -103,7 +105,9 @@ export default function CampaignFourPage() {
       return;
     }
 
+
     setError("");
+
 
     if (!campaignId) {
       setError("Campaign ID not found. Please start from Step 1.");
@@ -113,41 +117,42 @@ export default function CampaignFourPage() {
     try {
       const launchBody = promoCode ? { promoCode } : {};
 
+
       const response = await launchCampaign({
         campaignId,
         body: launchBody,
       }).unwrap();
 
+
       toast.success(response?.message || "Campaign launched successfully!");
+
 
       resetDraft();
       removeCampaignIdFromLocalStorage();
       router.push(response?.data?.url);
+      router.push(response?.data?.url);
     } catch (err: any) {
-      console.error("Launch campaign error:", err);
       const rawErr = err?.data;
       const errMsg =
         rawErr?.message ||
         (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
         (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
-        err?.error ||
         err?.message ||
-        (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
-      
-      setError(errMsg);
-      toast.error(errMsg);
+        "Failed to launch campaign. Please try again.";
 
-      const lowerMsg = errMsg.toLowerCase();
       if (
-        lowerMsg.includes("bank account") ||
-        lowerMsg.includes("payout") ||
-        lowerMsg.includes("stripe") ||
-        lowerMsg.includes("organization")
+        errMsg === "Before launching campaign setup organization bank account."
       ) {
+        toast.error(errMsg);
+
         setTimeout(() => {
           router.push("/dashboard/settings");
-        }, 2000);
+        }, 1500);
+
+        return;
       }
+
+      setError(errMsg);
     }
   }
 

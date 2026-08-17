@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -455,7 +456,7 @@ const OrderSummery = () => {
               ) : (
                 <>
                   <ShieldCheck className="size-4" />
-                  {isProductOutOfStock ? "Product Out of Stock" : `Place Order · $${total.toFixed(2)}`}
+                  {isProductOutOfStock ? "Product Out of Stock" : `Place Order · $${subtotal.toFixed(2)}`}
                 </>
               )}
             </button>
