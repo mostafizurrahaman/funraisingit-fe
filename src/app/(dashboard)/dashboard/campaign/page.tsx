@@ -77,7 +77,8 @@ export default function CampaignSettingsPage() {
       : [];
 
   const draftCampaignId =
-    draftsData?._id || (Array.isArray(draftsData) ? draftsData[0]?._id : undefined);
+    draftsData?._id ||
+    (Array.isArray(draftsData) ? draftsData[0]?._id : undefined);
 
   // 2. Get single campaign details
   const {
@@ -305,10 +306,7 @@ export default function CampaignSettingsPage() {
   }
 
   // Handle updates
-  const handleUpdate = async (
-    e: React.FormEvent,
-    closeCallback: () => void,
-  ) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!campaign) return;
     const formData = new FormData();
@@ -342,7 +340,6 @@ export default function CampaignSettingsPage() {
       if (res.success) {
         toast.success(res.message || "Campaign updated successfully!");
         refetch();
-        closeCallback();
       } else {
         toast.error(res.message || "Failed to update campaign.");
       }
@@ -494,9 +491,7 @@ export default function CampaignSettingsPage() {
                 <Edit3 className="size-4 text-foreground" />
                 Campaign Name
               </span>
-              <span className="font-semibold truncate pr-2">
-                {campaign.name}
-              </span>
+              <span className="font-semibold truncate pr-2">{name}</span>
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
@@ -512,7 +507,7 @@ export default function CampaignSettingsPage() {
                 Fundraising Goal
               </span>
               <span className="font-semibold">
-                ${campaign.goalAmount?.toLocaleString() || "0"}
+                ${Number(goalAmount || 0).toLocaleString()}
               </span>
               <button
                 type="button"
@@ -528,9 +523,7 @@ export default function CampaignSettingsPage() {
                 <CalendarDays className="size-4 text-foreground" />
                 Campaign Length
               </span>
-              <span className="font-semibold">
-                {campaign.durationDays} Days
-              </span>
+              <span className="font-semibold">{durationDays} Days</span>
               <button
                 type="button"
                 onClick={() => setIsEditBasicOpen(true)}
@@ -546,10 +539,10 @@ export default function CampaignSettingsPage() {
                 Campaign Photo
               </span>
               <span className="font-semibold">
-                {campaign.thumbnail ? (
+                {thumbnailPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={campaign.thumbnail}
+                    src={thumbnailPreview}
                     alt="Campaign thumbnail"
                     className="size-12 rounded-md object-cover"
                   />
@@ -707,7 +700,7 @@ export default function CampaignSettingsPage() {
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowLocalPickup && "opacity-20",
+                  !allowLocalPickup && "opacity-20",
                 )}
               />
               <div>
@@ -721,7 +714,7 @@ export default function CampaignSettingsPage() {
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowLocalDelivery && "opacity-20",
+                  !allowLocalDelivery && "opacity-20",
                 )}
               />
               <div>
@@ -735,7 +728,7 @@ export default function CampaignSettingsPage() {
               <CheckCircle2
                 className={cn(
                   "mt-0.5 size-4 shrink-0 fill-secondary text-white",
-                  !campaign.allowShipping && "opacity-20",
+                  !allowShipping && "opacity-20",
                 )}
               />
               <div>
@@ -749,9 +742,7 @@ export default function CampaignSettingsPage() {
           <div className="mt-4 flex items-center justify-between">
             <div className="rounded-md bg-secondary/10 px-3 py-2 text-center text-xs font-semibold text-secondary">
               Shipping Fee: $
-              {campaign.shippingFee
-                ? Number(campaign.shippingFee).toFixed(2)
-                : "0.00"}
+              {shippingFee ? Number(shippingFee).toFixed(2) : "0.00"}
             </div>
             <button
               type="button"
@@ -771,7 +762,7 @@ export default function CampaignSettingsPage() {
           </h3>
           <div className="mt-4 max-h-[160px] overflow-y-auto rounded-lg bg-[#f8ffff] p-4 text-sm leading-6 text-muted-foreground">
             <p className="whitespace-pre-line">
-              {campaign.story || "No story added yet."}
+              {story || "No story added yet."}
             </p>
           </div>
           <Button
@@ -798,13 +789,13 @@ export default function CampaignSettingsPage() {
             <span
               className={cn(
                 "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                campaign.allowDonation ? "bg-secondary" : "bg-gray-200",
+                allowDonation ? "bg-secondary" : "bg-gray-200",
               )}
             >
               <span
                 className={cn(
                   "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                  campaign.allowDonation ? "translate-x-5" : "translate-x-0",
+                  allowDonation ? "translate-x-5" : "translate-x-0",
                 )}
               />
             </span>
@@ -814,8 +805,8 @@ export default function CampaignSettingsPage() {
               Fund Usage Goals:
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5 max-h-[70px] overflow-y-auto">
-              {campaign.fundUsage && campaign.fundUsage.length > 0 ? (
-                campaign.fundUsage.map((usage: string, i: number) => (
+              {fundUsage && fundUsage.length > 0 ? (
+                fundUsage.map((usage: string, i: number) => (
                   <span
                     key={i}
                     className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
@@ -912,6 +903,24 @@ export default function CampaignSettingsPage() {
         </DashboardCard>
       </section>
 
+      {/* Global Save Changes CTA */}
+      <div className="flex justify-end pt-4 border-t border-border mt-4">
+        <Button
+          onClick={handleUpdate}
+          disabled={isUpdating}
+          className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300 h-11 px-6 font-semibold cursor-pointer"
+        >
+          {isUpdating ? (
+            <>
+              <Loader2 className="size-4 animate-spin mr-2" />
+              Saving Changes...
+            </>
+          ) : (
+            "Save All Changes"
+          )}
+        </Button>
+      </div>
+
       {/* ---------------------------------------------------- */}
       {/* MODALS */}
       {/* ---------------------------------------------------- */}
@@ -922,7 +931,10 @@ export default function CampaignSettingsPage() {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
             <form
-              onSubmit={(e) => handleUpdate(e, () => setIsEditBasicOpen(false))}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsEditBasicOpen(false);
+              }}
             >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
@@ -1043,7 +1055,10 @@ export default function CampaignSettingsPage() {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
             <form
-              onSubmit={(e) => handleUpdate(e, () => setIsEditStoryOpen(false))}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsEditStoryOpen(false);
+              }}
             >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
@@ -1105,9 +1120,10 @@ export default function CampaignSettingsPage() {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
             <form
-              onSubmit={(e) =>
-                handleUpdate(e, () => setIsEditDeliveryOpen(false))
-              }
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsEditDeliveryOpen(false);
+              }}
             >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
@@ -1226,9 +1242,10 @@ export default function CampaignSettingsPage() {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
             <form
-              onSubmit={(e) =>
-                handleUpdate(e, () => setIsEditDonationOpen(false))
-              }
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsEditDonationOpen(false);
+              }}
             >
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
