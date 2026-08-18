@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { baseApi } from "@/redux/api/baseApi";
 
 const passwordFields = [
   { id: "current-password", label: "Current Password", autoComplete: "current-password" },
@@ -60,6 +61,7 @@ export default function SettingsPage() {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(baseApi.util.resetApiState());
     toast.success("Logged out successfully");
     router.push("/login");
   };

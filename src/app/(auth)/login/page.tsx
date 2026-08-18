@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
+import { baseApi } from "@/redux/api/baseApi";
 
 const inputStyles =
   "h-14 w-full rounded-lg border border-slate-500 bg-white px-3 text-sm outline-none transition-all duration-300 placeholder:text-slate-500 focus:border-secondary focus:ring-2 focus:ring-secondary/20";
@@ -64,7 +65,8 @@ export default function LoginPage() {
 
       if (token) {
         dispatch(setUser({ user, token }));
-        // toast.success("Signed in successfully! Please complete your profile and onboard your account.");
+        dispatch(baseApi.util.resetApiState());
+        toast.success("Signed in successfully!");
         router.push("/");
       } else {
         console.error("Login response:", response);
@@ -72,7 +74,7 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       const errMsg = err?.data?.message || "Sign in failed. Please try again.";
-      // toast.error(errMsg);
+      toast.error(errMsg);
     }
   }
 
