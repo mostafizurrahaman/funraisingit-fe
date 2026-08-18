@@ -45,6 +45,7 @@ import {
   useLaunchCampaignMutation,
 } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
+import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 
 export default function CampaignFourPage() {
   const router = useRouter();
@@ -92,7 +93,8 @@ export default function CampaignFourPage() {
 
   const previewData = previewResponse?.data;
  
- 
+  const { data: accountResponse } = useGetAccountQuery(undefined, { skip: !token });
+  const accountInfo = accountResponse?.data;
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -107,6 +109,20 @@ export default function CampaignFourPage() {
 
 
     setError("");
+
+    if (accountInfo) {
+      const status = accountInfo.status?.toLowerCase();
+      if (status === "restricted") {
+        setError("Your onboarding account is restricted. Please complete your verification details in Settings.");
+        toast.error("Account Restricted. Please complete verification in settings.");
+        return;
+      }
+      if (status === "pending" || !accountInfo.chargesEnabled || !accountInfo.payoutsEnabled) {
+        setError("Your onboarding account verification is still pending. You cannot launch campaigns until verification is complete.");
+        toast.error("Verification Pending. Please wait for verification to complete.");
+        return;
+      }
+    }
 
 
     if (!campaignId) {
@@ -569,9 +585,19 @@ export default function CampaignFourPage() {
                 </span>
               </label>
               {error ? (
-                <p role="alert" className="text-lg text-red-600">
-                  {error}
-                </p>
+                <div role="alert" className="text-base text-red-600 space-y-1.5">
+                  <p>{error}</p>
+                  {(error.includes("restricted") || error.includes("pending") || error.includes("bank account")) && (
+                    <div>
+                      <Link
+                        href="/dashboard/settings"
+                        className="text-sm font-bold text-secondary hover:underline inline-flex items-center gap-1 transition-all duration-300 hover:translate-x-0.5"
+                      >
+                        Verify Now &rarr;
+                      </Link>
+                    </div>
+                  )}
+                </div>
               ) : null}
               <div className="grid gap-3 sm:grid-cols-2">
                 <Button
