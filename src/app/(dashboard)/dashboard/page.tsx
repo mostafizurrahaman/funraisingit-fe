@@ -76,7 +76,6 @@ export default function DashboardPage() {
   const isLoading =
     isLoadingCampaigns || (selectedCampaignId ? isLoadingAnalytics : true);
 
-
   const handleShareAction = (label: string) => {
     if (!campaignCode) {
       toast.error("No active campaign selected to share.");
@@ -526,9 +525,11 @@ export default function DashboardPage() {
               Accept pre-orders and online payments for your next campaign.
             </p>
           </div>
-          <Button size="sm" className="w-full sm:w-auto">
-            Learn More
-          </Button>
+          <Link href="/content/seller_agreement">
+            <Button size="sm" className="w-full sm:w-auto">
+              Learn More
+            </Button>
+          </Link>
         </DashboardCard>
 
         <DashboardCard className="flex flex-col gap-4 sm:flex-row sm:items-center">
