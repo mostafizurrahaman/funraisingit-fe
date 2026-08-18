@@ -280,7 +280,7 @@ export default function SupportersPage() {
       </section>
 
       {/* Stats Cards */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {stats.map((stat) => {
           const Icon = stat.icon;
 
@@ -301,7 +301,7 @@ export default function SupportersPage() {
         })}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1fr_360px]">
+      <section className="grid gap-5 grid-cols-1 lg:grid-cols-[1fr_360px]">
         {/* Table Supporters Card */}
         <DashboardCard className="p-0">
           <div className="flex flex-col gap-4 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
@@ -392,7 +392,7 @@ export default function SupportersPage() {
         <aside className="space-y-5">
           <DashboardCard>
             <h3 className="text-base font-semibold">Support Overview</h3>
-            <div className="mt-4 flex items-center gap-5">
+            <div className="mt-4 flex flex-col sm:flex-row items-center gap-5">
               <div
                 className="relative flex size-28 shrink-0 items-center justify-center rounded-full"
                 style={{ background: chartGradient }}
@@ -402,7 +402,7 @@ export default function SupportersPage() {
                   <span className="text-xs text-muted-foreground">Total</span>
                 </div>
               </div>
-              <div className="space-y-3 text-sm">
+              <div className="space-y-3 text-sm w-full">
                 <LegendDot className="bg-secondary" label="Orders Only" value={`${ordersOnly} (${ordersPercentage}%)`} />
                 <LegendDot className="bg-rose-500" label="Donations Only" value={`${donationsOnly} (${donationsPercentage}%)`} />
                 <LegendDot className="bg-blue-500" label="Both" value={`${bothOrdersAndDonations} (${bothPercentage}%)`} />
@@ -437,7 +437,7 @@ export default function SupportersPage() {
       {/* Supporter Insights Card */}
       <DashboardCard>
         <h3 className="text-base font-semibold">Supporter Insights</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {insights.map((insight) => {
             const Icon = insight.icon;
 
@@ -471,7 +471,7 @@ export default function SupportersPage() {
       {/* Custom Composition Email Modal */}
       {isEmailModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl rounded-2xl border border-slate-100 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-100 bg-white p-5 sm:p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setIsEmailModalOpen(false)}
               className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-slate-100 transition-colors"

@@ -123,9 +123,9 @@ export default function DonationPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
-      <section className="grid gap-5 xl:grid-cols-[1fr_380px]">
+      <section className="grid gap-5 grid-cols-1 lg:grid-cols-[1fr_380px]">
         <div className="space-y-5">
-          <div className="grid gap-5 xl:grid-cols-[1fr_1.1fr]">
+          <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
             <DashboardCard className="flex items-center gap-4 bg-white border border-border">
               <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-500">
                 <Heart className="size-7 fill-current" />
@@ -157,7 +157,7 @@ export default function DonationPage() {
             </DashboardCard>
           </div>
 
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {summaryStats.map((stat) => {
               const Icon = stat.icon;
 
@@ -178,7 +178,7 @@ export default function DonationPage() {
             })}
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+          <section className="grid gap-5 grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
             {/* Recent Donations Table */}
             <DashboardCard className="bg-white border border-border">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
@@ -298,7 +298,7 @@ export default function DonationPage() {
             </DashboardCard>
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-2">
+          <section className="grid gap-5 grid-cols-1 md:grid-cols-2">
             <DashboardCard className="bg-white border border-border">
               <h3 className="flex items-center gap-2 text-base font-semibold">
                 <Download className="size-5" />
