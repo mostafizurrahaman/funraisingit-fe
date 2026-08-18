@@ -51,7 +51,9 @@ const OnboardingSuccess = () => {
               Welcome to FunRaisingIt!
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-xs text-muted-foreground sm:text-sm">
-              Your profile is now complete, and your account has been successfully onboarded. You are ready to start launching campaigns and accepting donations.
+              Your profile is now complete, and your account has been
+              successfully onboarded. You are ready to start launching campaigns
+              and accepting donations.
             </p>
           </div>
           <Image
@@ -70,7 +72,9 @@ const OnboardingSuccess = () => {
               <div className="flex size-14 items-center justify-center rounded-full bg-secondary/10 text-secondary">
                 <Sparkles className="size-6 animate-pulse" />
               </div>
-              <h2 className="mt-4 text-lg font-bold text-foreground">Onboarding Status</h2>
+              <h2 className="mt-4 text-lg font-bold text-foreground">
+                Onboarding Status
+              </h2>
               <p className="mt-1 text-sm text-secondary font-semibold">
                 All Systems Operational
               </p>
@@ -83,8 +87,12 @@ const OnboardingSuccess = () => {
                     <CheckCircle2 className="size-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground">{step.title}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground leading-normal">{step.description}</p>
+                    <h3 className="text-sm font-semibold text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground leading-normal">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -92,20 +100,20 @@ const OnboardingSuccess = () => {
 
             <div className="mt-8 grid gap-3">
               <Link
-                href="/dashboard"
+                href="/dashboard/campaign"
                 className="flex h-11 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
                 <LayoutDashboard className="size-4" />
-                Go to Dashboard
+                Launch My Campaign
                 <ArrowRight className="size-4" />
               </Link>
-              <Link
+              {/* <Link
                 href="/campaign_1"
                 className="flex h-11 items-center justify-center gap-2 rounded-lg border border-secondary text-sm font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
               >
                 <Rocket className="size-4" />
                 Start My First Campaign
-              </Link>
+              </Link> */}
             </div>
           </article>
 
