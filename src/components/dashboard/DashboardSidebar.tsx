@@ -42,7 +42,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Donations", href: "/dashboard/donation", icon: Heart },
   { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
   { label: "Payouts", href: "/dashboard/payouts", icon: WalletCards },
-  { label: "Update Campaign", href: "/dashboard/campaign", icon: UploadCloud },
+  { label: "My Campaigns", href: "/dashboard/my-campaigns", icon: UploadCloud },
   { label: "My Brand", href: "/dashboard/my-brand", icon: Palette },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;
