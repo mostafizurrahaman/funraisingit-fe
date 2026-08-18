@@ -45,9 +45,9 @@ export default function ProductsPage() {
 
 
   const filteredProducts = products.filter((p) => {
-    const matchesSearch =
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const nameMatch = p.name ? String(p.name).toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    const skuMatch = p.sku ? String(p.sku).toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    const matchesSearch = nameMatch || skuMatch;
 
     if (!matchesSearch) return false;
 
