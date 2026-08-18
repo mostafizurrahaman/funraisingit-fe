@@ -11,6 +11,13 @@ const orderManagementApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Order"],
     }),
+    previewOrder: builder.mutation({
+      query: (data) => ({
+        url: "/order/preview",
+        method: "POST",
+        body: data,
+      }),
+    }),
 
     // Get All Orders
     getAllOrders: builder.query({
@@ -62,6 +69,7 @@ const orderManagementApi = baseApi.injectEndpoints({
 
 export const {
   useCreateOrderMutation,
+  usePreviewOrderMutation,
   useGetAllOrdersQuery,
   useGetSingleOrderQuery,
   useUpdateOrderMutation,

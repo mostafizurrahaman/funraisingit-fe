@@ -17,7 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
-import { useCreateOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
+import { useCreateOrderMutation, usePreviewOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
 import toast from "react-hot-toast";
 
 import defaultProductImage from "../../assets/order.png";
@@ -69,6 +69,8 @@ const OrderSummery = () => {
   );
 
   const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
+  const [previewOrder, { data: previewResponse, isLoading: isPreviewLoading }] = usePreviewOrderMutation();
+  const previewData = previewResponse?.data;
 
   const campaign = campaignResponse?.data;
   const products = campaign?.products || [];
@@ -152,6 +154,35 @@ const OrderSummery = () => {
     shippingMethods.find((method) => method.id === currentShippingId)?.price ??
     0;
 
+  // Auto-fetch order preview when quantities or shipping details change
+  useEffect(() => {
+    if (!campaign?._id) return;
+
+    const orderItems = Object.entries(quantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([productId, qty]) => {
+        const prod = products.find((p: any) => p._id === productId);
+        return {
+          product: productId,
+          quantity: qty,
+          price: prod?.price || 0,
+          productType: prod?.productType || "physical",
+        };
+      });
+
+    if (orderItems.length === 0) return;
+
+    let shippingType = "shipping";
+    if (currentShippingId === "local_pickup") shippingType = "local_pickup";
+    else if (currentShippingId === "local_delivery") shippingType = "local_delivery";
+
+    previewOrder({
+      campaignId: campaign._id,
+      orderItems,
+      shippingType,
+    });
+  }, [quantities, currentShippingId, campaign?._id, previewOrder, products]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!campaign) return;
@@ -172,9 +203,12 @@ const OrderSummery = () => {
       return toast.error("Please select at least one product to order.");
     }
 
-    // Validate stocks for physical items
+    // Validate digital products limit & stocks for physical items
     for (const item of orderItems) {
       const prod = products.find((p: any) => p._id === item.product);
+      if (prod && prod.productType === "digital" && item.quantity > 1) {
+        return toast.error(`You cannot order more than 1 unit of digital product "${prod.name}".`);
+      }
       if (prod && prod.productType === "physical" && prod.isUnlimited === false) {
         if (prod.stock <= 0) {
           return toast.error(`Product "${prod.name}" is currently out of stock.`);
@@ -285,6 +319,7 @@ const OrderSummery = () => {
                 {products.map((p: any) => {
                   const qty = quantities[p._id] || 0;
                   const isPhysical = p.productType === "physical";
+                  const isDigital = p.productType === "digital";
                   const isLimited = p.isUnlimited === false;
                   const availableStock = p.stock ?? 0;
                   const outOfStock = isPhysical && isLimited && availableStock <= 0;
@@ -343,7 +378,8 @@ const OrderSummery = () => {
                                 type="button"
                                 disabled={
                                   outOfStock ||
-                                  (isPhysical && isLimited && qty >= availableStock)
+                                  (isPhysical && isLimited && qty >= availableStock) ||
+                                  (isDigital && qty >= 1)
                                 }
                                 onClick={() =>
                                   setQuantities((prev) => ({
@@ -410,9 +446,7 @@ const OrderSummery = () => {
                             {method.description}
                           </span>
                         </span>
-                        <span className="text-xs font-medium">
-                          {method.price === 0 ? "Free" : `$${method.price}`}
-                        </span>
+                       
                       </button>
                     );
                   })}
@@ -469,25 +503,61 @@ const OrderSummery = () => {
                 )}
               </div>
 
-              <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Subtotal</dt>
-                  <dd>${subtotal.toFixed(2)}</dd>
+              {isPreviewLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="size-5 animate-spin text-secondary" />
                 </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Shipping</dt>
-                  <dd>
-                    $
-                    {selectedShippingFee.toFixed(2)}
-                  </dd>
-                </div>
-              </dl>
-              <div className="flex items-center justify-between pt-4 text-sm font-semibold">
-                <span>Total</span>
-                <span className="text-xl text-secondary">
-                  ${(subtotal + selectedShippingFee).toFixed(2)}
-                </span>
-              </div>
+              ) : previewData ? (
+                <>
+                  <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Subtotal</dt>
+                      <dd>${previewData.subtotal.toFixed(2)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Shipping Fee</dt>
+                      <dd>${previewData.shippingFee.toFixed(2)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Stripe Fee</dt>
+                      <dd>${previewData.stripeFee.toFixed(2)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Platform Fee</dt>
+                      <dd>${previewData.platformFee.toFixed(2)}</dd>
+                    </div>
+                    <div className="flex justify-between border-t border-dashed border-muted-foreground/20 pt-2 font-medium">
+                      <dt className="text-muted-foreground">Organizer Net Amount</dt>
+                      <dd className="text-secondary">${previewData.organizerNetAmount.toFixed(2)}</dd>
+                    </div>
+                  </dl>
+                  <div className="flex items-center justify-between pt-4 text-sm font-semibold">
+                    <span>Total</span>
+                    <span className="text-xl text-secondary">
+                      ${previewData.grossAmount.toFixed(2)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Subtotal</dt>
+                      <dd>${subtotal.toFixed(2)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Shipping</dt>
+                      <dd>${selectedShippingFee.toFixed(2)}</dd>
+                    </div>
+                  </dl>
+                  <div className="flex items-center justify-between pt-4 text-sm font-semibold">
+                    <span>Total</span>
+                    <span className="text-xl text-secondary">
+                      ${(subtotal + selectedShippingFee).toFixed(2)}
+                    </span>
+                  </div>
+                </>
+              )}
             </section>
 
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
@@ -612,7 +682,7 @@ const OrderSummery = () => {
                   <ShieldCheck className="size-4" />
                   {subtotal <= 0
                     ? "Add items to place order"
-                    : `Place Order · $${(subtotal + selectedShippingFee).toFixed(2)}`}
+                    : `Place Order · $${(previewData?.grossAmount ?? (subtotal + selectedShippingFee)).toFixed(2)}`}
                 </>
               )}
             </button>
