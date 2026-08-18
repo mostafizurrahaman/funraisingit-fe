@@ -251,7 +251,7 @@ export default function CampaignThreePage() {
     setProducts([...products, newProduct]);
 
     // Reset current product inputs
-    updateDraft({ productName: "" });
+    updateDraft({ productName: "", price: 5 });
     setDescription("");
     setStock("0");
     setSku("");
@@ -260,6 +260,7 @@ export default function CampaignThreePage() {
     setProductImagePreview("");
     setDownloadFileName("");
     setDownloadFiles(null);
+    setCustomPrice("");
     setError("");
   }
 
@@ -278,10 +279,9 @@ export default function CampaignThreePage() {
 
     let finalProducts = [...products];
 
-    // If no products were explicitly added to the list, try to add the current form inputs as the single product
-    if (finalProducts.length === 0) {
-      if (!productName.trim()) return setError("Please enter a product name.");
-      if (displayPrice <= 0) return setError("Select or enter a valid product price.");
+    // If there are inputs in the product form, automatically include them as well
+    if (productName.trim()) {
+      if (displayPrice <= 0) return setError("Please select or enter a valid price for the current product.");
       finalProducts.push({
         name: productName,
         description: description || "High-quality product",
@@ -295,6 +295,10 @@ export default function CampaignThreePage() {
         downloadFileName: productType === "digital" ? downloadFileName : undefined,
         downloadFiles: productType === "digital" ? downloadFiles : undefined,
       });
+    }
+
+    if (finalProducts.length === 0) {
+      return setError("Please add at least one product to your campaign.");
     }
 
     const finalCampaignId = campaignId;
@@ -377,20 +381,20 @@ export default function CampaignThreePage() {
 
             {/* List of added products */}
             {products.length > 0 && (
-              <div className="rounded-lg border border-secondary bg-secondary/5 p-5">
+              <div className="rounded-lg border border-secondary bg-secondary/5 p-4 sm:p-5">
                 <h3 className="font-semibold text-secondary text-lg mb-3">Added Products ({products.length})</h3>
                 <div className="divide-y divide-slate-200">
                   {products.map((p, idx) => (
-                    <div key={idx} className="flex justify-between items-center py-3">
-                      <div>
-                        <p className="font-semibold text-foreground">{p.name} - ${p.price}</p>
+                    <div key={idx} className="flex justify-between items-start sm:items-center gap-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-foreground truncate">{p.name} - ${p.price}</p>
                         <p className="text-xs text-muted-foreground">{p.productType} | SKU: {p.sku || "N/A"} | Stock: {p.stock}</p>
-                        {p.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{p.description}</p>}
+                        {p.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>}
                       </div>
                       <button
                         type="button"
                         onClick={() => setProducts(products.filter((_, i) => i !== idx))}
-                        className="text-red-500 hover:text-red-700 hover:scale-105 transition-all text-sm font-semibold"
+                        className="text-red-500 hover:text-red-700 hover:scale-105 transition-all text-sm font-semibold shrink-0"
                       >
                         Remove
                       </button>
@@ -529,7 +533,43 @@ export default function CampaignThreePage() {
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Tag className="size-10" /></span>
-              <div><h2 className="text-[32px] font-semibold leading-tight">2. Product Price</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will supporters pay?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">{prices.map((amount) => <ChoiceButton key={amount} selected={price === amount} onClick={() => updateDraft({ price: amount })}>${amount}</ChoiceButton>)}<ChoiceButton selected={price === "custom"} onClick={() => updateDraft({ price: 0 })}>Custom</ChoiceButton></div>{price === "custom" ? <Input type="number" min="1" value={customPrice} onChange={(event) => { setCustomPrice(event.target.value); updateDraft({ price: Number(event.target.value) || 0 }); }} placeholder="Enter custom price" className="mt-4" required /> : null}</div>
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">2. Product Price</h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">How much will supporters pay?</p>
+                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  {prices.map((amount) => (
+                    <ChoiceButton key={amount} selected={price === amount} onClick={() => updateDraft({ price: amount })}>
+                      ${amount}
+                    </ChoiceButton>
+                  ))}
+                  <ChoiceButton selected={price === "custom"} onClick={() => updateDraft({ price: 0 })}>
+                    Custom
+                  </ChoiceButton>
+                </div>
+                {price === "custom" ? (
+                  <Input
+                    type="number"
+                    min="1"
+                    value={customPrice}
+                    onChange={(event) => {
+                      setCustomPrice(event.target.value);
+                      updateDraft({ price: Number(event.target.value) || 0 });
+                    }}
+                    placeholder="Enter custom price"
+                    className="mt-4"
+                    required
+                  />
+                ) : null}
+                <div className="mt-6 flex justify-end">
+                  <Button
+                    type="button"
+                    onClick={handleAddProductToList}
+                    className="w-full sm:w-auto h-12 px-6 rounded-md bg-secondary text-white font-semibold transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.01] hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Plus className="size-5" /> Add Product to List
+                  </Button>
+                </div>
+              </div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
