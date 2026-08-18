@@ -14,13 +14,16 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { 
   useGetAllMyCampaignsQuery, 
-  useUpdateCampaignMutation 
+  useCancelCampaignMutation,
+  useCompleteCampaignMutation
 } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
 
 export default function MyCampaignsPage() {
   const { data: response, isLoading, refetch } = useGetAllMyCampaignsQuery(undefined);
-  const [updateCampaign, { isLoading: isUpdating }] = useUpdateCampaignMutation();
+  const [cancelCampaign, { isLoading: isCancelling }] = useCancelCampaignMutation();
+  const [completeCampaign, { isLoading: isCompleting }] = useCompleteCampaignMutation();
+  const isUpdating = isCancelling || isCompleting;
   const campaigns = response?.data || [];
 
   // Story Modal State
@@ -37,11 +40,11 @@ export default function MyCampaignsPage() {
     if (!confirmAction) return;
     const { campaignId, action } = confirmAction;
 
-    const formData = new FormData();
-    formData.append("status", action);
-
     try {
-      const res = await updateCampaign({ campaignId, formData }).unwrap();
+      const res = action === "completed" 
+        ? await completeCampaign(campaignId).unwrap()
+        : await cancelCampaign(campaignId).unwrap();
+
       if (res.success) {
         toast.success(`Campaign ${action === "completed" ? "completed" : "cancelled"} successfully!`);
         refetch();

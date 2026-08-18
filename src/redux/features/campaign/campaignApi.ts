@@ -31,6 +31,20 @@ const campaignApi = baseApi.injectEndpoints({
         body: body || {},
       }),
     }),
+    cancelCampaign: build.mutation({
+      query: (id) => ({
+        url: `/campaign/${id}/cancel`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Campaign"],
+    }),
+    completeCampaign: build.mutation({
+      query: (id) => ({
+        url: `/campaign/${id}/early-complete`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Campaign"],
+    }),
     getCampaignById: build.query({
       query: (id) => ({
         url: `/campaign/${id}`,
@@ -122,6 +136,8 @@ export const {
   useUpdateCampaignMutation,
   useGetDraftCampaignsQuery,
   useGetAllActiveCampaignsQuery,
-  useGetAllMyCampaignsQuery
+  useGetAllMyCampaignsQuery,
+  useCancelCampaignMutation,
+  useCompleteCampaignMutation
 } = campaignApi;
 export default campaignApi;
