@@ -204,7 +204,7 @@ export default function SettingsPage() {
             <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
             </label>
-            <Input id="email" name="email" type="email" defaultValue={profile?.email || ""} autoComplete="email" className="h-11 rounded-2xl border-border text-sm" disabled />
+            <Input id="email" name="email" type="email" defaultValue={profile?.email || ""} autoComplete="email" className="h-11 rounded-2xl border-border text-sm" readOnly />
           </div>
 
           <div>
@@ -229,6 +229,16 @@ export default function SettingsPage() {
         </div>
 
         <form onSubmit={handlePasswordSubmit} className="space-y-5 px-5 py-6">
+          {/* Hidden username field for mobile password manager compatibility */}
+          <input
+            type="text"
+            name="username"
+            value={profile?.email || ""}
+            readOnly
+            autoComplete="username"
+            className="hidden"
+            aria-hidden="true"
+          />
           {passwordFields.map((field) => (
             <div key={field.id}>
               <label htmlFor={field.id} className="mb-2 block text-sm font-medium">
