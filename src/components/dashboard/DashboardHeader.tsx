@@ -7,6 +7,7 @@ import user from "@/assets/user.png";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
@@ -17,12 +18,13 @@ export function DashboardHeader() {
   const { data: profileResponse } = useGetMeQuery(undefined, { skip: !token });
   const profileData = profileResponse?.data;
   const displayName = profileData?.name || "User";
+  const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur">
       <div className="flex min-h-20 items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <Sheet>
+          <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button type="button" aria-label="Open dashboard menu" className="inline-flex size-10 items-center justify-center rounded-lg border border-border text-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary/10 hover:text-secondary lg:hidden">
                 <Menu className="size-5" />
@@ -30,7 +32,7 @@ export function DashboardHeader() {
             </SheetTrigger>
             <SheetContent className="left-0 right-auto w-[82%] max-w-72 translate-x-0 border-l-0 border-r p-0 data-[state=closed]:-translate-x-full">
               <SheetTitle className="sr-only">Dashboard menu</SheetTitle>
-              <DashboardSidebar className="static flex h-dvh w-full border-r-0" />
+              <DashboardSidebar className="static flex h-dvh w-full border-r-0" onItemClick={() => setOpen(false)} />
             </SheetContent>
           </Sheet>
           <div>

@@ -47,7 +47,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;
 
-export function DashboardSidebar({ className }: { className?: string }) {
+export function DashboardSidebar({ className, onItemClick }: { className?: string; onItemClick?: () => void }) {
   const pathname = usePathname();
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const router = useRouter();
@@ -90,6 +90,7 @@ export function DashboardSidebar({ className }: { className?: string }) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onItemClick}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary",
                   isActive && "bg-secondary/10 text-secondary",
@@ -107,11 +108,11 @@ export function DashboardSidebar({ className }: { className?: string }) {
             <Sparkles className="mx-auto size-5 text-secondary" />
             <p className="mt-2 text-sm font-semibold text-secondary">Need Help?</p>
             <p className="mt-1 text-xs text-muted-foreground">Here to guide you</p>
-            <Button onClick={() => setIsSupportOpen(true)} size="sm" className="mt-3 h-9 w-full text-xs">
+            <Button onClick={() => { setIsSupportOpen(true); onItemClick?.(); }} size="sm" className="mt-3 h-9 w-full text-xs">
               Contact Support
             </Button>
           </div>
-          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary/10 hover:text-primary cursor-pointer bg-transparent border-none">
+          <button onClick={(e) => { handleLogout(e); onItemClick?.(); }} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary/10 hover:text-primary cursor-pointer bg-transparent border-none">
             <LogOut className="size-4" />
             Log out
           </button>
