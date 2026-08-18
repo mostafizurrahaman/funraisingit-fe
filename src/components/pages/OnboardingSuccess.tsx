@@ -104,7 +104,7 @@ const OnboardingSuccess = () => {
                 className="flex h-11 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
                 <LayoutDashboard className="size-4" />
-                Launch My Campaign
+                Check & Launch Your Campaign
                 <ArrowRight className="size-4" />
               </Link>
               {/* <Link
