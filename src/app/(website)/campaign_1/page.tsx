@@ -55,11 +55,14 @@ function CampaignOneForm() {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("campaignCategory");
 
+  const [isCategoryInitialized, setIsCategoryInitialized] = useState(false);
+
   useEffect(() => {
-    if (categoryParam && draft.campaignCategory !== categoryParam) {
+    if (categoryParam && !isCategoryInitialized) {
       updateDraft({ campaignCategory: categoryParam });
+      setIsCategoryInitialized(true);
     }
-  }, [categoryParam, draft.campaignCategory, updateDraft]);
+  }, [categoryParam, isCategoryInitialized, updateDraft]);
 
   useEffect(() => {
     const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
