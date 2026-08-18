@@ -9,6 +9,7 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import { RootState } from "../store";
 import { BASE_URL } from "@/utils/baseUrl";
 import toast from "react-hot-toast";
+import { logout } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${BASE_URL}`,
@@ -47,6 +48,16 @@ const baseQueryWithRefreshToken: BaseQueryFn<
     }
     if (status === 403) {
       toast.error(errorMessage, { id: errorMessage });
+    }
+    if (status === 401) {
+      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      if (currentPath !== "/login") {
+        toast.error("Session expired. Please log in again.", { id: "session-expired" });
+        api.dispatch(logout());
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
     }
     // If you want to include 400 (Bad Request):
     // if (status === 400) {
