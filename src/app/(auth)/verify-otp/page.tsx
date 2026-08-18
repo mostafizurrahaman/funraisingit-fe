@@ -63,11 +63,27 @@ function VerifyOtpForm() {
     next[index] = digit;
     setOtp(next);
     setError("");
-    if (digit && index < OTP_LENGTH - 1) inputs.current[index + 1]?.focus();
+    if (digit) {
+      if (index < OTP_LENGTH - 1) {
+        inputs.current[index + 1]?.focus();
+      }
+    } else {
+      if (index > 0) {
+        inputs.current[index - 1]?.focus();
+      }
+    }
   }
 
   function handleKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Backspace" && !otp[index] && index > 0) inputs.current[index - 1]?.focus();
+    if (event.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        inputs.current[index - 1]?.focus();
+      } else {
+        const next = [...otp];
+        next[index] = "";
+        setOtp(next);
+      }
+    }
   }
 
   function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
