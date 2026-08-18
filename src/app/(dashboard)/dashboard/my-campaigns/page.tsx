@@ -35,6 +35,7 @@ export default function MyCampaignsPage() {
     campaignName: string;
     action: "completed" | "cancelled";
   } | null>(null);
+  const [cancelledReason, setCancelledReason] = useState("");
 
   const handleStatusUpdate = async () => {
     if (!confirmAction) return;
@@ -43,7 +44,7 @@ export default function MyCampaignsPage() {
     try {
       const res = action === "completed" 
         ? await completeCampaign(campaignId).unwrap()
-        : await cancelCampaign(campaignId).unwrap();
+        : await cancelCampaign({ campaignId, cancelledReason }).unwrap();
 
       if (res.success) {
         toast.success(`Campaign ${action === "completed" ? "completed" : "cancelled"} successfully!`);
@@ -55,6 +56,7 @@ export default function MyCampaignsPage() {
       toast.error(err?.data?.message || err?.message || "Something went wrong.");
     } finally {
       setConfirmAction(null);
+      setCancelledReason("");
     }
   };
 
@@ -264,17 +266,35 @@ export default function MyCampaignsPage() {
               <br />
               <span className="text-xs text-red-500 mt-2 block font-medium">This action cannot be undone.</span>
             </p>
+            {confirmAction.action === "cancelled" && (
+              <div className="mt-4">
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Cancellation Reason <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  value={cancelledReason}
+                  onChange={(e) => setCancelledReason(e.target.value)}
+                  placeholder="Please enter a reason (e.g. This campaign is cancelled due to rain)"
+                  rows={3}
+                  className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none transition-all duration-300 focus:border-red-500 resize-none"
+                />
+              </div>
+            )}
             <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
               <Button
                 variant="outline"
-                onClick={() => setConfirmAction(null)}
+                onClick={() => {
+                  setConfirmAction(null);
+                  setCancelledReason("");
+                }}
                 className="h-10 border-slate-200 text-slate-700 cursor-pointer"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleStatusUpdate}
-                disabled={isUpdating}
+                disabled={isUpdating || (confirmAction.action === "cancelled" && !cancelledReason.trim())}
                 className={`h-10 px-5 text-white cursor-pointer ${confirmAction.action === "completed" ? "bg-secondary hover:bg-secondary/90" : "bg-red-600 hover:bg-red-700"}`}
               >
                 {isUpdating ? (

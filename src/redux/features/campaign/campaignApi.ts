@@ -32,9 +32,10 @@ const campaignApi = baseApi.injectEndpoints({
       }),
     }),
     cancelCampaign: build.mutation({
-      query: (id) => ({
-        url: `/campaign/${id}/cancel`,
-        method: "DELETE",
+      query: ({ campaignId, cancelledReason }) => ({
+        url: `/campaign/${campaignId}/cancel`,
+        method: "PATCH",
+        body: { cancelledReason },
       }),
       invalidatesTags: ["Campaign"],
     }),
