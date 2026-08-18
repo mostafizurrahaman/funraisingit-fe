@@ -24,7 +24,7 @@ import defaultProductImage from "../../assets/order.png";
 import defaultCampaignOwner from "../../assets/user.png";
 
 interface ShippingMethod {
-  id: "pickup" | "delivery" | "shipping";
+  id: "local_pickup" | "local_delivery" | "shipping";
   title: string;
   description: string;
   price: number;
@@ -58,7 +58,7 @@ const OrderSummery = () => {
 
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [shippingId, setShippingId] = useState<
-    "pickup" | "delivery" | "shipping"
+    "local_pickup" | "local_delivery" | "shipping"
   >("shipping");
 
   const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(
@@ -113,7 +113,7 @@ const OrderSummery = () => {
   const shippingMethods: ShippingMethod[] = [];
   if (campaign?.allowLocalPickup || campaign?.allowLocalPickup === undefined) {
     shippingMethods.push({
-      id: "pickup",
+      id: "local_pickup",
       title: "Local Pickup",
       description: "Customers pick up in person",
       price: 0,
@@ -125,7 +125,7 @@ const OrderSummery = () => {
     campaign?.allowLocalDelivery === undefined
   ) {
     shippingMethods.push({
-      id: "delivery",
+      id: "local_delivery",
       title: "Local Delivery",
       description: "Delivered locally",
       price: 0,
@@ -200,8 +200,8 @@ const OrderSummery = () => {
     const country = (formData.get("country") as string) || "";
 
     let shippingType = "shipping";
-    if (currentShippingId === "pickup") shippingType = "local_pickup";
-    else if (currentShippingId === "delivery") shippingType = "local_delivery";
+    if (currentShippingId === "local_pickup") shippingType = "local_pickup";
+    else if (currentShippingId === "local_delivery") shippingType = "local_delivery";
 
     const orderPayload = {
       campaignId: campaign._id,
@@ -209,12 +209,12 @@ const OrderSummery = () => {
       fullName: `${firstName} ${lastName}`,
       email,
       phone,
-      addressLine1: currentShippingId === "pickup" ? "Local Pickup" : address1,
+      addressLine1: currentShippingId === "local_pickup" ? "Local Pickup" : address1,
       addressLine2: address2,
-      city: currentShippingId === "pickup" ? "Local Pickup" : city,
-      state: currentShippingId === "pickup" ? "Local Pickup" : state,
-      postalCode: currentShippingId === "pickup" ? "0000" : postalCode,
-      country: currentShippingId === "pickup" ? "US" : country,
+      city: currentShippingId === "local_pickup" ? "Local Pickup" : city,
+      state: currentShippingId === "local_pickup" ? "Local Pickup" : state,
+      postalCode: currentShippingId === "local_pickup" ? "0000" : postalCode,
+      country: currentShippingId === "local_pickup" ? "US" : country,
       shippingType,
     };
 
@@ -528,7 +528,7 @@ const OrderSummery = () => {
               </div>
             </section>
 
-            {currentShippingId !== "pickup" && (
+            {currentShippingId !== "local_pickup" && (
               <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
                 <h2 className="text-xl font-semibold text-black">
                   Delivery Address
