@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { BASE_URL } from "@/utils/baseUrl";
 import Image from "next/image";
@@ -50,6 +50,13 @@ const socialLinks: SocialLink[] = [
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsSubscribed(localStorage.getItem("newsletterSubscribed") === "true");
+    }
+  }, []);
 
   const handleSubscribe = async () => {
     if (!email.trim()) {
@@ -78,6 +85,8 @@ const Footer = () => {
       if (response.ok && data?.success !== false) {
         toast.success(data?.message || "Successfully subscribed to our newsletter!");
         setEmail("");
+        localStorage.setItem("newsletterSubscribed", "true");
+        setIsSubscribed(true);
       } else {
         toast.error(data?.message || "Failed to subscribe. Please try again.");
       }
@@ -144,24 +153,24 @@ const Footer = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@example.com"
-                value={email}
+                placeholder={isSubscribed ? "Thank you for subscribing!" : "you@example.com"}
+                value={isSubscribed ? "" : email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !isSubscribed) {
                     handleSubscribe();
                   }
                 }}
-                disabled={isLoading}
-                className="h-12 min-w-0 flex-1 rounded-lg border border-muted-foreground bg-white px-4 text-sm outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                disabled={isLoading || isSubscribed}
+                className="h-12 min-w-0 flex-1 rounded-lg border border-muted-foreground bg-white px-4 text-sm outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-secondary focus:ring-2 focus:ring-secondary/20 disabled:bg-slate-50 disabled:cursor-not-allowed"
               />
               <button
                 type="button"
                 onClick={handleSubscribe}
-                disabled={isLoading}
+                disabled={isLoading || isSubscribed}
                 className="h-12 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Subscribing..." : "Subscribe"}
+                {isLoading ? "Subscribing..." : isSubscribed ? "Subscribed" : "Subscribe"}
               </button>
             </div>
           </div>
