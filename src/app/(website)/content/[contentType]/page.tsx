@@ -27,6 +27,20 @@ export default function ContentPage({ params }: PageProps) {
   const htmlContent = contentData?.content || "";
   const title = formatTitle(contentType);
 
+  // Helper to decode escaped HTML tags (e.g. &lt;p&gt; to <p>)
+  const decodeHtml = (htmlStr: string) => {
+    if (typeof window === "undefined" || !htmlStr) return htmlStr;
+    try {
+      const txt = document.createElement("textarea");
+      txt.innerHTML = htmlStr;
+      return txt.value;
+    } catch {
+      return htmlStr;
+    }
+  };
+
+  const cleanHtmlContent = decodeHtml(htmlContent);
+
   // Check if error is "Content not found"
   const isContentNotFoundError =
     error &&
@@ -104,7 +118,7 @@ export default function ContentPage({ params }: PageProps) {
                 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-6 [&_ul_li]:mb-2 [&_ul_li]:leading-7
                 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-6 [&_ol_li]:mb-2 [&_ol_li]:leading-7
                 [&_strong]:font-semibold [&_strong]:text-foreground"
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
+              dangerouslySetInnerHTML={{ __html: cleanHtmlContent }}
             />
           </article>
         )}
