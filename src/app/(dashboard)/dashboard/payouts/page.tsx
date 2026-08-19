@@ -28,9 +28,7 @@ import {
   useGetPayoutHistoryQuery,
   useGetPayoutOverviewQuery,
 } from "@/redux/features/Payout/PayoutApi";
-import {
-  useGetAccountQuery,
-} from "@/redux/features/auth/authApi";
+import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 
 const faqItems = [
   {
@@ -245,7 +243,7 @@ export default function PayoutsPage() {
         </DashboardCard>
 
         <DashboardCard>
-          <p className="text-sm font-semibold">Available Balance</p>
+          <p className="text-sm font-semibold">Available Balance (Stripe)</p>
           <p className="mt-2 text-3xl font-semibold text-secondary">
             {formatAmount(overview?.stripeBalance?.available)}
           </p>
