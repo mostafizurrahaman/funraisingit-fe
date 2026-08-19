@@ -459,7 +459,7 @@ function CampaignOneForm() {
                   onClick={() => updateDraft({ goalAmount: 0 })}
                   className={`h-12 px-1 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm sm:col-span-2 ${selectedAmount === "custom" ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
                 >
-                  Custom Amount
+                  Custom 
                 </button>
                 {selectedAmount === "custom" ? (
                   <label className="col-span-full">
@@ -473,7 +473,7 @@ function CampaignOneForm() {
                         setCustomAmount(event.target.value);
                         updateDraft({ goalAmount: Number(event.target.value) || 0 });
                       }}
-                      placeholder="Enter custom amount"
+                      placeholder="Enter custom amount "
                       className="h-12 w-full rounded-md border border-slate-400 px-4 text-lg outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
                     />
                   </label>

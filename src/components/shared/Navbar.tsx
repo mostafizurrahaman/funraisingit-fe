@@ -65,14 +65,14 @@ const Navbar = () => {
           {token && (
             <Link
               href="/dashboard/settings"
-              className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1.5 px-3.5 hover:border-secondary transition-colors duration-300"
+              className="flex items-center gap-2  rounded-full border border-slate-200 bg-white py-1.5 px-3.5 hover:border-secondary transition-colors duration-300"
             >
               <Image
                 src={profileData?.profileImage || userPlaceholder}
                 alt="profile"
                 width={50}
                 height={50}
-                className="rounded-full object-cover size-7"
+                className="rounded-full object-cover "
               />
               <span className="text-sm font-semibold text-foreground">
                 {profileData?.name || "Profile"}
