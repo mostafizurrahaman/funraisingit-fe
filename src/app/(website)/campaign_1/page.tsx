@@ -457,7 +457,7 @@ function CampaignOneForm() {
                 <button
                   type="button"
                   onClick={() => updateDraft({ goalAmount: 0 })}
-                  className={`h-12 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm sm:col-span-2 ${selectedAmount === "custom" ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
+                  className={`h-12 px-1 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm sm:col-span-2 ${selectedAmount === "custom" ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
                 >
                   Custom Amount
                 </button>

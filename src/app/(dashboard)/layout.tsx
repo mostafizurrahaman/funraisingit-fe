@@ -16,7 +16,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
-      toast.error("Please login to access the dashboard.");
+      // toast.error("Please login to access the dashboard.");
       router.push("/login");
     }
   }, [token, router]);
