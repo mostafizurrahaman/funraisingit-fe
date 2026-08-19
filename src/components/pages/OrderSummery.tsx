@@ -518,7 +518,7 @@ const OrderSummery = () => {
                       <dt className="text-muted-foreground">Shipping Fee</dt>
                       <dd>${previewData.shippingFee.toFixed(2)}</dd>
                     </div>
-                    <div className="flex justify-between">
+                    {/* <div className="flex justify-between">
                       <dt className="text-muted-foreground">Stripe Fee</dt>
                       <dd>${previewData.stripeFee.toFixed(2)}</dd>
                     </div>
@@ -529,7 +529,7 @@ const OrderSummery = () => {
                     <div className="flex justify-between border-t border-dashed border-muted-foreground/20 pt-2 font-medium">
                       <dt className="text-muted-foreground">Organizer Net Amount</dt>
                       <dd className="text-secondary">${previewData.organizerNetAmount.toFixed(2)}</dd>
-                    </div>
+                    </div> */}
                   </dl>
                   <div className="flex items-center justify-between pt-4 text-sm font-semibold">
                     <span>Total</span>
