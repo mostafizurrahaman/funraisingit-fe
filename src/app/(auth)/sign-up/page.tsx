@@ -44,7 +44,7 @@ export default function SignUpPage() {
     try {
       const response = await signUp({ name, email, password }).unwrap();
       toast.success(response?.message || "OTP sent to your email!");
-      
+
       if (typeof window !== "undefined") {
         localStorage.setItem("otpEmail", email);
       }
@@ -59,7 +59,12 @@ export default function SignUpPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <section className="w-full max-w-[560px] rounded-lg bg-white px-5 py-9 shadow-xl sm:px-8">
-        <Image src={logo} alt="FunRaisingIt" className="mx-auto h-auto w-[207px]" priority />
+        <Image
+          src={logo}
+          alt="FunRaisingIt"
+          className="mx-auto h-auto w-[207px]"
+          priority
+        />
 
         <h1 className="mt-5 text-center text-2xl font-semibold tracking-tight">
           Create your account
@@ -67,7 +72,10 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label htmlFor="full-name" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="full-name"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Full Name
             </label>
             <Input
@@ -96,7 +104,10 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Password
             </label>
             <div className="relative">
@@ -115,13 +126,20 @@ export default function SignUpPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
               >
-                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                {showPassword ? (
+                  <EyeOff className="size-5" />
+                ) : (
+                  <Eye className="size-5" />
+                )}
               </button>
             </div>
           </div>
 
           <div>
-            <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="confirm-password"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Confirm Password
             </label>
             <div className="relative">
@@ -142,40 +160,64 @@ export default function SignUpPage() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none cursor-pointer"
               >
-                {showConfirmPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="size-5" />
+                ) : (
+                  <Eye className="size-5" />
+                )}
               </button>
             </div>
             {error ? (
-              <p id="password-error" role="alert" className="mt-1 text-sm text-red-600">
+              <p
+                id="password-error"
+                role="alert"
+                className="mt-1 text-sm text-red-600"
+              >
                 {error}
               </p>
             ) : null}
           </div>
 
           <label className="flex cursor-pointer items-start gap-2 text-sm leading-6">
-            <input type="checkbox" name="terms" className="mt-1 size-4 shrink-0 accent-primary" required />
+            <input
+              type="checkbox"
+              name="terms"
+              className="mt-1 size-4 shrink-0 accent-primary"
+              required
+            />
             <span>
               I agree to the{" "}
-              <Link href="/terms_and_conditions" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
+              <Link
+                href="/content/terms_and_conditions"
+                className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline"
+              >
                 Terms &amp; Conditions
               </Link>{" "}
               and{" "}
-              <Link href="/privacy_policy" className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline">
+              <Link
+                href="/content/privacy_policy"
+                className="font-medium text-primary transition-colors duration-300 hover:text-primary-hover hover:underline"
+              >
                 Privacy Policy
               </Link>
             </span>
           </label>
 
-          <Button type="submit" disabled={isLoading} className="h-12 w-full rounded-lg text-sm">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="h-12 w-full rounded-lg text-sm"
+          >
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
 
-       
-
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-foreground transition-colors duration-300 hover:text-primary">
+          <Link
+            href="/login"
+            className="font-medium text-foreground transition-colors duration-300 hover:text-primary"
+          >
             Sign In
           </Link>
         </p>
