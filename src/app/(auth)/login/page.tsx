@@ -25,15 +25,20 @@ export default function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
 
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedEmail = localStorage.getItem("rememberedEmail");
+      const savedPassword = localStorage.getItem("rememberedPassword");
       const savedRemember = localStorage.getItem("rememberMe") === "true";
       if (savedEmail) {
         setEmail(savedEmail);
+      }
+      if (savedPassword && savedRemember) {
+        setPassword(savedPassword);
       }
       setRememberMe(savedRemember);
     }
@@ -43,18 +48,20 @@ export default function LoginPage() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const emailVal = data.get("email") as string;
-    const password = data.get("password") as string;
+    const passwordVal = data.get("password") as string;
 
     if (rememberMe) {
       localStorage.setItem("rememberedEmail", emailVal);
+      localStorage.setItem("rememberedPassword", passwordVal);
       localStorage.setItem("rememberMe", "true");
     } else {
       localStorage.removeItem("rememberedEmail");
+      localStorage.removeItem("rememberedPassword");
       localStorage.setItem("rememberMe", "false");
     }
 
     try {
-      const response = await login({ email: emailVal, password }).unwrap();
+      const response = await login({ email: emailVal, password: passwordVal }).unwrap();
       const token =
         response?.token ||
         response?.data?.token ||
@@ -122,6 +129,8 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 required
