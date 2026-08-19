@@ -17,7 +17,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
-import { useCreateOrderMutation, usePreviewOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
+import {
+  useCreateOrderMutation,
+  usePreviewOrderMutation,
+} from "@/redux/features/orderManagement/orderManagementApi";
 import toast from "react-hot-toast";
 
 import defaultProductImage from "../../assets/order.png";
@@ -69,7 +72,8 @@ const OrderSummery = () => {
   );
 
   const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
-  const [previewOrder, { data: previewResponse, isLoading: isPreviewLoading }] = usePreviewOrderMutation();
+  const [previewOrder, { data: previewResponse, isLoading: isPreviewLoading }] =
+    usePreviewOrderMutation();
   const previewData = previewResponse?.data;
 
   const campaign = campaignResponse?.data;
@@ -174,7 +178,8 @@ const OrderSummery = () => {
 
     let shippingType = "shipping";
     if (currentShippingId === "local_pickup") shippingType = "local_pickup";
-    else if (currentShippingId === "local_delivery") shippingType = "local_delivery";
+    else if (currentShippingId === "local_delivery")
+      shippingType = "local_delivery";
 
     previewOrder({
       campaignId: campaign._id,
@@ -207,11 +212,19 @@ const OrderSummery = () => {
     for (const item of orderItems) {
       const prod = products.find((p: any) => p._id === item.product);
       if (prod && prod.productType === "digital" && item.quantity > 1) {
-        return toast.error(`You cannot order more than 1 unit of digital product "${prod.name}".`);
+        return toast.error(
+          `You cannot order more than 1 unit of digital product "${prod.name}".`,
+        );
       }
-      if (prod && prod.productType === "physical" && prod.isUnlimited === false) {
+      if (
+        prod &&
+        prod.productType === "physical" &&
+        prod.isUnlimited === false
+      ) {
         if (prod.stock <= 0) {
-          return toast.error(`Product "${prod.name}" is currently out of stock.`);
+          return toast.error(
+            `Product "${prod.name}" is currently out of stock.`,
+          );
         }
         if (item.quantity > prod.stock) {
           return toast.error(
@@ -235,7 +248,8 @@ const OrderSummery = () => {
 
     let shippingType = "shipping";
     if (currentShippingId === "local_pickup") shippingType = "local_pickup";
-    else if (currentShippingId === "local_delivery") shippingType = "local_delivery";
+    else if (currentShippingId === "local_delivery")
+      shippingType = "local_delivery";
 
     const orderPayload = {
       campaignId: campaign._id,
@@ -243,7 +257,8 @@ const OrderSummery = () => {
       fullName: `${firstName} ${lastName}`,
       email,
       phone,
-      addressLine1: currentShippingId === "local_pickup" ? "Local Pickup" : address1,
+      addressLine1:
+        currentShippingId === "local_pickup" ? "Local Pickup" : address1,
       addressLine2: address2,
       city: currentShippingId === "local_pickup" ? "Local Pickup" : city,
       state: currentShippingId === "local_pickup" ? "Local Pickup" : state,
@@ -322,7 +337,8 @@ const OrderSummery = () => {
                   const isDigital = p.productType === "digital";
                   const isLimited = p.isUnlimited === false;
                   const availableStock = p.stock ?? 0;
-                  const outOfStock = isPhysical && isLimited && availableStock <= 0;
+                  const outOfStock =
+                    isPhysical && isLimited && availableStock <= 0;
                   const imageSrc = p.productImage || defaultProductImage;
                   return (
                     <div
@@ -378,7 +394,9 @@ const OrderSummery = () => {
                                 type="button"
                                 disabled={
                                   outOfStock ||
-                                  (isPhysical && isLimited && qty >= availableStock) ||
+                                  (isPhysical &&
+                                    isLimited &&
+                                    qty >= availableStock) ||
                                   (isDigital && qty >= 1)
                                 }
                                 onClick={() =>
@@ -396,10 +414,14 @@ const OrderSummery = () => {
                             {isPhysical && isLimited && (
                               <p
                                 className={`text-[9px] font-medium leading-none ${
-                                  outOfStock ? "text-red-500" : "text-orange-600"
+                                  outOfStock
+                                    ? "text-red-500"
+                                    : "text-orange-600"
                                 }`}
                               >
-                                {outOfStock ? "Out of stock" : `Only ${availableStock} left`}
+                                {outOfStock
+                                  ? "Out of stock"
+                                  : `Only ${availableStock} left`}
                               </p>
                             )}
                           </div>
@@ -434,7 +456,9 @@ const OrderSummery = () => {
                         type="button"
                         onClick={() => setShippingId(method.id)}
                         className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all duration-300 hover:border-secondary hover:bg-secondary/5 ${
-                          selected ? "border-secondary bg-secondary/5" : "border-muted-foreground/50"
+                          selected
+                            ? "border-secondary bg-secondary/5"
+                            : "border-muted-foreground/50"
                         }`}
                       >
                         <Icon className="size-5 shrink-0 text-secondary" />
@@ -446,7 +470,6 @@ const OrderSummery = () => {
                             {method.description}
                           </span>
                         </span>
-                       
                       </button>
                     );
                   })}
@@ -469,7 +492,10 @@ const OrderSummery = () => {
                     const qty = quantities[p._id] || 0;
                     const imageSrc = p.productImage || defaultProductImage;
                     return (
-                      <div key={p._id} className="flex items-center gap-4 text-xs sm:text-sm">
+                      <div
+                        key={p._id}
+                        className="flex items-center gap-4 text-xs sm:text-sm"
+                      >
                         <div className="relative size-12 overflow-hidden rounded-lg bg-slate-50 shrink-0 border border-slate-100">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
@@ -483,9 +509,7 @@ const OrderSummery = () => {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold truncate">
-                            {p.name}
-                          </p>
+                          <p className="font-semibold truncate">{p.name}</p>
                           <p className="text-xs text-muted-foreground">
                             ${p.price.toFixed(2)} × {qty}
                           </p>
@@ -496,7 +520,8 @@ const OrderSummery = () => {
                       </div>
                     );
                   })}
-                {products.filter((p: any) => (quantities[p._id] || 0) > 0).length === 0 && (
+                {products.filter((p: any) => (quantities[p._id] || 0) > 0)
+                  .length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-4">
                     No products selected. Please add items above.
                   </p>
@@ -617,6 +642,7 @@ const OrderSummery = () => {
                       label="Address Line 2"
                       name="address2"
                       placeholder="Apt, suite, unit (optional)"
+                      required={true}
                     />
                   </div>
                   <FormField
@@ -682,7 +708,7 @@ const OrderSummery = () => {
                   <ShieldCheck className="size-4" />
                   {subtotal <= 0
                     ? "Add items to place order"
-                    : `Place Order · $${(previewData?.grossAmount ?? (subtotal + selectedShippingFee)).toFixed(2)}`}
+                    : `Place Order · $${(previewData?.grossAmount ?? subtotal + selectedShippingFee).toFixed(2)}`}
                 </>
               )}
             </button>
