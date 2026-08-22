@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -183,9 +185,7 @@ export default function CampaignSettingsPage() {
       if (errMsg !== "No Draft campaign exists.") {
         return (
           <div className="flex h-96 flex-col items-center justify-center gap-3">
-            <p className="text-lg font-semibold text-rose-500">
-              Failed to load draft campaigns.
-            </p>
+            <p className="text-lg font-semibold text-rose-500">{errMsg}</p>
           </div>
         );
       }

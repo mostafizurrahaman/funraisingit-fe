@@ -590,7 +590,7 @@ export default function CampaignThreePage() {
                       required
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="text-sm font-semibold text-foreground">
                       SKU
                     </label>
@@ -613,7 +613,7 @@ export default function CampaignThreePage() {
                       className="mt-1"
                       placeholder="TSHIRT-BLUE-001"
                     />
-                  </div>
+                  </div> */}
                 </div>
 
                 {productType === "physical" && (
