@@ -178,10 +178,9 @@ export default function CampaignTwoPage() {
       formData.append("allowLocalDelivery", String(draft.allowLocalDelivery));
       formData.append("allowShipping", String(draft.allowShipping));
       formData.append("allowDonation", String(draft.allowDonation));
-      formData.append(
-        "shippingFee",
-        String(draft.allowShipping ? draft.shippingFee : 0),
-      );
+      if (draft.allowShipping) {
+        formData.append("shippingFee", String(draft.shippingFee));
+      }
 
       if (draft.thumbnail) {
         formData.append("thumbnail", draft.thumbnail);
