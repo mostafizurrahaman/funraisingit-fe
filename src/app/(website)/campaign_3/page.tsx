@@ -35,9 +35,24 @@ const durations = [2, 3, 5, 7] as const;
 const shippingFees = [5, 8, 10] as const;
 
 const deliveryOptions = [
-  { id: "pickup", title: "Local Pickup", detail: "I will pick up from supporters", icon: Store },
-  { id: "delivery", title: "Local Delivery", detail: "I will deliver to supporters", icon: Truck },
-  { id: "shipping", title: "Shipping", detail: "I will ship to supporters", icon: PackageCheck },
+  {
+    id: "pickup",
+    title: "Local Pickup",
+    detail: "I will pick up from supporters",
+    icon: Store,
+  },
+  {
+    id: "delivery",
+    title: "Local Delivery",
+    detail: "I will deliver to supporters",
+    icon: Truck,
+  },
+  {
+    id: "shipping",
+    title: "Shipping",
+    detail: "I will ship to supporters",
+    icon: PackageCheck,
+  },
 ] as const;
 
 import { useSelector } from "react-redux";
@@ -66,7 +81,8 @@ export default function CampaignThreePage() {
   const token = useSelector(userCurrentToken);
 
   useEffect(() => {
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const localToken =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
       toast.error("Please log in first to start a campaign.");
       router.push("/login");
@@ -86,10 +102,12 @@ export default function CampaignThreePage() {
       }
     }
   }, [draft.id, updateDraft]);
-  
+
   const [products, setProducts] = useState<ProductInput[]>([]);
   const [description, setDescription] = useState("");
-  const [productType, setProductType] = useState<"physical" | "digital">("physical");
+  const [productType, setProductType] = useState<"physical" | "digital">(
+    "physical",
+  );
   const [stock, setStock] = useState("0");
   const [sku, setSku] = useState("");
   const [weight, setWeight] = useState("0.1");
@@ -104,21 +122,26 @@ export default function CampaignThreePage() {
   const [addProduct, { isLoading: isAdding }] = useAddProductMutation();
 
   const productName = draft.productName || "";
-  const price = prices.includes(draft.price as any) ? (draft.price as number | "custom") : "custom";
+  const price = prices.includes(draft.price as any)
+    ? (draft.price as number | "custom")
+    : "custom";
   const [customPrice, setCustomPrice] = useState("");
   const duration = draft.durationDays;
-  
+
   const delivery: string[] = [];
   if (draft.allowLocalPickup) delivery.push("pickup");
   if (draft.allowLocalDelivery) delivery.push("delivery");
   if (draft.allowShipping) delivery.push("shipping");
 
-  const shippingFee = shippingFees.includes(draft.shippingFee as any) ? (draft.shippingFee as number | "custom") : "custom";
+  const shippingFee = shippingFees.includes(draft.shippingFee as any)
+    ? (draft.shippingFee as number | "custom")
+    : "custom";
   const [customShipping, setCustomShipping] = useState("");
   const [error, setError] = useState("");
 
   const displayPrice = price === "custom" ? Number(customPrice || 0) : price;
-  const displayShipping = shippingFee === "custom" ? Number(customShipping || 0) : shippingFee;
+  const displayShipping =
+    shippingFee === "custom" ? Number(customShipping || 0) : shippingFee;
 
   useEffect(() => {
     if (price === "custom" && draft.price > 0) {
@@ -141,7 +164,7 @@ export default function CampaignThreePage() {
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
-          
+
           const MAX_DIM = 1200;
           if (width > height) {
             if (width > MAX_DIM) {
@@ -154,7 +177,7 @@ export default function CampaignThreePage() {
               height = MAX_DIM;
             }
           }
-          
+
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext("2d");
@@ -163,17 +186,21 @@ export default function CampaignThreePage() {
             canvas.toBlob(
               (blob) => {
                 if (blob) {
-                  const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
-                    type: "image/jpeg",
-                    lastModified: Date.now(),
-                  });
+                  const compressedFile = new File(
+                    [blob],
+                    file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+                    {
+                      type: "image/jpeg",
+                      lastModified: Date.now(),
+                    },
+                  );
                   resolve(compressedFile);
                 } else {
                   resolve(file);
                 }
               },
               "image/jpeg",
-              0.75
+              0.75,
             );
           } else {
             resolve(file);
@@ -234,6 +261,18 @@ export default function CampaignThreePage() {
       return;
     }
 
+    if (sku.trim()) {
+      const isDuplicate = products.some(
+        (p) => p.sku?.trim().toLowerCase() === sku.trim().toLowerCase(),
+      );
+      if (isDuplicate) {
+        const errorMsg = "A product with this SKU already exists in the list. Please use a unique SKU.";
+        toast.error(errorMsg);
+        setError(errorMsg);
+        return;
+      }
+    }
+
     const newProduct: ProductInput = {
       name: productName,
       description: description || "High-quality product",
@@ -244,7 +283,8 @@ export default function CampaignThreePage() {
       weight: productType === "physical" ? Number(weight) || 0.1 : 0,
       productImage,
       productImagePreview,
-      downloadFileName: productType === "digital" ? downloadFileName : undefined,
+      downloadFileName:
+        productType === "digital" ? downloadFileName : undefined,
       downloadFiles: productType === "digital" ? downloadFiles : undefined,
     };
 
@@ -265,8 +305,10 @@ export default function CampaignThreePage() {
   }
 
   function toggleDelivery(id: string) {
-    if (id === "pickup") updateDraft({ allowLocalPickup: !draft.allowLocalPickup });
-    if (id === "delivery") updateDraft({ allowLocalDelivery: !draft.allowLocalDelivery });
+    if (id === "pickup")
+      updateDraft({ allowLocalPickup: !draft.allowLocalPickup });
+    if (id === "delivery")
+      updateDraft({ allowLocalDelivery: !draft.allowLocalDelivery });
     if (id === "shipping") updateDraft({ allowShipping: !draft.allowShipping });
   }
 
@@ -274,14 +316,19 @@ export default function CampaignThreePage() {
     event.preventDefault();
     setError("");
 
-    if (!delivery.length) return setError("Select at least one delivery method.");
-    if (delivery.includes("shipping") && displayShipping < 0) return setError("Enter a valid shipping fee.");
+    if (!delivery.length)
+      return setError("Select at least one delivery method.");
+    if (delivery.includes("shipping") && displayShipping < 0)
+      return setError("Enter a valid shipping fee.");
 
     let finalProducts = [...products];
 
     // If there are inputs in the product form, automatically include them as well
     if (productName.trim()) {
-      if (displayPrice <= 0) return setError("Please select or enter a valid price for the current product.");
+      if (displayPrice <= 0)
+        return setError(
+          "Please select or enter a valid price for the current product.",
+        );
       finalProducts.push({
         name: productName,
         description: description || "High-quality product",
@@ -292,9 +339,22 @@ export default function CampaignThreePage() {
         weight: productType === "physical" ? Number(weight) || 0.1 : 0,
         productImage,
         productImagePreview,
-        downloadFileName: productType === "digital" ? downloadFileName : undefined,
+        downloadFileName:
+          productType === "digital" ? downloadFileName : undefined,
         downloadFiles: productType === "digital" ? downloadFiles : undefined,
       });
+    }
+
+    const filledSkus = finalProducts
+      .map((p) => p.sku?.trim().toLowerCase())
+      .filter(Boolean);
+
+    const hasDuplicates = filledSkus.some(
+      (skuVal, index) => filledSkus.indexOf(skuVal) !== index,
+    );
+
+    if (hasDuplicates) {
+      return setError("Duplicate SKUs detected. Each product must have a unique SKU.");
     }
 
     if (finalProducts.length === 0) {
@@ -303,7 +363,9 @@ export default function CampaignThreePage() {
 
     const finalCampaignId = campaignId;
     if (!finalCampaignId) {
-      return setError("Campaign ID not found. Please create the campaign first in Step 2.");
+      return setError(
+        "Campaign ID not found. Please create the campaign first in Step 2.",
+      );
     }
 
     try {
@@ -336,32 +398,45 @@ export default function CampaignThreePage() {
     } catch (err: any) {
       console.error("Product creation handleSubmit error:", err);
       const rawErr = err?.data;
-      const errMsg =
-        rawErr?.message ||
-        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
-        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
-        err?.error ||
-        err?.message ||
-        (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
-      
-      setError(`${errMsg} [Status: ${err?.status || "unknown"}] [Details: ${JSON.stringify(err)}]`);
+      const errMsg = rawErr?.message;
+      // const errMsg =
+      //   rawErr?.message ||
+      //   (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
+      //   (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+      //   err?.error ||
+      //   err?.message ||
+      //   (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
+
+      // setError(`${errMsg} [Status: ${err?.status || "unknown"}] [Details: ${JSON.stringify(err)}]`);
       toast.error(errMsg);
     }
   }
 
-
-
   return (
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
-        <ol aria-label="Campaign creation progress" className="mx-auto flex max-w-3xl items-start">
+        <ol
+          aria-label="Campaign creation progress"
+          className="mx-auto flex max-w-3xl items-start"
+        >
           {steps.map((step, index) => {
             const complete = index < 2;
             const active = index === 2;
             return (
-              <li key={step} className={`relative flex flex-1 flex-col items-center text-center ${index < steps.length - 1 ? `after:absolute after:left-1/2 after:top-5 after:-z-0 after:h-px after:w-full ${index < 2 ? "after:bg-secondary" : "after:bg-slate-400"}` : ""}`}>
-                <span className={`relative z-10 flex size-10 items-center justify-center rounded-full border text-base font-semibold ${complete ? "border-secondary bg-secondary text-white" : active ? "border-primary bg-primary text-white" : "border-slate-500 bg-white text-foreground"}`}>{complete ? <Check className="size-5" /> : index + 1}</span>
-                <span className={`relative z-10 mt-3 bg-white px-2 text-sm font-medium sm:text-base ${complete ? "text-secondary" : active ? "text-primary" : "text-foreground"}`}>{step}</span>
+              <li
+                key={step}
+                className={`relative flex flex-1 flex-col items-center text-center ${index < steps.length - 1 ? `after:absolute after:left-1/2 after:top-5 after:-z-0 after:h-px after:w-full ${index < 2 ? "after:bg-secondary" : "after:bg-slate-400"}` : ""}`}
+              >
+                <span
+                  className={`relative z-10 flex size-10 items-center justify-center rounded-full border text-base font-semibold ${complete ? "border-secondary bg-secondary text-white" : active ? "border-primary bg-primary text-white" : "border-slate-500 bg-white text-foreground"}`}
+                >
+                  {complete ? <Check className="size-5" /> : index + 1}
+                </span>
+                <span
+                  className={`relative z-10 mt-3 bg-white px-2 text-sm font-medium sm:text-base ${complete ? "text-secondary" : active ? "text-primary" : "text-foreground"}`}
+                >
+                  {step}
+                </span>
               </li>
             );
           })}
@@ -374,26 +449,50 @@ export default function CampaignThreePage() {
                 <span className="inline-flex bg-secondary/10 px-3 py-1.5 text-base font-medium text-secondary">Step 3 of 4</span>
                 <Button type="button" variant="outline" onClick={handleAddProductToList} className="border-secondary text-secondary"><Plus className="size-4" />Add Product to Campaign</Button>
               </div> */}
-              <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">Set Up Your Campaign</h1>
-              <p className="mt-4 text-lg leading-7 text-muted-foreground">Just a few more details before we create your fundraiser.</p>
-              {products.length > 0 ? <p className="mt-2 text-sm font-medium text-secondary">{products.length} campaign items added</p> : null}
+              <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">
+                Set Up Your Campaign
+              </h1>
+              <p className="mt-4 text-lg leading-7 text-muted-foreground">
+                Just a few more details before we create your fundraiser.
+              </p>
+              {products.length > 0 ? (
+                <p className="mt-2 text-sm font-medium text-secondary">
+                  {products.length} campaign items added
+                </p>
+              ) : null}
             </header>
 
             {/* List of added products */}
             {products.length > 0 && (
               <div className="rounded-lg border border-secondary bg-secondary/5 p-4 sm:p-5">
-                <h3 className="font-semibold text-secondary text-lg mb-3">Added Products ({products.length})</h3>
+                <h3 className="font-semibold text-secondary text-lg mb-3">
+                  Added Products ({products.length})
+                </h3>
                 <div className="divide-y divide-slate-200">
                   {products.map((p, idx) => (
-                    <div key={idx} className="flex justify-between items-start sm:items-center gap-4 py-3">
+                    <div
+                      key={idx}
+                      className="flex justify-between items-start sm:items-center gap-4 py-3"
+                    >
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-foreground truncate">{p.name} - ${p.price}</p>
-                        <p className="text-xs text-muted-foreground">{p.productType} | SKU: {p.sku || "N/A"} | Stock: {p.stock}</p>
-                        {p.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>}
+                        <p className="font-semibold text-foreground truncate">
+                          {p.name} - ${p.price}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {p.productType} | SKU: {p.sku || "N/A"} | Stock:{" "}
+                          {p.stock}
+                        </p>
+                        {p.description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {p.description}
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
-                        onClick={() => setProducts(products.filter((_, i) => i !== idx))}
+                        onClick={() =>
+                          setProducts(products.filter((_, i) => i !== idx))
+                        }
                         className="text-red-500 hover:text-red-700 hover:scale-105 transition-all text-sm font-semibold shrink-0"
                       >
                         Remove
@@ -405,23 +504,52 @@ export default function CampaignThreePage() {
             )}
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Gift className="size-10" /></span>
+              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                <Gift className="size-10" />
+              </span>
               <div className="w-full space-y-4">
-                <h2 className="text-[32px] font-semibold leading-tight">1. What will supporters receive?</h2>
-                <p className="text-lg leading-7 text-muted-foreground">What product, item, or experience are you offering?</p>
-                
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  1. What will supporters receive?
+                </h2>
+                <p className="text-lg leading-7 text-muted-foreground">
+                  What product, item, or experience are you offering?
+                </p>
+
                 <div>
-                  <label className="text-sm font-semibold text-foreground">Product Name *</label>
-                  <Input value={productName} onChange={(event) => { updateDraft({ productName: event.target.value }); setError(""); }} className="mt-1" required placeholder="Example: Premium T-Shirt" />
+                  <label className="text-sm font-semibold text-foreground">
+                    Product Name *
+                  </label>
+                  <Input
+                    value={productName}
+                    onChange={(event) => {
+                      updateDraft({ productName: event.target.value });
+                      setError("");
+                    }}
+                    className="mt-1"
+                    required
+                    placeholder="Example: Premium T-Shirt"
+                  />
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-foreground">Product Description</label>
-                  <Input value={description} onChange={(event) => { setDescription(event.target.value); setError(""); }} className="mt-1" placeholder="High-quality cotton t-shirt" />
+                  <label className="text-sm font-semibold text-foreground">
+                    Product Description
+                  </label>
+                  <Input
+                    value={description}
+                    onChange={(event) => {
+                      setDescription(event.target.value);
+                      setError("");
+                    }}
+                    className="mt-1"
+                    placeholder="High-quality cotton t-shirt"
+                  />
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-foreground block mb-2">Product Type *</label>
+                  <label className="text-sm font-semibold text-foreground block mb-2">
+                    Product Type *
+                  </label>
                   <div className="grid grid-cols-2 gap-3 max-w-xs">
                     <button
                       type="button"
@@ -450,39 +578,85 @@ export default function CampaignThreePage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Stock *</label>
-                    <Input type="number" min="0" value={stock} onChange={(event) => setStock(event.target.value)} className="mt-1" required />
+                    <label className="text-sm font-semibold text-foreground">
+                      Stock *
+                    </label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={stock}
+                      onChange={(event) => setStock(event.target.value)}
+                      className="mt-1"
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground">SKU</label>
-                    <Input value={sku} onChange={(event) => setSku(event.target.value)} className="mt-1" placeholder="TSHIRT-BLUE-001" />
+                    <label className="text-sm font-semibold text-foreground">
+                      SKU
+                    </label>
+                    <Input
+                      value={sku}
+                      onChange={(event) => {
+                        const val = event.target.value;
+                        setSku(val);
+                        if (val.trim()) {
+                          const isDuplicate = products.some(
+                            (p) => p.sku?.trim().toLowerCase() === val.trim().toLowerCase(),
+                          );
+                          if (isDuplicate) {
+                            toast.error("This SKU is already used in another product!", {
+                              id: "duplicate-sku",
+                            });
+                          }
+                        }
+                      }}
+                      className="mt-1"
+                      placeholder="TSHIRT-BLUE-001"
+                    />
                   </div>
                 </div>
 
                 {productType === "physical" && (
                   <div>
-                    <label className="text-sm font-semibold text-foreground">Weight (kg)</label>
-                    <Input type="number" step="0.01" min="0" value={weight} onChange={(event) => setWeight(event.target.value)} className="mt-1" />
+                    <label className="text-sm font-semibold text-foreground">
+                      Weight (kg)
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={weight}
+                      onChange={(event) => setWeight(event.target.value)}
+                      className="mt-1"
+                    />
                   </div>
                 )}
 
                 {productType === "digital" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="text-sm font-semibold text-foreground">Download File Name *</label>
+                      <label className="text-sm font-semibold text-foreground">
+                        Download File Name *
+                      </label>
                       <Input
                         value={downloadFileName}
-                        onChange={(event) => setDownloadFileName(event.target.value)}
+                        onChange={(event) =>
+                          setDownloadFileName(event.target.value)
+                        }
                         className="mt-1"
                         placeholder="React-Complete-Course.zip"
                         required
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-semibold text-foreground block mb-2">Download Files *</label>
+                      <label className="text-sm font-semibold text-foreground block mb-2">
+                        Download Files *
+                      </label>
                       {downloadFiles ? (
                         <div className="flex h-12 items-center justify-between rounded-lg border border-secondary bg-secondary/5 px-4 text-xs font-semibold text-secondary">
-                          <span className="truncate max-w-[150px]">{downloadFiles.name}</span>
+                          <span className="truncate max-w-[150px]">
+                            {downloadFiles.name}
+                          </span>
                           <button
                             type="button"
                             onClick={() => setDownloadFiles(null)}
@@ -493,21 +667,40 @@ export default function CampaignThreePage() {
                         </div>
                       ) : (
                         <label className="flex h-12 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
-                          <span className="text-xs font-semibold text-secondary">Upload Digital File</span>
-                          <input type="file" onChange={handleDownloadFile} className="sr-only" required />
+                          <span className="text-xs font-semibold text-secondary">
+                            Upload Digital File
+                          </span>
+                          <input
+                            type="file"
+                            onChange={handleDownloadFile}
+                            className="sr-only"
+                            required
+                          />
                         </label>
                       )}
-                      {downloadFilesError && <p className="mt-1 text-xs text-red-500">{downloadFilesError}</p>}
+                      {downloadFilesError && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {downloadFilesError}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label className="text-sm font-semibold text-foreground block mb-2">Product Image</label>
+                  <label className="text-sm font-semibold text-foreground block mb-2">
+                    Product Image
+                  </label>
                   <div className="flex items-center gap-4">
                     {productImagePreview ? (
                       <div className="relative size-20 overflow-hidden rounded-lg border border-slate-200">
-                        <Image src={productImagePreview} alt="Product preview" fill className="object-cover" unoptimized />
+                        <Image
+                          src={productImagePreview}
+                          alt="Product preview"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
                         <button
                           type="button"
                           onClick={() => {
@@ -521,28 +714,52 @@ export default function CampaignThreePage() {
                       </div>
                     ) : (
                       <label className="flex h-20 w-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
-                        <span className="text-xs font-semibold text-secondary">Upload Image</span>
-                        <input type="file" accept="image/*" onChange={handleProductImage} className="sr-only" />
+                        <span className="text-xs font-semibold text-secondary">
+                          Upload Image
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProductImage}
+                          className="sr-only"
+                        />
                       </label>
                     )}
                   </div>
-                  {productImageError && <p className="mt-1 text-xs text-red-500">{productImageError}</p>}
+                  {productImageError && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {productImageError}
+                    </p>
+                  )}
                 </div>
               </div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Tag className="size-10" /></span>
+              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                <Tag className="size-10" />
+              </span>
               <div>
-                <h2 className="text-[32px] font-semibold leading-tight">2. Product Price</h2>
-                <p className="mt-2 text-lg leading-7 text-muted-foreground">How much will supporters pay?</p>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  2. Product Price
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  How much will supporters pay?
+                </p>
                 <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {prices.map((amount) => (
-                    <ChoiceButton key={amount} selected={price === amount} onClick={() => updateDraft({ price: amount })}>
+                    <ChoiceButton
+                      key={amount}
+                      selected={price === amount}
+                      onClick={() => updateDraft({ price: amount })}
+                    >
                       ${amount}
                     </ChoiceButton>
                   ))}
-                  <ChoiceButton selected={price === "custom"} onClick={() => updateDraft({ price: 0 })}>
+                  <ChoiceButton
+                    selected={price === "custom"}
+                    onClick={() => updateDraft({ price: 0 })}
+                  >
                     Custom
                   </ChoiceButton>
                 </div>
@@ -573,24 +790,159 @@ export default function CampaignThreePage() {
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><CalendarDays className="size-10" /></span>
-              <div><h2 className="text-[32px] font-semibold leading-tight">3. Campaign Length</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How long should your fundraiser run?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{durations.map((days) => <ChoiceButton key={days} selected={duration === days} onClick={() => updateDraft({ durationDays: days })}>{days} Days</ChoiceButton>)}</div></div>
+              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                <CalendarDays className="size-10" />
+              </span>
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  3. Campaign Length
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  How long should your fundraiser run?
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {durations.map((days) => (
+                    <ChoiceButton
+                      key={days}
+                      selected={duration === days}
+                      onClick={() => updateDraft({ durationDays: days })}
+                    >
+                      {days} Days
+                    </ChoiceButton>
+                  ))}
+                </div>
+              </div>
             </section>
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><Truck className="size-10" /></span>
-              <div><h2 className="text-[32px] font-semibold leading-tight">4. How will customers receive products?</h2><p className="mt-2 text-lg leading-7 text-muted-foreground">Choose all that apply. You can offer more than one option.</p><div className="mt-5 grid gap-3 md:grid-cols-3">{deliveryOptions.map(({ id, title, detail, icon: Icon }) => { const selected = delivery.includes(id); return <button key={id} type="button" role="checkbox" aria-checked={selected} onClick={() => toggleDelivery(id)} className={`relative flex min-h-24 items-start gap-3 rounded-lg border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary ${selected ? "border-secondary bg-secondary/10" : "border-slate-300"}`}><Icon className="mt-1 size-6 shrink-0 text-secondary" /><span><strong className="block text-lg">{title}</strong><small className="mt-1 block text-sm text-muted-foreground">{detail}</small></span>{selected ? <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-secondary text-white"><Check className="size-3" /></span> : null}</button>; })}</div></div>
+              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                <Truck className="size-10" />
+              </span>
+              <div>
+                <h2 className="text-[32px] font-semibold leading-tight">
+                  4. How will customers receive products?
+                </h2>
+                <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                  Choose all that apply. You can offer more than one option.
+                </p>
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {deliveryOptions.map(({ id, title, detail, icon: Icon }) => {
+                    const selected = delivery.includes(id);
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="checkbox"
+                        aria-checked={selected}
+                        onClick={() => toggleDelivery(id)}
+                        className={`relative flex min-h-24 items-start gap-3 rounded-lg border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary ${selected ? "border-secondary bg-secondary/10" : "border-slate-300"}`}
+                      >
+                        <Icon className="mt-1 size-6 shrink-0 text-secondary" />
+                        <span>
+                          <strong className="block text-lg">{title}</strong>
+                          <small className="mt-1 block text-sm text-muted-foreground">
+                            {detail}
+                          </small>
+                        </span>
+                        {selected ? (
+                          <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-secondary text-white">
+                            <Check className="size-3" />
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </section>
 
-            {delivery.includes("shipping") ? <section className="grid gap-5 sm:grid-cols-[80px_1fr]"><span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary"><DollarSign className="size-10" /></span><div><h2 className="text-[32px] font-semibold leading-tight">5. Shipping Fee <span className="text-base font-normal text-muted-foreground">(Only applies if shipping is selected)</span></h2><p className="mt-2 text-lg leading-7 text-muted-foreground">How much will you charge for shipping?</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{shippingFees.map((fee) => <ChoiceButton key={fee} selected={shippingFee === fee} onClick={() => updateDraft({ shippingFee: fee })}>${fee}</ChoiceButton>)}<ChoiceButton selected={shippingFee === "custom"} onClick={() => updateDraft({ shippingFee: 0 })}>Custom</ChoiceButton></div>{shippingFee === "custom" ? <Input type="number" min="0" value={customShipping} onChange={(event) => { setCustomShipping(event.target.value); updateDraft({ shippingFee: Number(event.target.value) || 0 }); }} placeholder="Enter shipping fee" className="mt-4" required /> : null}</div></section> : null}
+            {delivery.includes("shipping") ? (
+              <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
+                <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                  <DollarSign className="size-10" />
+                </span>
+                <div>
+                  <h2 className="text-[32px] font-semibold leading-tight">
+                    5. Shipping Fee{" "}
+                    <span className="text-base font-normal text-muted-foreground">
+                      (Only applies if shipping is selected)
+                    </span>
+                  </h2>
+                  <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                    How much will you charge for shipping?
+                  </p>
+                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {shippingFees.map((fee) => (
+                      <ChoiceButton
+                        key={fee}
+                        selected={shippingFee === fee}
+                        onClick={() => updateDraft({ shippingFee: fee })}
+                      >
+                        ${fee}
+                      </ChoiceButton>
+                    ))}
+                    <ChoiceButton
+                      selected={shippingFee === "custom"}
+                      onClick={() => updateDraft({ shippingFee: 0 })}
+                    >
+                      Custom
+                    </ChoiceButton>
+                  </div>
+                  {shippingFee === "custom" ? (
+                    <Input
+                      type="number"
+                      min="0"
+                      value={customShipping}
+                      onChange={(event) => {
+                        setCustomShipping(event.target.value);
+                        updateDraft({
+                          shippingFee: Number(event.target.value) || 0,
+                        });
+                      }}
+                      placeholder="Enter shipping fee"
+                      className="mt-4"
+                      required
+                    />
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
 
-            {error ? <p role="alert" className="text-lg text-red-600">{error}</p> : null}
-            <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row"><Button type="button" variant="outline" onClick={() => router.push("/campaign_2")} className="border-secondary text-secondary"><ArrowLeft className="size-4" />Back</Button><Button type="submit" disabled={isAdding} className="w-full sm:w-56">{isAdding ? "Saving..." : "Continue"}<ArrowRight className="size-4" /></Button></div>
-            <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4" />Your progress is saved automatically</p>
+            {error ? (
+              <p role="alert" className="text-lg text-red-600">
+                {error}
+              </p>
+            ) : null}
+            <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/campaign_2")}
+                className="border-secondary text-secondary"
+              >
+                <ArrowLeft className="size-4" />
+                Back
+              </Button>
+              <Button
+                type="submit"
+                disabled={isAdding}
+                className="w-full sm:w-56"
+              >
+                {isAdding ? "Saving..." : "Continue"}
+                <ArrowRight className="size-4" />
+              </Button>
+            </div>
+            <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <LockKeyhole className="size-4" />
+              Your progress is saved automatically
+            </p>
           </form>
 
           <aside className="rounded-lg border border-slate-400 p-5 lg:sticky lg:top-6">
-            <h2 className="flex items-center gap-2 text-lg font-semibold"><Eye className="size-5 text-secondary" />Live Preview</h2>
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <Eye className="size-5 text-secondary" />
+              Live Preview
+            </h2>
             <div className="relative mt-4 aspect-[1.55/1] w-full overflow-hidden rounded-lg">
               <Image
                 src={draft.thumbnailPreview || hero}
@@ -601,16 +953,82 @@ export default function CampaignThreePage() {
               />
             </div>
             <div className="mt-4 flex items-center gap-3">
-              <Image src={user} alt="User avatar" className="size-12 rounded-full object-cover" />
-              <h3 className="text-lg font-semibold leading-5">{draft.name || "My Campaign"}</h3>
+              <Image
+                src={user}
+                alt="User avatar"
+                className="size-12 rounded-full object-cover"
+              />
+              <h3 className="text-lg font-semibold leading-5">
+                {draft.name || "My Campaign"}
+              </h3>
             </div>
-            <p className="mt-5 text-sm font-medium text-secondary">Goal: ${draft.goalAmount?.toLocaleString() || "0"}</p>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15"><div className="h-full w-[3%] rounded-full bg-secondary" /></div>
-            <div className="mt-2 flex justify-between text-xs"><span>$0 Raised</span><span>0 Supporters</span></div>
-            <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary"><ShoppingCart className="mr-2 inline size-4" />{products.length || 1} {(products.length || 1) === 1 ? "Item" : "Items"} Listed</div>
-            <div className="mt-4 space-y-3"><Button type="button" className="w-full"><ShoppingCart className="size-4" />Buy {productName || "Product"}{displayPrice ? ` — $${displayPrice}` : ""}</Button><Button type="button" variant="outline" className="w-full"><Heart className="size-4" />Donate</Button></div>
-            <h3 className="mt-5 text-lg font-semibold">Campaign Details</h3><dl className="mt-3 space-y-3 text-sm"><PreviewRow icon={Gift} label="Product" value={productName || "—"} /><PreviewRow icon={CalendarDays} label="Campaign Length" value={`${duration} Days`} /><PreviewRow icon={Truck} label="Delivery Options" value={delivery.length ? deliveryOptions.filter((option) => delivery.includes(option.id)).map((option) => option.title).join(", ") : "—"} />{delivery.includes("shipping") ? <PreviewRow icon={DollarSign} label="Shipping Fee" value={`$${displayShipping}`} /> : null}</dl>
-            <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4"><h3 className="flex items-center gap-2 text-lg font-semibold text-secondary"><ShieldCheck className="size-5" />100% Secure</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Your information is always safe and protected.</p></div>
+            <p className="mt-5 text-sm font-medium text-secondary">
+              Goal: ${draft.goalAmount?.toLocaleString() || "0"}
+            </p>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/15">
+              <div className="h-full w-[3%] rounded-full bg-secondary" />
+            </div>
+            <div className="mt-2 flex justify-between text-xs">
+              <span>$0 Raised</span>
+              <span>0 Supporters</span>
+            </div>
+            <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary">
+              <ShoppingCart className="mr-2 inline size-4" />
+              {products.length || 1}{" "}
+              {(products.length || 1) === 1 ? "Item" : "Items"} Listed
+            </div>
+            <div className="mt-4 space-y-3">
+              <Button type="button" className="w-full">
+                <ShoppingCart className="size-4" />
+                Buy {productName || "Product"}
+                {displayPrice ? ` — $${displayPrice}` : ""}
+              </Button>
+              <Button type="button" variant="outline" className="w-full">
+                <Heart className="size-4" />
+                Donate
+              </Button>
+            </div>
+            <h3 className="mt-5 text-lg font-semibold">Campaign Details</h3>
+            <dl className="mt-3 space-y-3 text-sm">
+              <PreviewRow
+                icon={Gift}
+                label="Product"
+                value={productName || "—"}
+              />
+              <PreviewRow
+                icon={CalendarDays}
+                label="Campaign Length"
+                value={`${duration} Days`}
+              />
+              <PreviewRow
+                icon={Truck}
+                label="Delivery Options"
+                value={
+                  delivery.length
+                    ? deliveryOptions
+                        .filter((option) => delivery.includes(option.id))
+                        .map((option) => option.title)
+                        .join(", ")
+                    : "—"
+                }
+              />
+              {delivery.includes("shipping") ? (
+                <PreviewRow
+                  icon={DollarSign}
+                  label="Shipping Fee"
+                  value={`$${displayShipping}`}
+                />
+              ) : null}
+            </dl>
+            <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-secondary">
+                <ShieldCheck className="size-5" />
+                100% Secure
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Your information is always safe and protected.
+              </p>
+            </div>
           </aside>
         </div>
       </div>
@@ -618,10 +1036,45 @@ export default function CampaignThreePage() {
   );
 }
 
-function ChoiceButton({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={`relative h-12 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm ${selected ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}>{children}{selected ? <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-secondary text-white"><Check className="size-3" /></span> : null}</button>;
+function ChoiceButton({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative h-12 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm ${selected ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
+    >
+      {children}
+      {selected ? (
+        <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-secondary text-white">
+          <Check className="size-3" />
+        </span>
+      ) : null}
+    </button>
+  );
 }
 
-function PreviewRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
-  return <div className="grid grid-cols-[18px_1fr_1.2fr] gap-2"><Icon className="mt-0.5 size-4 text-muted-foreground" /><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-medium">{value}</dd></div>;
+function PreviewRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="grid grid-cols-[18px_1fr_1.2fr] gap-2">
+      <Icon className="mt-0.5 size-4 text-muted-foreground" />
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="text-right font-medium">{value}</dd>
+    </div>
+  );
 }
