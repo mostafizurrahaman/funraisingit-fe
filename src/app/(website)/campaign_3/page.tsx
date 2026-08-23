@@ -59,7 +59,11 @@ import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
-import { useAddProductMutation } from "@/redux/features/campaign/campaignApi";
+import {
+  useAddProductMutation,
+  useGetProductsByCampaignIdQuery,
+} from "@/redux/features/campaign/campaignApi";
+import { EditProductModal, DeleteProductModal } from "@/components/dashboard/ProductModals";
 import { ChangeEvent } from "react";
 
 interface ProductInput {
@@ -103,7 +107,10 @@ export default function CampaignThreePage() {
     }
   }, [draft.id, updateDraft]);
 
-  const [products, setProducts] = useState<ProductInput[]>([]);
+  const { data: dbProductsResponse, isLoading: isLoadingProducts } =
+    useGetProductsByCampaignIdQuery(campaignId, { skip: !campaignId });
+  const dbProducts = dbProductsResponse?.data || [];
+
   const [showProductForm, setShowProductForm] = useState(false);
   const [description, setDescription] = useState("");
   const [productType, setProductType] = useState<"physical" | "digital">(
@@ -252,7 +259,7 @@ export default function CampaignThreePage() {
     setDownloadFilesError("");
   }
 
-  function handleAddProductToList() {
+  async function handleAddProductToList() {
     if (!productName.trim()) {
       setError("Please enter a product name first.");
       return;
@@ -263,48 +270,66 @@ export default function CampaignThreePage() {
     }
 
     if (sku.trim()) {
-      const isDuplicate = products.some(
-        (p) => p.sku?.trim().toLowerCase() === sku.trim().toLowerCase(),
+      const isDuplicate = dbProducts.some(
+        (p: any) => p.sku?.trim().toLowerCase() === sku.trim().toLowerCase(),
       );
       if (isDuplicate) {
         const errorMsg =
-          "A product with this SKU already exists in the list. Please use a unique SKU.";
+          "A product with this SKU already exists in this campaign. Please use a unique SKU.";
         toast.error(errorMsg);
         setError(errorMsg);
         return;
       }
     }
 
-    const newProduct: ProductInput = {
-      name: productName,
-      description: description || "High-quality product",
-      price: displayPrice,
-      productType,
-      stock: Number(stock) || 0,
-      sku: sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      weight: productType === "physical" ? Number(weight) || 0.1 : 0,
-      productImage,
-      productImagePreview,
-      downloadFileName:
-        productType === "digital" ? downloadFileName : undefined,
-      downloadFiles: productType === "digital" ? downloadFiles : undefined,
-    };
+    if (!campaignId) {
+      const errorMsg = "Campaign ID not found. Please create the campaign first in Step 2.";
+      toast.error(errorMsg);
+      setError(errorMsg);
+      return;
+    }
 
-    setProducts([...products, newProduct]);
-    setShowProductForm(false);
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("description", description || "High-quality product");
+    formData.append("price", String(displayPrice));
+    formData.append("productType", productType);
+    formData.append("stock", String(Number(stock) || 0));
+    formData.append("sku", sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
+    formData.append("weight", productType === "physical" ? String(Number(weight) || 0.1) : "0");
+    if (productImage) {
+      formData.append("productImage", productImage);
+    }
+    if (productType === "digital") {
+      if (downloadFileName) {
+        formData.append("downloadFileName", downloadFileName);
+      }
+      if (downloadFiles) {
+        formData.append("downloadFiles", downloadFiles);
+      }
+    }
 
-    // Reset current product inputs
-    updateDraft({ productName: "", price: 5 });
-    setDescription("");
-    setStock("0");
-    setSku("");
-    setWeight("0.1");
-    setProductImage(null);
-    setProductImagePreview("");
-    setDownloadFileName("");
-    setDownloadFiles(null);
-    setCustomPrice("");
-    setError("");
+    try {
+      await addProduct({ campaignId, formData }).unwrap();
+      toast.success("Product added successfully!");
+      setShowProductForm(false);
+
+      // Reset current product inputs
+      updateDraft({ productName: "", price: 5 });
+      setDescription("");
+      setStock("0");
+      setSku("");
+      setWeight("0.1");
+      setProductImage(null);
+      setProductImagePreview("");
+      setDownloadFileName("");
+      setDownloadFiles(null);
+      setCustomPrice("");
+      setError("");
+    } catch (err: any) {
+      console.error("Add product error:", err);
+      toast.error(err?.data?.message || "Failed to add product");
+    }
   }
 
   function toggleDelivery(id: string) {
@@ -324,7 +349,11 @@ export default function CampaignThreePage() {
     if (delivery.includes("shipping") && displayShipping < 0)
       return setError("Enter a valid shipping fee.");
 
-    let finalProducts = [...products];
+    if (!campaignId) {
+      return setError(
+        "Campaign ID not found. Please create the campaign first in Step 2.",
+      );
+    }
 
     // If there are inputs in the product form, automatically include them as well
     if (productName.trim() && showProductForm) {
@@ -332,88 +361,66 @@ export default function CampaignThreePage() {
         return setError(
           "Please select or enter a valid price for the current product.",
         );
-      finalProducts.push({
-        name: productName,
-        description: description || "High-quality product",
-        price: displayPrice,
-        productType,
-        stock: Number(stock) || 0,
-        sku: sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        weight: productType === "physical" ? Number(weight) || 0.1 : 0,
-        productImage,
-        productImagePreview,
-        downloadFileName:
-          productType === "digital" ? downloadFileName : undefined,
-        downloadFiles: productType === "digital" ? downloadFiles : undefined,
-      });
-    }
 
-    const filledSkus = finalProducts
-      .map((p) => p.sku?.trim().toLowerCase())
-      .filter(Boolean);
-
-    const hasDuplicates = filledSkus.some(
-      (skuVal, index) => filledSkus.indexOf(skuVal) !== index,
-    );
-
-    if (hasDuplicates) {
-      return setError(
-        "Duplicate SKUs detected. Each product must have a unique SKU.",
+      const isDuplicate = dbProducts.some(
+        (p: any) => p.sku?.trim().toLowerCase() === sku.trim().toLowerCase(),
       );
+      if (isDuplicate) {
+        return setError(
+          "A product with this SKU already exists in this campaign. Please use a unique SKU.",
+        );
+      }
+
+      const formData = new FormData();
+      formData.append("name", productName);
+      formData.append("description", description || "High-quality product");
+      formData.append("price", String(displayPrice));
+      formData.append("productType", productType);
+      formData.append("stock", String(Number(stock) || 0));
+      formData.append("sku", sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
+      formData.append("weight", productType === "physical" ? String(Number(weight) || 0.1) : "0");
+      if (productImage) {
+        formData.append("productImage", productImage);
+      }
+      if (productType === "digital") {
+        if (downloadFileName) {
+          formData.append("downloadFileName", downloadFileName);
+        }
+        if (downloadFiles) {
+          formData.append("downloadFiles", downloadFiles);
+        }
+      }
+
+      try {
+        await addProduct({ campaignId, formData }).unwrap();
+        // Reset current product inputs
+        updateDraft({ productName: "", price: 5 });
+        setDescription("");
+        setStock("0");
+        setSku("");
+        setWeight("0.1");
+        setProductImage(null);
+        setProductImagePreview("");
+        setDownloadFileName("");
+        setDownloadFiles(null);
+        setCustomPrice("");
+        setShowProductForm(false);
+      } catch (err: any) {
+        console.error("Product creation handleSubmit error:", err);
+        return setError(err?.data?.message || "Failed to save product before continuing");
+      }
     }
 
-    if (finalProducts.length === 0) {
+    if (dbProducts.length === 0) {
       return setError("Please add at least one product to your campaign.");
     }
 
-    const finalCampaignId = campaignId;
-    if (!finalCampaignId) {
-      return setError(
-        "Campaign ID not found. Please create the campaign first in Step 2.",
-      );
-    }
-
     try {
-      for (const p of finalProducts) {
-        const formData = new FormData();
-        formData.append("name", p.name);
-        formData.append("description", p.description);
-        formData.append("price", String(p.price));
-        formData.append("productType", p.productType);
-        formData.append("stock", String(p.stock));
-        formData.append("sku", p.sku);
-        formData.append("weight", String(p.weight));
-        if (p.productImage) {
-          formData.append("productImage", p.productImage);
-        }
-        if (p.productType === "digital") {
-          if (p.downloadFileName) {
-            formData.append("downloadFileName", p.downloadFileName);
-          }
-          if (p.downloadFiles) {
-            formData.append("downloadFiles", p.downloadFiles);
-          }
-        }
-
-        await addProduct({ campaignId: finalCampaignId, formData }).unwrap();
-      }
-
-      toast.success("Products added successfully!");
+      toast.success("Products saved successfully!");
       router.push("/campaign_4");
     } catch (err: any) {
-      console.error("Product creation handleSubmit error:", err);
-      const rawErr = err?.data;
-      const errMsg = rawErr?.message;
-      // const errMsg =
-      //   rawErr?.message ||
-      //   (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
-      //   (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
-      //   err?.error ||
-      //   err?.message ||
-      //   (typeof err === "object" && err !== null ? JSON.stringify(err) : String(err));
-
-      // setError(`${errMsg} [Status: ${err?.status || "unknown"}] [Details: ${JSON.stringify(err)}]`);
-      toast.error(errMsg);
+      console.error("Submit error:", err);
+      toast.error(err?.data?.message || "Something went wrong");
     }
   }
 
@@ -460,23 +467,23 @@ export default function CampaignThreePage() {
               <p className="mt-4 text-lg leading-7 text-muted-foreground">
                 Just a few more details before we create your fundraiser.
               </p>
-              {products.length > 0 ? (
+              {dbProducts.length > 0 ? (
                 <p className="mt-2 text-sm font-medium text-secondary">
-                  {products.length} campaign items added
+                  {dbProducts.length} campaign items added
                 </p>
               ) : null}
             </header>
 
             {/* List of added products */}
-            {products.length > 0 && (
+            {dbProducts.length > 0 && (
               <div className="rounded-lg border border-secondary bg-secondary/5 p-4 sm:p-5">
                 <h3 className="font-semibold text-secondary text-lg mb-3">
-                  Added Products ({products.length})
+                  Added Products ({dbProducts.length})
                 </h3>
                 <div className="divide-y divide-slate-200">
-                  {products.map((p, idx) => (
+                  {dbProducts.map((p: any) => (
                     <div
-                      key={idx}
+                      key={p._id}
                       className="flex justify-between items-start sm:items-center gap-4 py-3"
                     >
                       <div className="min-w-0 flex-1">
@@ -493,15 +500,10 @@ export default function CampaignThreePage() {
                           </p>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setProducts(products.filter((_, i) => i !== idx))
-                        }
-                        className="text-red-500 hover:text-red-700 hover:scale-105 transition-all text-sm font-semibold shrink-0"
-                      >
-                        Remove
-                      </button>
+                      <div className="inline-flex items-center gap-1 shrink-0">
+                        <EditProductModal product={p} />
+                        <DeleteProductModal product={p} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -983,8 +985,8 @@ export default function CampaignThreePage() {
             </div>
             <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary">
               <ShoppingCart className="mr-2 inline size-4" />
-              {products.length || 1}{" "}
-              {(products.length || 1) === 1 ? "Item" : "Items"} Listed
+              {dbProducts.length || 1}{" "}
+              {(dbProducts.length || 1) === 1 ? "Item" : "Items"} Listed
             </div>
             <div className="mt-4 space-y-3">
               <Button type="button" className="w-full">

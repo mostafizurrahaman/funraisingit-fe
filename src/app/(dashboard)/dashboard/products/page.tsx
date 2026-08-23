@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   useGetAllMyCampaignsQuery,
   useGetCampaignByIdQuery,
+  useGetProductsByCampaignIdQuery,
 } from "@/redux/features/campaign/campaignApi";
 import {
   Product,
@@ -15,24 +16,51 @@ import {
   EditProductModal,
   DeleteProductModal,
 } from "@/components/dashboard/ProductModals";
-
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 export default function ProductsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0); // 0: All, 1: Physical, 2: Digital
-  const { data: myCampaignsResponse, } =
-    useGetAllMyCampaignsQuery({});
-  const campaignId = myCampaignsResponse?.data[0]?._id;
-  // console.log("Campaigns List:", campaignsList);
-  const {
-    data: campaignResponse,
-    isLoading: isLoading,
-    isError,
-  } = useGetCampaignByIdQuery(campaignId);
 
-  const campaignData = campaignResponse?.data;
-  const campaignStatus = campaignData?.status;
-  const products: Product[] = campaignData?.products || [];
-  console.log("campaignData:", campaignData);
+  const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } =
+    useGetAllMyCampaignsQuery({});
+  const campaignsList = myCampaignsResponse?.data || [];
+
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string>("");
+
+  // Sort campaigns by createdAt descending
+  const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  React.useEffect(() => {
+    if (!selectedCampaignId && sortedCampaigns.length > 0) {
+      const mostRecentId = sortedCampaigns[0]._id;
+      setSelectedCampaignId(mostRecentId);
+    }
+  }, [sortedCampaigns, selectedCampaignId]);
+
+  // Load campaign for the campaign status
+  const { data: campaignResponse } = useGetCampaignByIdQuery(selectedCampaignId, {
+    skip: !selectedCampaignId,
+  });
+  const campaignStatus = campaignResponse?.data?.status;
+
+  // Load products specifically using the getProductsByCampaignId query
+  const {
+    data: productsResponse,
+    isLoading: isLoadingProducts,
+    isError,
+  } = useGetProductsByCampaignIdQuery(selectedCampaignId, {
+    skip: !selectedCampaignId,
+  });
+
+  const products: Product[] = productsResponse?.data || [];
+  const isLoading = isLoadingCampaigns || (selectedCampaignId ? isLoadingProducts : true);
+  console.log("campaignStatus:", campaignStatus);
 
   // Statistics calculation
   const totalProducts = products.length;
@@ -99,7 +127,7 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-360 space-y-5">
-      <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
         <div className="flex items-center gap-4">
           <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-lg bg-white text-foreground shadow-sm ring-1 ring-border">
             <Layers className="size-8 text-secondary" />
@@ -110,6 +138,45 @@ export default function ProductsPage() {
               Manage physical and digital products for your campaign
             </p>
           </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="campaign-filter"
+              className="text-sm font-semibold text-muted-foreground shrink-0"
+            >
+              Campaign:
+            </label>
+            <select
+              id="campaign-filter"
+              value={selectedCampaignId}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedCampaignId(val);
+              }}
+              className="flex h-10 w-full sm:w-64 rounded-md border border-slate-300 px-3 text-sm outline-none transition-all duration-300 focus:border-secondary cursor-pointer bg-white"
+            >
+              {sortedCampaigns.map((campaign: any) => (
+                <option key={campaign._id} value={campaign._id}>
+                  {campaign.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {campaignStatus === "draft" && (
+            <Button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("campaignId", selectedCampaignId);
+                }
+                router.push("/campaign_3");
+              }}
+              className="h-10 bg-secondary hover:bg-secondary/90 text-white font-semibold transition-all duration-300 rounded-md"
+            >
+              Add Product
+            </Button>
+          )}
         </div>
       </section>
 
@@ -184,10 +251,10 @@ export default function ProductsPage() {
                 Loading products...
               </p>
             </div>
-          ) : isError || !campaignId ? (
+          ) : isError || !selectedCampaignId ? (
             <div className="flex min-h-50 flex-col items-center justify-center">
               <p className="text-sm text-red-500 font-semibold">
-                {!campaignId
+                {!selectedCampaignId
                   ? "No campaign found. Please select a campaign first."
                   : "Error loading campaign products."}
               </p>

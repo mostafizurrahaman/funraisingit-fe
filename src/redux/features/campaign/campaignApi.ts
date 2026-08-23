@@ -120,6 +120,14 @@ const campaignApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Campaign"],
     }),
+    getProductsByCampaignId: build.query({
+      query: (campaignId) => ({
+        url: "/product/all",
+        method: "GET",
+        params: { skipPagination: true, campaignId },
+      }),
+      providesTags: ["Campaign"],
+    }),
   }),
 });
 
@@ -139,6 +147,7 @@ export const {
   useGetAllActiveCampaignsQuery,
   useGetAllMyCampaignsQuery,
   useCancelCampaignMutation,
-  useCompleteCampaignMutation
+  useCompleteCampaignMutation,
+  useGetProductsByCampaignIdQuery,
 } = campaignApi;
 export default campaignApi;
