@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolvedParams = await params;
   const code = resolvedParams.code;
 
-  let organizerProfileImage = "";
+  let campaignThumbnail = "";
   let campaignName = "";
   let campaignStory = "";
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const res = await fetch(`${BASE_URL}/campaign/${code}/details`);
     const data = await res.json();
     if (data.success && data.data) {
-      organizerProfileImage = data.data.organizerProfileImage || "";
+      campaignThumbnail = data.data.thumbnail || "";
       campaignName = data.data.name || "";
       campaignStory = data.data.story || "";
     }
@@ -48,13 +48,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: shareUrl,
       type: "website",
       siteName: "FunRaisingIt",
-      images: organizerProfileImage ? [{ url: organizerProfileImage }] : [],
+      images: campaignThumbnail ? [{ url: campaignThumbnail }] : [],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: organizerProfileImage ? [organizerProfileImage] : [],
+      images: campaignThumbnail ? [campaignThumbnail] : [],
     },
   };
 }
