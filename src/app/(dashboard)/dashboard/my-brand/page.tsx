@@ -47,7 +47,7 @@ export default function MyBrandPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[1180px] space-y-5">
+    <div className="container mx-auto  space-y-5">
       <div>
         <h2 className="text-2xl font-semibold text-slate-800">My Brand Projects</h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -179,7 +179,7 @@ export default function MyBrandPage() {
 
                     {/* Action */}
                     <td className="px-5 py-4 text-right">
-                      {brand.status?.toLowerCase().includes("pending") ? (
+                      {!brand.status?.toLowerCase().includes("paid") ? (
                         <Button
                           onClick={() => {
                             const targetCampaignId = brand.campaignId || brand.campaign?._id || "";
