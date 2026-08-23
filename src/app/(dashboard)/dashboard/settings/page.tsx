@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Camera, Eye, Upload, Loader2, LogOut } from "lucide-react";
+import { Camera, Eye, Upload, Loader2, LogOut, Star, X } from "lucide-react";
 import userPlaceholder from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,11 @@ import {
   useConnectAccountMutation,
   useGetAccountQuery,
 } from "@/redux/features/auth/authApi";
+import {
+  useGetReviewStatusQuery,
+  useSkipReviewMutation,
+  useCreateReviewMutation,
+} from "@/redux/features/review/reviewApi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -53,6 +58,22 @@ export default function SettingsPage() {
     useUpdateProfileMutation();
   const [connectAccount, { isLoading: isConnectingAccount }] =
     useConnectAccountMutation();
+
+  const { data: reviewStatusRes } = useGetReviewStatusQuery(undefined, { skip: !token });
+  const isEligible = reviewStatusRes?.data?.isEligibleForReview;
+
+  const [createReview, { isLoading: isSubmittingReview }] = useCreateReviewMutation();
+  const [skipReview, { isLoading: isSkippingReview }] = useSkipReviewMutation();
+
+  const [reviewMessage, setReviewMessage] = React.useState("");
+  const [reviewRating, setReviewRating] = React.useState(5);
+  const [showReviewModal, setShowReviewModal] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isEligible) {
+      setShowReviewModal(true);
+    }
+  }, [isEligible]);
 
   const [showFields, setShowFields] = useState<Record<string, boolean>>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -183,14 +204,23 @@ export default function SettingsPage() {
             Manage your profile and security preferences.
           </p>
         </div>
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 sm:self-start gap-2 cursor-pointer"
-        >
-          <LogOut className="size-4" />
-          Log Out
-        </Button>
+        <div className="flex flex-wrap gap-3 sm:self-start">
+          <Button
+            onClick={() => setShowReviewModal(true)}
+            variant="outline"
+            className="border-secondary text-secondary hover:bg-secondary/5 cursor-pointer"
+          >
+            Leave a Review
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 gap-2 cursor-pointer"
+          >
+            <LogOut className="size-4" />
+            Log Out
+          </Button>
+        </div>
       </header>
 
       <DashboardCard className="p-0">
@@ -444,6 +474,105 @@ export default function SettingsPage() {
           )}
         </div>
       </DashboardCard>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowReviewModal(false)}
+              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="size-5" />
+            </button>
+            <h3 className="text-lg font-bold text-foreground mb-2 pr-8">Share Your Experience</h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Your feedback helps us improve FunRaisingIt for organizers everywhere.
+            </p>
+
+            <div className="space-y-4">
+              {/* Rating */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Rating
+                </label>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="text-amber-400 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                    >
+                      <Star
+                        className={`size-6 ${
+                          star <= reviewRating ? "fill-amber-400 text-amber-400" : "text-slate-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                  Your Review
+                </label>
+                <textarea
+                  value={reviewMessage}
+                  onChange={(e) => setReviewMessage(e.target.value)}
+                  placeholder="Tell us how your fundraiser went..."
+                  rows={4}
+                  className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none transition-all duration-300 focus:border-secondary resize-none"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await skipReview(undefined).unwrap();
+                    toast.success("Review skipped.");
+                    setShowReviewModal(false);
+                  } catch (err: any) {
+                    toast.error(err?.data?.message || "Failed to skip review.");
+                  }
+                }}
+                disabled={isSkippingReview || isSubmittingReview}
+                className="h-10 border-slate-200 text-slate-700 cursor-pointer"
+              >
+                Skip
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!reviewMessage.trim()) {
+                    toast.error("Please enter a review message.");
+                    return;
+                  }
+                  try {
+                    await createReview({
+                      message: reviewMessage,
+                      rating: reviewRating,
+                    }).unwrap();
+                    toast.success("Thank you for your review!");
+                    setShowReviewModal(false);
+                  } catch (err: any) {
+                    toast.error(err?.data?.message || "Failed to submit review.");
+                  }
+                }}
+                disabled={isSubmittingReview || isSkippingReview}
+                className="h-10 px-5 text-white bg-secondary hover:bg-secondary/90 cursor-pointer"
+              >
+                {isSubmittingReview ? "Submitting..." : "Submit Review"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -40,8 +40,13 @@ const CampaignSection = () => {
   const filteredCampaigns = campaigns.filter((campaign: any) => {
     if (!categoryQuery) return true;
     const category = campaign.campaignCategory;
-    if (categoryQuery === "products_pre_orders" || categoryQuery === "physical_product") {
-      return category === "physical_product" || category === "products_pre_orders";
+    if (
+      categoryQuery === "products_pre_orders" ||
+      categoryQuery === "physical_product"
+    ) {
+      return (
+        category === "physical_product" || category === "products_pre_orders"
+      );
     }
     return category === categoryQuery;
   });
