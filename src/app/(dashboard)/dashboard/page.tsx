@@ -36,7 +36,10 @@ const quickActions = [
   { label: "WhatsApp", className: "bg-purple-600 hover:bg-purple-700" },
 ] as const;
 
+import { useRouter } from "next/navigation";
+
 export default function DashboardPage() {
+  const router = useRouter();
   const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } =
     useGetAllMyCampaignsQuery({});
   const campaignsList = myCampaignsResponse?.data || [];
@@ -53,6 +56,17 @@ export default function DashboardPage() {
   });
 
   const campaignCode = myCampaignsResponse?.data[0]?.campaignCode;
+
+  const selectedCampaign = sortedCampaigns.find((c: any) => c._id === selectedCampaignId);
+
+  const handleExploreBrandBuilder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (selectedCampaign?.status !== "completed") {
+      toast.error("You can only access the Brand Builder once your campaign status is Completed.");
+      return;
+    }
+    router.push("/brand-builder");
+  };
 
   // Automatically select the most recent campaign if selectedCampaignId is empty
   useEffect(() => {
@@ -542,11 +556,14 @@ export default function DashboardPage() {
               Ready to scale from fundraising to a real brand?
             </p>
           </div>
-          <Link href="/brand-builder">
-            <Button size="sm" variant="outline" className="w-full sm:w-auto">
-              Explore
-            </Button>
-          </Link>
+          <Button
+            onClick={handleExploreBrandBuilder}
+            size="sm"
+            variant="outline"
+            className="w-full sm:w-auto cursor-pointer"
+          >
+            Explore
+          </Button>
         </DashboardCard>
       </section>
 

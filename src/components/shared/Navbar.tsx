@@ -65,17 +65,17 @@ const Navbar = () => {
           {token && (
             <Link
               href="/dashboard/settings"
-              className="flex items-center gap-2  rounded-full border border-slate-200 bg-white py-1.5 px-3.5 hover:border-secondary transition-colors duration-300"
+              className="flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 hover:border-secondary transition-colors duration-300"
             >
               <Image
                 src={profileData?.profileImage || userPlaceholder}
-                alt="profile"
+                alt={`${profileData?.name} profile`}
                 width={50}
                 height={50}
-                className="rounded-full object-cover "
+                className="size-9 rounded-full object-cover"
               />
-              <span className="text-sm font-semibold text-foreground">
-                {profileData?.name || "Profile"}
+              <span className="hidden text-sm font-semibold sm:block">
+                {profileData?.name || "User"}
               </span>
             </Link>
           )}
@@ -128,7 +128,7 @@ const Navbar = () => {
                 <DrawerClose asChild>
                   <Link
                     href="/dashboard/settings"
-                    className="flex items-center gap-2 rounded-lg px-3 py-3 font-semibold transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary"
+                    className="flex items-center gap-2 rounded-lg px-3 py-1 font-semibold transition-colors duration-300 hover:bg-secondary/10 hover:text-secondary"
                   >
                     <Image
                       src={profileData?.profileImage || userPlaceholder}

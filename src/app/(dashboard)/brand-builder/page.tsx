@@ -289,6 +289,11 @@ export default function BrandBuilder() {
       formData.append("brandImage", brandImageFile);
     }
 
+    const campaignId = typeof window !== "undefined" ? localStorage.getItem("campaignId") || "" : "";
+    if (campaignId) {
+      formData.append("campaignId", campaignId);
+    }
+
     try {
       const res = await createBrandBuilder(formData).unwrap();
       if (res.success && res.data?.url) {

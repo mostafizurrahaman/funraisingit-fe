@@ -5,8 +5,11 @@ import Image from "next/image";
 import { useGetMyBrandsQuery } from "@/redux/features/brandBuilder/BrandBuilderApi";
 import { Loader2, Palette, Box, CheckCircle2, AlertCircle, Calendar, ExternalLink } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function MyBrandPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const limit = 5;
 
@@ -79,6 +82,7 @@ export default function MyBrandPage() {
                   <th className="px-5 py-4 font-semibold">Assets</th>
                   <th className="px-5 py-4 font-semibold">Budget & Fees</th>
                   <th className="px-5 py-4 font-semibold">Status</th>
+                  <th className="px-5 py-4 text-right font-semibold">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -171,6 +175,26 @@ export default function MyBrandPage() {
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${getStatusStyle(brand.status)}`}>
                         {brand.status?.replace("_", " ")}
                       </span>
+                    </td>
+
+                    {/* Action */}
+                    <td className="px-5 py-4 text-right">
+                      {brand.status?.toLowerCase().includes("pending") ? (
+                        <Button
+                          onClick={() => {
+                            const targetCampaignId = brand.campaignId || brand.campaign?._id || "";
+                            if (targetCampaignId) {
+                              localStorage.setItem("campaignId", targetCampaignId);
+                            }
+                            router.push("/brand-builder");
+                          }}
+                          className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer h-9 px-3"
+                        >
+                          Brand your project
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground font-medium">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
