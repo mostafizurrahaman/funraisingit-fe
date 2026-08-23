@@ -318,7 +318,7 @@ export function EditProductModal({
 
               {productType === "physical" && (
                 <div className="space-y-1.5">
-                  <label className="font-semibold text-muted-foreground">Weight (kg)</label>
+                  <label className="font-semibold text-muted-foreground">Weight (lb)</label>
                   <Input
                     type="number"
                     step="0.01"

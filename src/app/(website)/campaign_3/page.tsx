@@ -266,7 +266,8 @@ export default function CampaignThreePage() {
         (p) => p.sku?.trim().toLowerCase() === sku.trim().toLowerCase(),
       );
       if (isDuplicate) {
-        const errorMsg = "A product with this SKU already exists in the list. Please use a unique SKU.";
+        const errorMsg =
+          "A product with this SKU already exists in the list. Please use a unique SKU.";
         toast.error(errorMsg);
         setError(errorMsg);
         return;
@@ -354,7 +355,9 @@ export default function CampaignThreePage() {
     );
 
     if (hasDuplicates) {
-      return setError("Duplicate SKUs detected. Each product must have a unique SKU.");
+      return setError(
+        "Duplicate SKUs detected. Each product must have a unique SKU.",
+      );
     }
 
     if (finalProducts.length === 0) {
@@ -619,7 +622,7 @@ export default function CampaignThreePage() {
                 {productType === "physical" && (
                   <div>
                     <label className="text-sm font-semibold text-foreground">
-                      Weight (kg)
+                      Weight (lb)
                     </label>
                     <Input
                       type="number"
@@ -783,7 +786,7 @@ export default function CampaignThreePage() {
                     onClick={handleAddProductToList}
                     className="w-full sm:w-auto h-12 px-6 rounded-md bg-secondary text-white font-semibold transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.01] hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
                   >
-                    <Plus className="size-5" /> Add Product to List
+                    <Plus className="size-5" /> Add Additional Product
                   </Button>
                 </div>
               </div>
