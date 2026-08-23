@@ -617,8 +617,8 @@ export default function CampaignSettingsPage() {
             <Image
               src={campaign.organizerProfileImage || user}
               alt="Organizer"
-              width={48}
-              height={48}
+              width={100}
+              height={100}
               className="size-12 rounded-full object-cover ring-2 ring-border"
             />
             <div className="h-3 flex-1 overflow-hidden rounded-full bg-border">

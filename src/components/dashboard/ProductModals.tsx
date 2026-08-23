@@ -103,8 +103,15 @@ export function ProductDetailsModal({ product }: { product: Product }) {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <DetailBox icon={Package} label="Stock Status" value={product.isUnlimited ? "Unlimited" : `${product.stock} Units`} />
-              <DetailBox icon={Scale} label="Weight" value={product.productType === "physical" ? `${product.weight ?? 0} lb` : "N/A (Digital)"} />
+              {product.productType === "physical" && (
+                <>
+                  <DetailBox icon={Package} label="Stock Status" value={product.isUnlimited ? "Unlimited" : `${product.stock} Units`} />
+                  <DetailBox icon={Scale} label="Weight" value={`${product.weight ?? 0} lb`} />
+                </>
+              )}
+              {product.productType === "digital" && (
+                <DetailBox icon={FileText} label="Download File Name" value={product.downloadFileName || "N/A"} />
+              )}
             </div>
 
             <section className="rounded-lg border border-border p-4">
@@ -186,6 +193,7 @@ export function EditProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     if (isCampaignActive) {
       return toast.error("Products cannot be edited when the campaign is active");
@@ -195,14 +203,14 @@ export function EditProductModal({
     if (!price || isNaN(Number(price)) || Number(price) < 0) {
       return toast.error("Valid price is required");
     }
-    if (!sku.trim()) return toast.error("SKU is required");
+    // if (!sku.trim()) return toast.error("SKU is required");
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price);
     formData.append("productType", productType);
-    formData.append("stock", stock || "0");
+    formData.append("stock", productType === "physical" ? (stock || "0") : "999999");
     formData.append("sku", sku);
     if (productType === "physical") {
       formData.append("weight", weight || "0");

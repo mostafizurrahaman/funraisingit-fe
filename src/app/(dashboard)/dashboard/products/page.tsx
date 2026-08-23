@@ -322,7 +322,11 @@ export default function ProductsPage() {
                       ${product.price.toFixed(2)}
                     </td>
                     <td className="px-4 py-4 text-center">
-                      {product.isUnlimited ? (
+                      {product.productType === "digital" ? (
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          —
+                        </span>
+                      ) : product.isUnlimited ? (
                         <span className="text-xs font-semibold text-muted-foreground">
                           Unlimited
                         </span>

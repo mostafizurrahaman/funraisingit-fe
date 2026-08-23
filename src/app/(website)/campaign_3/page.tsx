@@ -294,7 +294,7 @@ export default function CampaignThreePage() {
     formData.append("description", description || "High-quality product");
     formData.append("price", String(displayPrice));
     formData.append("productType", productType);
-    formData.append("stock", String(Number(stock) || 0));
+    formData.append("stock", productType === "physical" ? String(Number(stock) || 0) : "999999");
     formData.append("sku", sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
     formData.append("weight", productType === "physical" ? String(Number(weight) || 0.1) : "0");
     if (productImage) {
@@ -376,7 +376,7 @@ export default function CampaignThreePage() {
       formData.append("description", description || "High-quality product");
       formData.append("price", String(displayPrice));
       formData.append("productType", productType);
-      formData.append("stock", String(Number(stock) || 0));
+      formData.append("stock", productType === "physical" ? String(Number(stock) || 0) : "999999");
       formData.append("sku", sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
       formData.append("weight", productType === "physical" ? String(Number(weight) || 0.1) : "0");
       if (productImage) {
@@ -491,8 +491,8 @@ export default function CampaignThreePage() {
                           {p.name} - ${p.price}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {p.productType} | Stock:{" "}
-                          {p.stock}
+                          {p.productType}
+                          {p.productType === "physical" && ` | Stock: ${p.stock}`}
                         </p>
                         {p.description && (
                           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -598,21 +598,23 @@ export default function CampaignThreePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-semibold text-foreground">
-                          Stock *
-                        </label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={stock}
-                          onChange={(event) => setStock(event.target.value)}
-                          className="mt-1"
-                          required
-                        />
+                    {productType === "physical" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-semibold text-foreground">
+                            Stock *
+                          </label>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={stock}
+                            onChange={(event) => setStock(event.target.value)}
+                            className="mt-1"
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {productType === "physical" && (
                       <div>
