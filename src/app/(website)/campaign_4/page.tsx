@@ -70,9 +70,8 @@ export default function CampaignFourPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const localId = localStorage.getItem("campaignId") || "";
-      const finalId = draft.id || localId;
-      setCampaignId(finalId);
-      if (localId && !draft.id) {
+      setCampaignId(localId);
+      if (localId && draft.id !== localId) {
         updateDraft({ id: localId });
       }
       setIsInitialized(true);
@@ -86,7 +85,7 @@ export default function CampaignFourPage() {
 
   const previewBody = promoCode ? { promoCode } : {};
 
-  const { data: previewResponse, isLoading: isPreviewLoading } =
+  const { data: previewResponse, isLoading: isPreviewLoading, isFetching: isPreviewFetching } =
     useGetCampaignPreviewQuery({ campaignId }, { skip: !campaignId });
   const [launchCampaign, { isLoading: isLaunching }] =
     useLaunchCampaignMutation();
@@ -210,7 +209,7 @@ export default function CampaignFourPage() {
     );
   }
 
-  if (isPreviewLoading && !previewData) {
+  if (isPreviewLoading || isPreviewFetching) {
     return (
       <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
