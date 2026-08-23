@@ -99,7 +99,7 @@ const campaignApi = baseApi.injectEndpoints({
     }),
     getDraftCampaigns: build.query({
       query: () => ({
-        url: "/campaign/draft",
+        url: "/campaign/my?campaignStatus=draft",
         method: "GET",
       }),
       providesTags: ["Campaign"],

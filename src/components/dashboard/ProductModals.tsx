@@ -324,18 +324,18 @@ export function EditProductModal({
               </div> */}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="font-semibold text-muted-foreground">Stock Quantity</label>
-                <Input
-                  type="number"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                  className="h-10 text-sm border-slate-300 focus:border-secondary"
-                />
-              </div>
+            {productType === "physical" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-muted-foreground">Stock Quantity</label>
+                  <Input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    className="h-10 text-sm border-slate-300 focus:border-secondary"
+                  />
+                </div>
 
-              {productType === "physical" && (
                 <div className="space-y-1.5">
                   <label className="font-semibold text-muted-foreground">Weight (lb)</label>
                   <Input
@@ -346,8 +346,8 @@ export function EditProductModal({
                     className="h-10 text-sm border-slate-300 focus:border-secondary"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {productType === "digital" && (
               <div className="grid gap-4 sm:grid-cols-2">
