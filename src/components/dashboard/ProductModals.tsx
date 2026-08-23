@@ -36,6 +36,8 @@ export type Product = {
   stock: number;
   sku: string;
   weight?: number;
+  downloadFileName?: string;
+  downloadFiles?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -68,9 +70,9 @@ export function ProductDetailsModal({ product }: { product: Product }) {
           <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
             <div>
               <Dialog.Title className="text-xl font-semibold">Product Details</Dialog.Title>
-              <Dialog.Description className="mt-1 text-sm text-muted-foreground">
+              {/* <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                 SKU: {product.sku || "N/A"}
-              </Dialog.Description>
+              </Dialog.Description> */}
             </div>
             <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary">
               <X className="size-5" />
@@ -102,7 +104,7 @@ export function ProductDetailsModal({ product }: { product: Product }) {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <DetailBox icon={Package} label="Stock Status" value={product.isUnlimited ? "Unlimited" : `${product.stock} Units`} />
-              <DetailBox icon={Scale} label="Weight" value={product.productType === "physical" ? `${product.weight ?? 0} kg` : "N/A (Digital)"} />
+              <DetailBox icon={Scale} label="Weight" value={product.productType === "physical" ? `${product.weight ?? 0} lb` : "N/A (Digital)"} />
             </div>
 
             <section className="rounded-lg border border-border p-4">
@@ -166,6 +168,9 @@ export function EditProductModal({
   const [weight, setWeight] = useState(String(product.weight || ""));
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(product.productImage || "");
+  const [downloadFileName, setDownloadFileName] = useState(product.downloadFileName || "");
+  const [downloadFile, setDownloadFile] = useState<File | null>(null);
+  const [downloadFileError, setDownloadFileError] = useState("");
 
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
@@ -201,6 +206,12 @@ export function EditProductModal({
     formData.append("sku", sku);
     if (productType === "physical") {
       formData.append("weight", weight || "0");
+    }
+    if (productType === "digital") {
+      formData.append("downloadFileName", downloadFileName);
+      if (downloadFile) {
+        formData.append("downloadFiles", downloadFile);
+      }
     }
     if (imageFile) {
       formData.append("productImage", imageFile);
@@ -294,7 +305,7 @@ export function EditProductModal({
                 </select>
               </div>
 
-              <div className="space-y-1.5">
+              {/* <div className="space-y-1.5">
                 <label className="font-semibold text-muted-foreground">SKU</label>
                 <Input
                   value={sku}
@@ -302,7 +313,7 @@ export function EditProductModal({
                   className="h-10 text-sm border-slate-300 focus:border-secondary"
                   required
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -329,6 +340,67 @@ export function EditProductModal({
                 </div>
               )}
             </div>
+
+            {productType === "digital" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-muted-foreground">Download File Name</label>
+                  <Input
+                    value={downloadFileName}
+                    onChange={(e) => setDownloadFileName(e.target.value)}
+                    className="h-10 text-sm border-slate-300 focus:border-secondary"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-muted-foreground block mb-1">Download File</label>
+                  {downloadFile ? (
+                    <div className="flex h-10 items-center justify-between rounded-lg border border-secondary bg-secondary/5 px-3 text-xs font-semibold text-secondary">
+                      <span className="truncate max-w-[120px]">
+                        {downloadFile.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setDownloadFile(null)}
+                        className="bg-red-500 text-white rounded-full size-4 flex items-center justify-center text-[8px]"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex h-10 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/5 text-center hover:bg-secondary/10 transition-all">
+                      <span className="text-xs font-semibold text-secondary flex items-center gap-1">
+                        <UploadCloud className="size-4 animate-bounce" /> Upload New File
+                      </span>
+                      <input
+                        type="file"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            if (file.size > 50 * 1024 * 1024) {
+                              setDownloadFileError("File must be under 50 MB.");
+                              return;
+                            }
+                            setDownloadFile(file);
+                            setDownloadFileError("");
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                  {downloadFileError && (
+                    <p className="mt-1 text-xs text-red-500">{downloadFileError}</p>
+                  )}
+                  {product.downloadFiles && !downloadFile && (
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      Current file: {product.downloadFiles.split("/").pop()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <label className="font-semibold text-muted-foreground">Description</label>

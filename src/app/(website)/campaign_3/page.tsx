@@ -72,7 +72,7 @@ interface ProductInput {
   price: number;
   productType: "physical" | "digital";
   stock: number;
-  sku: string;
+  // sku: string;
   weight: number;
   productImage: File | null;
   productImagePreview: string;
@@ -491,7 +491,7 @@ export default function CampaignThreePage() {
                           {p.name} - ${p.price}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {p.productType} | SKU: {p.sku || "N/A"} | Stock:{" "}
+                          {p.productType} | Stock:{" "}
                           {p.stock}
                         </p>
                         {p.description && (

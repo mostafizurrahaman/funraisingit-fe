@@ -164,7 +164,7 @@ export default function ProductsPage() {
               ))}
             </select>
           </div>
-          {campaignStatus === "draft" && (
+          {/* {campaignStatus === "draft" && (
             <Button
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -176,7 +176,7 @@ export default function ProductsPage() {
             >
               Add Product
             </Button>
-          )}
+          )} */}
         </div>
       </section>
 
@@ -270,7 +270,7 @@ export default function ProductsPage() {
               <thead className="border-b border-border bg-[#f8ffff] text-xs font-semibold text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">Product Name</th>
-                  <th className="px-4 py-3">SKU</th>
+                  {/* <th className="px-4 py-3">SKU</th> */}
                   <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Price</th>
                   <th className="px-4 py-3 text-center">Stock</th>
@@ -303,9 +303,9 @@ export default function ProductsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-xs font-mono text-muted-foreground">
+                    {/* <td className="px-4 py-4 text-xs font-mono text-muted-foreground">
                       {product.sku || "N/A"}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-4">
                       <span
                         className={cn(
@@ -337,7 +337,7 @@ export default function ProductsPage() {
                     <td className="px-4 py-4 text-muted-foreground">
                       {product.productType === "physical" &&
                       product.weight !== undefined
-                        ? `${product.weight} kg`
+                        ? `${product.weight} lb`
                         : "N/A"}
                     </td>
                     <td className="px-4 py-4 text-right">
@@ -360,6 +360,22 @@ export default function ProductsPage() {
           )}
         </div>
       </DashboardCard>
+
+      {campaignStatus === "draft" && (
+        <div className="flex justify-end">
+          <Button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("campaignId", selectedCampaignId);
+              }
+              router.push("/campaign_3");
+            }}
+            className="h-11 bg-secondary hover:bg-secondary/90 text-white font-semibold transition-all duration-300 rounded-md px-6"
+          >
+            Add Product
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
