@@ -23,10 +23,11 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useGetAllOrdersQuery, useGetOrderOverviewQuery } from "@/redux/features/orderManagement/orderManagementApi";
 import { ExportButtons } from "@/components/dashboard/ExportButtons";
+import { useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 
 // type DeliveryType = OrderDetails["delivery"];
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 const deliveryTone: Record<string, string> = {
@@ -47,7 +48,29 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0);
 
-  const campaignId = typeof window !== "undefined" ? localStorage.getItem("campaignId") : null;
+  const [campaignId, setCampaignId] = useState("");
+
+  const { data: myCampaignsResponse } = useGetAllMyCampaignsQuery({});
+  const campaignsList = myCampaignsResponse?.data || [];
+
+  // Sort campaigns by createdAt descending
+  const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const localId = localStorage.getItem("campaignId") || "";
+      if (localId) {
+        setCampaignId(localId);
+      } else if (sortedCampaigns.length > 0) {
+        setCampaignId(sortedCampaigns[0]._id);
+        localStorage.setItem("campaignId", sortedCampaigns[0]._id);
+      }
+    }
+  }, [sortedCampaigns]);
 
   const { data: ordersResponse, isLoading } = useGetAllOrdersQuery({
     sortBy: "createdAt",
@@ -232,6 +255,40 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
+        <div>
+          <h2 className="text-xl font-semibold">Overview</h2>
+          <p className="text-xs text-muted-foreground">
+            Select a campaign to filter orders
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="campaign-filter"
+            className="text-sm font-semibold text-muted-foreground shrink-0"
+          >
+            Campaign:
+          </label>
+          <select
+            id="campaign-filter"
+            value={campaignId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCampaignId(val);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("campaignId", val);
+              }
+            }}
+            className="flex h-10 w-full sm:w-64 rounded-md border border-slate-300 px-3 text-sm outline-none transition-all duration-300 focus:border-secondary cursor-pointer bg-white"
+          >
+            {sortedCampaigns.map((camp: any) => (
+              <option key={camp._id} value={camp._id}>
+                {camp.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
       <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4">
           <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-lg bg-white text-foreground shadow-sm ring-1 ring-border">

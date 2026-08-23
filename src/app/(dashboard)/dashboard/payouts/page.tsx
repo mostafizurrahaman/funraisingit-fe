@@ -23,7 +23,7 @@ import {
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
+import { useGetCampaignByIdQuery, useGetAllMyCampaignsQuery } from "@/redux/features/campaign/campaignApi";
 import {
   useGetPayoutHistoryQuery,
   useGetPayoutOverviewQuery,
@@ -58,11 +58,27 @@ export default function PayoutsPage() {
   const [campaignId, setCampaignId] = useState("");
   const [page, setPage] = useState(1);
 
+  const { data: myCampaignsResponse, isLoading: isLoadingCampaigns } = useGetAllMyCampaignsQuery({});
+  const campaignsList = myCampaignsResponse?.data || [];
+
+  // Sort campaigns by createdAt descending
+  const sortedCampaigns = [...campaignsList].sort((a: any, b: any) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCampaignId(localStorage.getItem("campaignId") || "");
+      const localId = localStorage.getItem("campaignId") || "";
+      if (localId) {
+        setCampaignId(localId);
+      } else if (sortedCampaigns.length > 0) {
+        setCampaignId(sortedCampaigns[0]._id);
+        localStorage.setItem("campaignId", sortedCampaigns[0]._id);
+      }
     }
-  }, []);
+  }, [sortedCampaigns]);
 
   // 1. Get campaign details
   const { data: campaignResponse, isLoading: isLoadingCampaign } =
@@ -125,20 +141,8 @@ export default function PayoutsPage() {
   };
 
   const isLoading =
-    isLoadingCampaign ||
-    isLoadingOverview ||
-    isLoadingHistory ||
-    isLoadingAccount;
-
-  if (!campaignId) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-lg font-semibold text-muted-foreground">
-          No campaign selected. Please select a campaign from the dashboard.
-        </p>
-      </div>
-    );
-  }
+    isLoadingCampaigns ||
+    (campaignId ? (isLoadingCampaign || isLoadingOverview || isLoadingHistory || isLoadingAccount) : false);
 
   if (isLoading) {
     return (
@@ -146,6 +150,16 @@ export default function PayoutsPage() {
         <Loader2 className="size-8 animate-spin text-secondary" />
         <p className="text-xs text-muted-foreground">
           Loading payout details...
+        </p>
+      </div>
+    );
+  }
+
+  if (!campaignId) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <p className="text-lg font-semibold text-muted-foreground">
+          No campaign selected. Please select a campaign from the dashboard.
         </p>
       </div>
     );
@@ -222,6 +236,40 @@ export default function PayoutsPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
+        <div>
+          <h2 className="text-xl font-semibold">Overview</h2>
+          <p className="text-xs text-muted-foreground">
+            Select a campaign to filter payout details
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="campaign-filter"
+            className="text-sm font-semibold text-muted-foreground shrink-0"
+          >
+            Campaign:
+          </label>
+          <select
+            id="campaign-filter"
+            value={campaignId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCampaignId(val);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("campaignId", val);
+              }
+            }}
+            className="flex h-10 w-full sm:w-64 rounded-md border border-slate-300 px-3 text-sm outline-none transition-all duration-300 focus:border-secondary cursor-pointer bg-white"
+          >
+            {sortedCampaigns.map((camp: any) => (
+              <option key={camp._id} value={camp._id}>
+                {camp.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1.1fr_2fr]">
         <DashboardCard className="flex items-center gap-4">
           <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary">
