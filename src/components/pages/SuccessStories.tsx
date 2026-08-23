@@ -29,10 +29,9 @@ const SuccessStories = () => {
   const dynamicStories: SuccessStory[] = apiReviews.map((review: any, idx: number) => ({
     id: review._id || idx,
     quote: review.message || "",
-    name: review.user?.name || "Organizer",
-    organization: review.user?.campaign?.name || "Campaign Organizer",
-    amount: review.user?.campaign?.goalAmount ? `$${review.user.campaign.goalAmount.toLocaleString()}` : "",
-    profileImage: review.user?.profileImage || "",
+    name: review?.organizerName || "Organizer",
+    organization: review?.businessName || "Campaign Organizer",
+    profileImage: review?.profileImage || "",
     rating: review.rating || 5,
   }));
 
