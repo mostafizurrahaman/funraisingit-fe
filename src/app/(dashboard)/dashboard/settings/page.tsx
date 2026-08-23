@@ -8,7 +8,13 @@ import userPlaceholder from "@/assets/user.png";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useChangePasswordMutation, useGetMeQuery, useUpdateProfileMutation, useConnectAccountMutation, useGetAccountQuery } from "@/redux/features/auth/authApi";
+import {
+  useChangePasswordMutation,
+  useGetMeQuery,
+  useUpdateProfileMutation,
+  useConnectAccountMutation,
+  useGetAccountQuery,
+} from "@/redux/features/auth/authApi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, userCurrentToken } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -16,29 +22,44 @@ import toast from "react-hot-toast";
 import { baseApi } from "@/redux/api/baseApi";
 
 const passwordFields = [
-  { id: "current-password", label: "Current Password", autoComplete: "current-password" },
+  {
+    id: "current-password",
+    label: "Current Password",
+    autoComplete: "current-password",
+  },
   { id: "new-password", label: "New Password", autoComplete: "new-password" },
-  { id: "confirm-new-password", label: "Confirm New Password", autoComplete: "new-password" },
+  {
+    id: "confirm-new-password",
+    label: "Confirm New Password",
+    autoComplete: "new-password",
+  },
 ] as const;
 
 export default function SettingsPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const token = useSelector(userCurrentToken);
-  
-  const { data: profileResponse, isLoading: isLoadingProfile, refetch } = useGetMeQuery(undefined, { skip: !token });
-  const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined, { skip: !token });
-  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
-  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
-  const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
-  
+
+  const {
+    data: profileResponse,
+    isLoading: isLoadingProfile,
+    refetch,
+  } = useGetMeQuery(undefined, { skip: !token });
+  const { data: accountResponse, isLoading: isLoadingAccount } =
+    useGetAccountQuery(undefined, { skip: !token });
+  const [changePassword, { isLoading: isChangingPassword }] =
+    useChangePasswordMutation();
+  const [updateProfile, { isLoading: isUpdatingProfile }] =
+    useUpdateProfileMutation();
+  const [connectAccount, { isLoading: isConnectingAccount }] =
+    useConnectAccountMutation();
+
   const [showFields, setShowFields] = useState<Record<string, boolean>>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
 
   const profile = profileResponse?.data;
   const accountInfo = accountResponse?.data;
-
 
   async function handleConnectAccount() {
     try {
@@ -51,7 +72,10 @@ export default function SettingsPage() {
         toast.error("Could not retrieve onboarding account URL.");
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to connect onboarding account. Please try again.");
+      toast.error(
+        err?.data?.message ||
+          "Failed to connect onboarding account. Please try again.",
+      );
     }
   }
 
@@ -102,7 +126,9 @@ export default function SettingsPage() {
       toast.success(response?.message || "Profile updated successfully!");
       refetch();
     } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to update profile. Please try again.");
+      toast.error(
+        err?.data?.message || "Failed to update profile. Please try again.",
+      );
     }
   }
 
@@ -129,11 +155,14 @@ export default function SettingsPage() {
     }
 
     try {
-      const response = await changePassword({ oldPassword, newPassword }).unwrap();
+      const response = await changePassword({
+        oldPassword,
+        newPassword,
+      }).unwrap();
       toast.success(response?.message || "Password updated successfully!");
       // event.currentTarget.reset();
     } catch (err: any) {
-      toast.error(err?.data?.message );
+      toast.error(err?.data?.message);
     }
   }
 
@@ -150,7 +179,9 @@ export default function SettingsPage() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Account Settings</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Manage your profile and security preferences.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Manage your profile and security preferences.
+          </p>
         </div>
         <Button
           onClick={handleLogout}
@@ -165,7 +196,9 @@ export default function SettingsPage() {
       <DashboardCard className="p-0">
         <div className="border-b border-border px-5 py-4">
           <h3 className="text-base font-semibold">Profile Information</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Update your public organizer profile.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Update your public organizer profile.
+          </p>
         </div>
 
         <form className="space-y-5 px-5 py-6" onSubmit={handleProfileSubmit}>
@@ -185,11 +218,21 @@ export default function SettingsPage() {
             </div>
             <div>
               <h4 className="text-lg font-semibold">Profile Photo</h4>
-              <label htmlFor="profile-photo" className="mt-1 inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-secondary transition-colors duration-300 hover:text-primary">
+              <label
+                htmlFor="profile-photo"
+                className="mt-1 inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-secondary transition-colors duration-300 hover:text-primary"
+              >
                 <Upload className="size-4" />
                 Upload photo
               </label>
-              <input id="profile-photo" name="profilePhoto" type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
+              <input
+                id="profile-photo"
+                name="profilePhoto"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="sr-only"
+              />
             </div>
           </div>
 
@@ -197,25 +240,51 @@ export default function SettingsPage() {
             <label htmlFor="name" className="mb-2 block text-sm font-medium">
               Full Name
             </label>
-            <Input id="name" name="name" defaultValue={profile?.name || ""} autoComplete="name" className="h-11 rounded-2xl border-border text-sm" required />
+            <Input
+              id="name"
+              name="name"
+              defaultValue={profile?.name || ""}
+              autoComplete="name"
+              className="h-11 rounded-2xl border-border text-sm"
+              required
+            />
           </div>
 
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
             </label>
-            <Input id="email" name="email" type="email" defaultValue={profile?.email || ""} autoComplete="email" className="h-11 rounded-2xl border-border text-sm" readOnly />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={profile?.email || ""}
+              autoComplete="email"
+              className="h-11 rounded-2xl border-border text-sm"
+              readOnly
+            />
           </div>
 
           <div>
             <label htmlFor="phone" className="mb-2 block text-sm font-medium">
               Phone Number
             </label>
-            <Input id="phone" name="phone" type="tel" defaultValue={profile?.phoneNumber || ""} autoComplete="tel" className="h-11 rounded-2xl border-border text-sm" />
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              defaultValue={profile?.phoneNumber || ""}
+              autoComplete="tel"
+              className="h-11 rounded-2xl border-border text-sm"
+            />
           </div>
 
           <div className="flex justify-end pt-3">
-            <Button type="submit" disabled={isUpdatingProfile} className="bg-secondary px-6 text-xs hover:bg-secondary/90">
+            <Button
+              type="submit"
+              disabled={isUpdatingProfile}
+              className="bg-secondary px-6 text-xs hover:bg-secondary/90"
+            >
               {isUpdatingProfile ? "Saving..." : "Save Changes"}
             </Button>
           </div>
@@ -225,7 +294,9 @@ export default function SettingsPage() {
       <DashboardCard className="p-0">
         <div className="border-b border-border px-5 py-4">
           <h3 className="text-base font-semibold">Change Password</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Keep your account secure with a strong password.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Keep your account secure with a strong password.
+          </p>
         </div>
 
         <form onSubmit={handlePasswordSubmit} className="space-y-5 px-5 py-6">
@@ -241,7 +312,10 @@ export default function SettingsPage() {
           />
           {passwordFields.map((field) => (
             <div key={field.id}>
-              <label htmlFor={field.id} className="mb-2 block text-sm font-medium">
+              <label
+                htmlFor={field.id}
+                className="mb-2 block text-sm font-medium"
+              >
                 {field.label}
               </label>
               <div className="relative">
@@ -266,7 +340,11 @@ export default function SettingsPage() {
           ))}
 
           <div className="flex justify-end pt-3">
-            <Button type="submit" disabled={isChangingPassword} className="bg-secondary px-6 text-xs hover:bg-secondary/90">
+            <Button
+              type="submit"
+              disabled={isChangingPassword}
+              className="bg-secondary px-6 text-xs hover:bg-secondary/90"
+            >
               {isChangingPassword ? "Updating..." : "Update Password"}
             </Button>
           </div>
@@ -276,7 +354,9 @@ export default function SettingsPage() {
       <DashboardCard className="p-0">
         <div className="border-b border-border px-5 py-4">
           <h3 className="text-base font-semibold">Onboarding Account</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Set up your payout account to receive funds directly.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Set up your payout account to receive funds directly.
+          </p>
         </div>
 
         <div className="px-5 py-6 space-y-4">
@@ -284,28 +364,40 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 rounded-xl border border-slate-100 p-4 bg-slate-50/50 text-sm">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Stripe Account</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">
+                    Stripe Account
+                  </p>
                   <p className="mt-1 font-mono font-semibold text-slate-800">
-                    {accountInfo.account ? `**** **** **** ${accountInfo.account.slice(-4)}` : "N/A"}
+                    {accountInfo.account
+                      ? `**** **** **** ${accountInfo.account.slice(-4)}`
+                      : "N/A"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Status</p>
-               
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">
+                    Status
+                  </p>
+
                   <p className="mt-1 font-semibold text-slate-800">
                     {accountInfo.status || "Unknown"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Country / Currency</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">
+                    Country / Currency
+                  </p>
                   <p className="mt-1 font-semibold text-slate-800">
-                    {accountInfo.country || "N/A"} / {(accountInfo.currency || "usd").toUpperCase()}
+                    {accountInfo.country || "N/A"} /{" "}
+                    {(accountInfo.currency || "usd").toUpperCase()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Payouts & Charges</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">
+                    Payouts & Charges
+                  </p>
                   <p className="mt-1 font-semibold text-slate-800">
-                    {accountInfo.payoutsEnabled ? "Enabled" : "Disabled"} / {accountInfo.chargesEnabled ? "Enabled" : "Disabled"}
+                    {accountInfo.payoutsEnabled ? "Enabled" : "Disabled"} /{" "}
+                    {accountInfo.chargesEnabled ? "Enabled" : "Disabled"}
                   </p>
                 </div>
               </div>
@@ -317,15 +409,21 @@ export default function SettingsPage() {
                   variant="outline"
                   className="px-6 text-xs flex items-center gap-2 cursor-pointer transition-all duration-300"
                 >
-                  {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
-                  {isConnectingAccount ? "Connecting..." : "Manage Account Link"}
+                  {isConnectingAccount && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
+                  {isConnectingAccount
+                    ? "Connecting..."
+                    : "Reconnect Account Link"}
                 </Button>
               </div>
             </div>
           ) : (
             <>
               <p className="text-sm text-muted-foreground leading-6">
-                To accept donations and orders from your campaigns, you must link your payout account. We use Stripe to ensure safe, secure, and direct payouts to your bank account.
+                To accept donations and orders from your campaigns, you must
+                link your payout account. We use Stripe to ensure safe, secure,
+                and direct payouts to your bank account.
               </p>
               <div className="flex pt-2">
                 <Button
@@ -334,8 +432,12 @@ export default function SettingsPage() {
                   onClick={handleConnectAccount}
                   className="bg-secondary px-6 text-xs hover:bg-secondary/90 flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  {isConnectingAccount && <Loader2 className="size-4 animate-spin" />}
-                  {isConnectingAccount ? "Connecting..." : "Connect Payout Account"}
+                  {isConnectingAccount && (
+                    <Loader2 className="size-4 animate-spin" />
+                  )}
+                  {isConnectingAccount
+                    ? "Connecting..."
+                    : "Connect Payout Account"}
                 </Button>
               </div>
             </>

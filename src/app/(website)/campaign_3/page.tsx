@@ -104,6 +104,7 @@ export default function CampaignThreePage() {
   }, [draft.id, updateDraft]);
 
   const [products, setProducts] = useState<ProductInput[]>([]);
+  const [showProductForm, setShowProductForm] = useState(false);
   const [description, setDescription] = useState("");
   const [productType, setProductType] = useState<"physical" | "digital">(
     "physical",
@@ -290,6 +291,7 @@ export default function CampaignThreePage() {
     };
 
     setProducts([...products, newProduct]);
+    setShowProductForm(false);
 
     // Reset current product inputs
     updateDraft({ productName: "", price: 5 });
@@ -325,7 +327,7 @@ export default function CampaignThreePage() {
     let finalProducts = [...products];
 
     // If there are inputs in the product form, automatically include them as well
-    if (productName.trim()) {
+    if (productName.trim() && showProductForm) {
       if (displayPrice <= 0)
         return setError(
           "Please select or enter a valid price for the current product.",
@@ -506,291 +508,295 @@ export default function CampaignThreePage() {
               </div>
             )}
 
-            <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
-                <Gift className="size-10" />
-              </span>
-              <div className="w-full space-y-4">
-                <h2 className="text-[32px] font-semibold leading-tight">
-                  1. What will supporters receive?
-                </h2>
-                <p className="text-lg leading-7 text-muted-foreground">
-                  What product, item, or experience are you offering?
+            {!showProductForm ? (
+              <div className="flex flex-col items-center justify-center py-10 border border-dashed border-secondary/30 rounded-xl bg-secondary/5 gap-4">
+                <p className="text-muted-foreground text-sm font-medium">
+                  Need to add a product or experience to your campaign?
                 </p>
+                <Button
+                  type="button"
+                  onClick={() => setShowProductForm(true)}
+                  className="px-6 h-12 bg-secondary text-white font-semibold rounded-md transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.02] hover:shadow-md active:scale-95 flex items-center gap-2"
+                >
+                  <Plus className="size-5" /> Add Product to Campaign
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-11 border border-secondary/20 rounded-xl p-6 bg-secondary/5">
+                <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
+                  <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                    <Gift className="size-10" />
+                  </span>
+                  <div className="w-full space-y-4">
+                    <h2 className="text-[32px] font-semibold leading-tight">
+                      1. What will supporters receive?
+                    </h2>
+                    <p className="text-lg leading-7 text-muted-foreground">
+                      What product, item, or experience are you offering?
+                    </p>
 
-                <div>
-                  <label className="text-sm font-semibold text-foreground">
-                    Product Name *
-                  </label>
-                  <Input
-                    value={productName}
-                    onChange={(event) => {
-                      updateDraft({ productName: event.target.value });
-                      setError("");
-                    }}
-                    className="mt-1"
-                    required
-                    placeholder="Example: Premium T-Shirt"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-foreground">
-                    Product Description
-                  </label>
-                  <Input
-                    value={description}
-                    onChange={(event) => {
-                      setDescription(event.target.value);
-                      setError("");
-                    }}
-                    className="mt-1"
-                    placeholder="High-quality cotton t-shirt"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-foreground block mb-2">
-                    Product Type *
-                  </label>
-                  <div className="grid grid-cols-2 gap-3 max-w-xs">
-                    <button
-                      type="button"
-                      onClick={() => setProductType("physical")}
-                      className={`h-11 rounded-md border text-base font-medium transition-all ${
-                        productType === "physical"
-                          ? "border-secondary bg-secondary/10 text-secondary"
-                          : "border-slate-300 bg-white"
-                      }`}
-                    >
-                      Physical
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setProductType("digital")}
-                      className={`h-11 rounded-md border text-base font-medium transition-all ${
-                        productType === "digital"
-                          ? "border-secondary bg-secondary/10 text-secondary"
-                          : "border-slate-300 bg-white"
-                      }`}
-                    >
-                      Digital
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">
-                      Stock *
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={stock}
-                      onChange={(event) => setStock(event.target.value)}
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  {/* <div>
-                    <label className="text-sm font-semibold text-foreground">
-                      SKU
-                    </label>
-                    <Input
-                      value={sku}
-                      onChange={(event) => {
-                        const val = event.target.value;
-                        setSku(val);
-                        if (val.trim()) {
-                          const isDuplicate = products.some(
-                            (p) => p.sku?.trim().toLowerCase() === val.trim().toLowerCase(),
-                          );
-                          if (isDuplicate) {
-                            toast.error("This SKU is already used in another product!", {
-                              id: "duplicate-sku",
-                            });
-                          }
-                        }
-                      }}
-                      className="mt-1"
-                      placeholder="TSHIRT-BLUE-001"
-                    />
-                  </div> */}
-                </div>
-
-                {productType === "physical" && (
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">
-                      Weight (lb)
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={weight}
-                      onChange={(event) => setWeight(event.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                )}
-
-                {productType === "digital" && (
-                  <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="text-sm font-semibold text-foreground">
-                        Download File Name *
+                        Product Name *
                       </label>
                       <Input
-                        value={downloadFileName}
-                        onChange={(event) =>
-                          setDownloadFileName(event.target.value)
-                        }
+                        value={productName}
+                        onChange={(event) => {
+                          updateDraft({ productName: event.target.value });
+                          setError("");
+                        }}
                         className="mt-1"
-                        placeholder="React-Complete-Course.zip"
                         required
+                        placeholder="Example: Premium T-Shirt"
                       />
                     </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-foreground">
+                        Product Description
+                      </label>
+                      <Input
+                        value={description}
+                        onChange={(event) => {
+                          setDescription(event.target.value);
+                          setError("");
+                        }}
+                        className="mt-1"
+                        placeholder="High-quality cotton t-shirt"
+                      />
+                    </div>
+
                     <div>
                       <label className="text-sm font-semibold text-foreground block mb-2">
-                        Download Files *
+                        Product Type *
                       </label>
-                      {downloadFiles ? (
-                        <div className="flex h-12 items-center justify-between rounded-lg border border-secondary bg-secondary/5 px-4 text-xs font-semibold text-secondary">
-                          <span className="truncate max-w-[150px]">
-                            {downloadFiles.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setDownloadFiles(null)}
-                            className="bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="flex h-12 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
-                          <span className="text-xs font-semibold text-secondary">
-                            Upload Digital File
-                          </span>
-                          <input
-                            type="file"
-                            onChange={handleDownloadFile}
-                            className="sr-only"
+                      <div className="grid grid-cols-2 gap-3 max-w-xs">
+                        <button
+                          type="button"
+                          onClick={() => setProductType("physical")}
+                          className={`h-11 rounded-md border text-base font-medium transition-all ${
+                            productType === "physical"
+                              ? "border-secondary bg-secondary/10 text-secondary"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          Physical
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setProductType("digital")}
+                          className={`h-11 rounded-md border text-base font-medium transition-all ${
+                            productType === "digital"
+                              ? "border-secondary bg-secondary/10 text-secondary"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          Digital
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">
+                          Stock *
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={stock}
+                          onChange={(event) => setStock(event.target.value)}
+                          className="mt-1"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {productType === "physical" && (
+                      <div>
+                        <label className="text-sm font-semibold text-foreground">
+                          Weight (lb)
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={weight}
+                          onChange={(event) => setWeight(event.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                    )}
+
+                    {productType === "digital" && (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="text-sm font-semibold text-foreground">
+                            Download File Name *
+                          </label>
+                          <Input
+                            value={downloadFileName}
+                            onChange={(event) =>
+                              setDownloadFileName(event.target.value)
+                            }
+                            className="mt-1"
+                            placeholder="React-Complete-Course.zip"
                             required
                           />
-                        </label>
-                      )}
-                      {downloadFilesError && (
+                        </div>
+                        <div>
+                          <label className="text-sm font-semibold text-foreground block mb-2">
+                            Download Files *
+                          </label>
+                          {downloadFiles ? (
+                            <div className="flex h-12 items-center justify-between rounded-lg border border-secondary bg-secondary/5 px-4 text-xs font-semibold text-secondary">
+                              <span className="truncate max-w-[150px]">
+                                {downloadFiles.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setDownloadFiles(null)}
+                                className="bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="flex h-12 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
+                              <span className="text-xs font-semibold text-secondary">
+                                Upload Digital File
+                              </span>
+                              <input
+                                type="file"
+                                onChange={handleDownloadFile}
+                                className="sr-only"
+                                required
+                              />
+                            </label>
+                          )}
+                          {downloadFilesError && (
+                            <p className="mt-1 text-xs text-red-500">
+                              {downloadFilesError}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="text-sm font-semibold text-foreground block mb-2">
+                        Product Image
+                      </label>
+                      <div className="flex items-center gap-4">
+                        {productImagePreview ? (
+                          <div className="relative size-20 overflow-hidden rounded-lg border border-slate-200">
+                            <Image
+                              src={productImagePreview}
+                              alt="Product preview"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProductImage(null);
+                                setProductImagePreview("");
+                              }}
+                              className="absolute right-1 top-1 bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex h-20 w-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
+                            <span className="text-xs font-semibold text-secondary">
+                              Upload Image
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleProductImage}
+                              className="sr-only"
+                            />
+                          </label>
+                        )}
+                      </div>
+                      {productImageError && (
                         <p className="mt-1 text-xs text-red-500">
-                          {downloadFilesError}
+                          {productImageError}
                         </p>
                       )}
                     </div>
                   </div>
-                )}
+                </section>
 
-                <div>
-                  <label className="text-sm font-semibold text-foreground block mb-2">
-                    Product Image
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {productImagePreview ? (
-                      <div className="relative size-20 overflow-hidden rounded-lg border border-slate-200">
-                        <Image
-                          src={productImagePreview}
-                          alt="Product preview"
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setProductImage(null);
-                            setProductImagePreview("");
-                          }}
-                          className="absolute right-1 top-1 bg-red-500 text-white rounded-full size-5 flex items-center justify-center text-[10px]"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="flex h-20 w-36 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-secondary bg-secondary/10 text-center hover:bg-secondary/15 transition-all">
-                        <span className="text-xs font-semibold text-secondary">
-                          Upload Image
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleProductImage}
-                          className="sr-only"
-                        />
-                      </label>
-                    )}
-                  </div>
-                  {productImageError && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {productImageError}
+                <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
+                  <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
+                    <Tag className="size-10" />
+                  </span>
+                  <div>
+                    <h2 className="text-[32px] font-semibold leading-tight">
+                      2. Product Price
+                    </h2>
+                    <p className="mt-2 text-lg leading-7 text-muted-foreground">
+                      How much will supporters pay?
                     </p>
-                  )}
-                </div>
+                    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                      {prices.map((amount) => (
+                        <ChoiceButton
+                          key={amount}
+                          selected={price === amount}
+                          onClick={() => updateDraft({ price: amount })}
+                        >
+                          ${amount}
+                        </ChoiceButton>
+                      ))}
+                      <ChoiceButton
+                        selected={price === "custom"}
+                        onClick={() => updateDraft({ price: 0 })}
+                      >
+                        Custom
+                      </ChoiceButton>
+                    </div>
+                    {price === "custom" ? (
+                      <Input
+                        type="number"
+                        min="1"
+                        value={customPrice}
+                        onChange={(event) => {
+                          setCustomPrice(event.target.value);
+                          updateDraft({ price: Number(event.target.value) || 0 });
+                        }}
+                        placeholder="Enter custom price"
+                        className="mt-4"
+                        required
+                      />
+                    ) : null}
+                    <div className="mt-6 flex flex-wrap justify-end gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setShowProductForm(false);
+                          setError("");
+                        }}
+                        className="border-secondary text-secondary hover:bg-secondary/5 font-semibold transition-all duration-300 hover:scale-[1.01] active:scale-95 h-12 px-6"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleAddProductToList}
+                        className="h-12 px-6 rounded-md bg-secondary text-white font-semibold transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.01] hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        <Plus className="size-5" /> Add Product to List
+                      </Button>
+                    </div>
+                  </div>
+                </section>
               </div>
-            </section>
-
-            <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
-              <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
-                <Tag className="size-10" />
-              </span>
-              <div>
-                <h2 className="text-[32px] font-semibold leading-tight">
-                  2. Product Price
-                </h2>
-                <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                  How much will supporters pay?
-                </p>
-                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {prices.map((amount) => (
-                    <ChoiceButton
-                      key={amount}
-                      selected={price === amount}
-                      onClick={() => updateDraft({ price: amount })}
-                    >
-                      ${amount}
-                    </ChoiceButton>
-                  ))}
-                  <ChoiceButton
-                    selected={price === "custom"}
-                    onClick={() => updateDraft({ price: 0 })}
-                  >
-                    Custom
-                  </ChoiceButton>
-                </div>
-                {price === "custom" ? (
-                  <Input
-                    type="number"
-                    min="1"
-                    value={customPrice}
-                    onChange={(event) => {
-                      setCustomPrice(event.target.value);
-                      updateDraft({ price: Number(event.target.value) || 0 });
-                    }}
-                    placeholder="Enter custom price"
-                    className="mt-4"
-                    required
-                  />
-                ) : null}
-                <div className="mt-6 flex justify-end">
-                  <Button
-                    type="button"
-                    onClick={handleAddProductToList}
-                    className="w-full sm:w-auto h-12 px-6 rounded-md bg-secondary text-white font-semibold transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.01] hover:shadow-md active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <Plus className="size-5" /> Add Additional Product
-                  </Button>
-                </div>
-              </div>
-            </section>
+            )}
 
             <section className="grid gap-5 sm:grid-cols-[80px_1fr]">
               <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
