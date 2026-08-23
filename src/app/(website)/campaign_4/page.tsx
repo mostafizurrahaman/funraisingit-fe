@@ -153,6 +153,10 @@ export default function CampaignFourPage() {
 
       toast.success(response?.message || "Campaign launched successfully!");
 
+      if (accountInfo?.status?.toLowerCase() !== "active") {
+        toast.error("Please connect your bank account in Settings to receive payouts for your campaign.");
+      }
+
       resetDraft();
       removeCampaignIdFromLocalStorage();
       router.push(response?.data?.url);

@@ -25,6 +25,7 @@ import orderImage from "../../assets/order.png";
 import campaignOwner from "../../assets/user.png";
 import { useGetCampaignByIdQuery } from "@/redux/features/campaign/campaignApi";
 import { useCreateDonationMutation } from "@/redux/features/donation/donationApi";
+import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
 
 const donationAmounts = [10, 20, 40, 80, 160, 320] as const;
@@ -56,6 +57,11 @@ const DonateNow = () => {
   // 2. Create Donation Mutation Hook
   const [createDonation, { isLoading: isDonating }] = useCreateDonationMutation();
 
+  const { data: accountResponse } = useGetAccountQuery(undefined, {
+    skip: typeof window !== "undefined" && !localStorage.getItem("token")
+  });
+  const accountInfo = accountResponse?.data;
+
   const [amount, setAmount] = useState(20);
   const [error, setError] = useState("");
 
@@ -73,6 +79,13 @@ const DonateNow = () => {
 
     if (!campaignId) {
       setError("Campaign ID not found. Cannot submit donation.");
+      return;
+    }
+
+    if (accountInfo && accountInfo.status?.toLowerCase() !== "active") {
+      const errMsg = "You cannot donate or place orders because your onboarding account status is not active. Please complete verification in Settings.";
+      setError(errMsg);
+      toast.error(errMsg);
       return;
     }
 

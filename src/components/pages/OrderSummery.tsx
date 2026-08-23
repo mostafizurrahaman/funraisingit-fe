@@ -17,10 +17,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
-import {
-  useCreateOrderMutation,
-  usePreviewOrderMutation,
-} from "@/redux/features/orderManagement/orderManagementApi";
+import { useCreateOrderMutation, usePreviewOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
+import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
 
 import defaultProductImage from "../../assets/order.png";
@@ -75,6 +73,11 @@ const OrderSummery = () => {
   const [previewOrder, { data: previewResponse, isLoading: isPreviewLoading }] =
     usePreviewOrderMutation();
   const previewData = previewResponse?.data;
+
+  const { data: accountResponse } = useGetAccountQuery(undefined, {
+    skip: typeof window !== "undefined" && !localStorage.getItem("token")
+  });
+  const accountInfo = accountResponse?.data;
 
   const campaign = campaignResponse?.data;
   const products = campaign?.products || [];
@@ -191,6 +194,10 @@ const OrderSummery = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!campaign) return;
+
+    if (accountInfo && accountInfo.status?.toLowerCase() !== "active") {
+      return toast.error("You cannot donate or place orders because your onboarding account status is not active. Please complete verification in Settings.");
+    }
 
     const orderItems = Object.entries(quantities)
       .filter(([_, qty]) => qty > 0)
