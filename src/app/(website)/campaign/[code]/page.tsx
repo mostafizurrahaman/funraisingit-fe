@@ -60,5 +60,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-  return <CampaignDetailsClient params={params} />;
+  const resolvedParams = await params;
+  const code = resolvedParams.code;
+
+  let initialData = null;
+  try {
+    const res = await fetch(`${BASE_URL}/campaign/${code}/details`, {
+      next: { revalidate: 10 }
+    });
+    const data = await res.json();
+    if (data.success && data.data) {
+      initialData = data.data;
+    }
+  } catch (err) {
+    console.error("Failed to pre-fetch campaign details on server:", err);
+  }
+
+  return <CampaignDetailsClient params={params} initialData={initialData} />;
 }

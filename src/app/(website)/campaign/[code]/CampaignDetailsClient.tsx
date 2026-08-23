@@ -12,14 +12,15 @@ interface PageProps {
   params: Promise<{
     code: string;
   }>;
+  initialData?: any;
 }
 
-export default function CampaignDetailsClient({ params }: PageProps) {
+export default function CampaignDetailsClient({ params, initialData }: PageProps) {
   const resolvedParams = use(params);
   const code = resolvedParams.code;
 
   const { data: campaignResponse, isLoading, error } = useGetCampaignsByCodeQuery(code);
-  const campaign = campaignResponse?.data;
+  const campaign = campaignResponse?.data || initialData;
 
   const progressPercent = campaign
     ? Math.min(100, Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100))
@@ -51,7 +52,7 @@ export default function CampaignDetailsClient({ params }: PageProps) {
           Back to Campaigns
         </Link>
 
-        {isLoading ? (
+        {isLoading && !campaign ? (
           <div className="flex min-h-[450px] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-white p-8 shadow-sm">
             <Loader2 className="size-10 animate-spin text-secondary" />
             <p className="text-sm font-medium text-muted-foreground animate-pulse">
