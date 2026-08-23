@@ -45,6 +45,7 @@ import {
   useGetCampaignByIdQuery,
   useUpdateCampaignMutation,
   useGetDraftCampaignsQuery,
+  useLaunchCampaignMutation,
 } from "@/redux/features/campaign/campaignApi";
 
 const defaultPurposes = [
@@ -272,13 +273,27 @@ export default function CampaignSettingsPage() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <Button
-                          onClick={() => setSelectedCampaignId(camp._id)}
-                          className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ml-auto cursor-pointer"
-                        >
-                          <Edit3 className="size-3.5" />
-                          Edit
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            onClick={() => setSelectedCampaignId(camp._id)}
+                            className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-3"
+                          >
+                            <Edit3 className="size-3.5" />
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              if (typeof window !== "undefined") {
+                                localStorage.setItem("campaignId", camp._id);
+                              }
+                              router.push("/campaign_4");
+                            }}
+                            className="bg-primary text-white text-xs hover:bg-primary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-3"
+                          >
+                            <Zap className="size-3.5" />
+                            Launch
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -287,20 +302,6 @@ export default function CampaignSettingsPage() {
             </div>
           )}
         </DashboardCard>
-
-        {draftCampaigns.length > 0 && draftCampaignId && (
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={() => {
-                localStorage.setItem("campaignId", draftCampaignId);
-                router.push("/campaign_4");
-              }}
-              className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer py-2 px-5 font-semibold shadow-sm"
-            >
-              Launch Your Campaign &rarr;
-            </Button>
-          </div>
-        )}
       </div>
     );
   }

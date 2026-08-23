@@ -617,11 +617,11 @@ export default function CampaignFourPage() {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => router.push("/campaign_3")}
+                onClick={() => router.push("/dashboard/campaign")}
                 className="w-full"
               >
                 <ArrowLeft className="size-4" />
-                Back to Details
+                Back to All Campaigns
               </Button>
               <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <LockKeyhole className="size-4" />
