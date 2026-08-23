@@ -298,7 +298,7 @@ export default function BrandBuilder() {
         toast.error(res.message || "Failed to create brand builder.");
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || "An error occurred during submission.");
+      // toast.error(err?.data?.message || "An error occurred during submission.");
     }
   };
 

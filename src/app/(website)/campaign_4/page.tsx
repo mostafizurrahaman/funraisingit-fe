@@ -85,19 +85,23 @@ export default function CampaignFourPage() {
 
   const previewBody = promoCode ? { promoCode } : {};
 
-  const { data: previewResponse, isLoading: isPreviewLoading, isFetching: isPreviewFetching } =
-    useGetCampaignPreviewQuery({ campaignId }, { skip: !campaignId });
+  const {
+    data: previewResponse,
+    isLoading: isPreviewLoading,
+    isFetching: isPreviewFetching,
+  } = useGetCampaignPreviewQuery({ campaignId }, { skip: !campaignId });
   const [launchCampaign, { isLoading: isLaunching }] =
     useLaunchCampaignMutation();
 
   const previewData = previewResponse?.data;
- 
-  const { data: accountResponse } = useGetAccountQuery(undefined, { skip: !token });
+
+  const { data: accountResponse } = useGetAccountQuery(undefined, {
+    skip: !token,
+  });
   const accountInfo = accountResponse?.data;
 
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
 
     if (!agreed) {
       setError(
@@ -106,23 +110,33 @@ export default function CampaignFourPage() {
       return;
     }
 
-
     setError("");
 
     if (accountInfo) {
       const status = accountInfo.status?.toLowerCase();
       if (status === "restricted") {
-        setError("Your onboarding account is restricted. Please complete your verification details in Settings.");
-        toast.error("Account Restricted. Please complete verification in settings.");
+        setError(
+          "Your onboarding account is restricted. Please complete your verification details in Settings.",
+        );
+        toast.error(
+          "Account Restricted. Please complete verification in settings.",
+        );
         return;
       }
-      if (status === "pending" || !accountInfo.chargesEnabled || !accountInfo.payoutsEnabled) {
-        setError("Your onboarding account verification is still pending. You cannot launch campaigns until verification is complete.");
-        toast.error("Verification Pending. Please wait for verification to complete.");
+      if (
+        status === "pending" ||
+        !accountInfo.chargesEnabled ||
+        !accountInfo.payoutsEnabled
+      ) {
+        setError(
+          "Your onboarding account verification is still pending. You cannot launch campaigns until verification is complete.",
+        );
+        toast.error(
+          "Verification Pending. Please wait for verification to complete.",
+        );
         return;
       }
     }
-
 
     if (!campaignId) {
       setError("Campaign ID not found. Please start from Step 1.");
@@ -132,15 +146,12 @@ export default function CampaignFourPage() {
     try {
       const launchBody = promoCode ? { promoCode } : {};
 
-
       const response = await launchCampaign({
         campaignId,
         body: launchBody,
       }).unwrap();
 
-
       toast.success(response?.message || "Campaign launched successfully!");
-
 
       resetDraft();
       removeCampaignIdFromLocalStorage();
@@ -150,8 +161,12 @@ export default function CampaignFourPage() {
       const rawErr = err?.data;
       const errMsg =
         rawErr?.message ||
-        (Array.isArray(rawErr?.errors) ? rawErr.errors.map((e: any) => e.message).join(", ") : "") ||
-        (Array.isArray(rawErr?.errorSources) ? rawErr.errorSources.map((e: any) => e.message).join(", ") : "") ||
+        (Array.isArray(rawErr?.errors)
+          ? rawErr.errors.map((e: any) => e.message).join(", ")
+          : "") ||
+        (Array.isArray(rawErr?.errorSources)
+          ? rawErr.errorSources.map((e: any) => e.message).join(", ")
+          : "") ||
         err?.message ||
         "Failed to launch campaign. Please try again.";
 
@@ -199,10 +214,10 @@ export default function CampaignFourPage() {
             campaign first to see the preview.
           </p>
           <Link
-            href="/campaign_1"
+            href="/dashboard/campaign"
             className="mt-4 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
           >
-            Create a Campaign
+            See All Drafts Campaigns
           </Link>
         </div>
       </main>
@@ -584,9 +599,14 @@ export default function CampaignFourPage() {
                 </span>
               </label>
               {error ? (
-                <div role="alert" className="text-base text-red-600 space-y-1.5">
+                <div
+                  role="alert"
+                  className="text-base text-red-600 space-y-1.5"
+                >
                   <p>{error}</p>
-                  {(error.includes("restricted") || error.includes("pending") || error.includes("bank account")) && (
+                  {(error.includes("restricted") ||
+                    error.includes("pending") ||
+                    error.includes("bank account")) && (
                     <div>
                       <Link
                         href="/dashboard/settings"
