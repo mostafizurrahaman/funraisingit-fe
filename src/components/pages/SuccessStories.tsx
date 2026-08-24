@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Star, Loader2 } from "lucide-react";
 import { useGetAllReviewsQuery } from "@/redux/features/review/reviewApi";
 
 import organizerImage from "../../assets/user.png";
@@ -18,7 +19,7 @@ interface SuccessStory {
 }
 
 const SuccessStories = () => {
-  const { data: reviewsResponse } = useGetAllReviewsQuery({
+  const { data: reviewsResponse, isLoading } = useGetAllReviewsQuery({
     page: 1,
     limit: 10,
     isFeatured: true,
@@ -69,6 +70,17 @@ const SuccessStories = () => {
       behavior: "smooth",
     });
   };
+
+  if (isLoading) {
+    return (
+      <main className="bg-background py-16 sm:py-20 lg:py-24">
+        <section className="container mx-auto px-5 sm:px-8 lg:px-10 flex flex-col items-center justify-center min-h-[300px]">
+          <Loader2 className="size-8 animate-spin text-secondary" />
+          <p className="mt-2 text-sm text-muted-foreground">Loading success stories...</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="bg-background py-16 sm:py-20 lg:py-24">
