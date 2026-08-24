@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "../redux/features/auth/authSlice"
+import signupFormReducer from "../redux/features/auth/signupFormSlice";
 import {
   FLUSH,
   REHYDRATE,
@@ -23,6 +24,7 @@ export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedAuthReducer,
+    signupForm: signupFormReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

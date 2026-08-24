@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect, useTransition } from "react";
+import { FormEvent, useState, useEffect, useTransition, ChangeEvent } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -12,6 +12,9 @@ import { Input } from "@/components/ui/input";
 
 import { useSignUpMutation } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setSignupFormData, clearSignupFormData } from "@/redux/features/auth/signupFormSlice";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -19,44 +22,16 @@ export default function SignUpPage() {
   const [signUp, { isLoading }] = useSignUpMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    terms: false,
-  });
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.signupForm);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isReload =
-        (window.performance &&
-          window.performance.getEntriesByType("navigation")[0]?.type === "reload") ||
-        (window.performance && window.performance.navigation?.type === 1);
-
-      if (isReload) {
-        sessionStorage.removeItem("signUpFormData");
-      } else {
-        const savedData = sessionStorage.getItem("signUpFormData");
-        if (savedData) {
-          try {
-            setFormData(JSON.parse(savedData));
-          } catch (e) {
-            console.error("Error parsing saved signup form data", e);
-          }
-        }
-      }
-    }
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    const updated = {
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    };
-    setFormData(updated);
-    sessionStorage.setItem("signUpFormData", JSON.stringify(updated));
+    dispatch(
+      setSignupFormData({
+        [name]: type === "checkbox" ? checked : value,
+      })
+    );
   };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -86,8 +61,8 @@ export default function SignUpPage() {
 
       if (typeof window !== "undefined") {
         localStorage.setItem("otpEmail", email);
-        sessionStorage.removeItem("signUpFormData");
       }
+      dispatch(clearSignupFormData());
       router.push(`/verify-otp?email=${encodeURIComponent(email)}&flow=signup`);
     } catch (err: any) {
       const errMsg = err?.data?.message || "Sign up failed. Please try again.";
