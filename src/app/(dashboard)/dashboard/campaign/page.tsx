@@ -283,6 +283,9 @@ export default function CampaignSettingsPage() {
                           </Button>
                           <Button
                             onClick={() => {
+                              if (!camp.products || camp.products.length === 0) {
+                                return toast.error("Please add products before preview!");
+                              }
                               if (typeof window !== "undefined") {
                                 localStorage.setItem("campaignId", camp._id);
                               }
