@@ -245,7 +245,7 @@ export default function CampaignThreePage() {
     }
   }
 
-  function handleDownloadFile(event: ChangeEvent<HTMLInputElement>) {
+  async function handleDownloadFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -255,8 +255,21 @@ export default function CampaignThreePage() {
       return;
     }
 
-    setDownloadFiles(file);
-    setDownloadFilesError("");
+    if (file.type.startsWith("image/")) {
+      try {
+        setDownloadFilesError("Compressing image...");
+        const compressedFile = await compressImage(file);
+        setDownloadFiles(compressedFile);
+        setDownloadFilesError("");
+      } catch (e) {
+        console.error("Compression failed, using original file", e);
+        setDownloadFiles(file);
+        setDownloadFilesError("");
+      }
+    } else {
+      setDownloadFiles(file);
+      setDownloadFilesError("");
+    }
   }
 
   async function handleAddProductToList() {
