@@ -382,13 +382,13 @@ export default function DonationPage() {
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">Express appreciation and build deeper relationships.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Button onClick={() => {
+                {/* <Button onClick={() => {
                   const emails = donations.map((d: any) => d.supporterEmail).filter(Boolean).join(",");
                   window.location.href = `mailto:?bcc=${emails}&subject=Thank%20You%20For%20Supporting%20Our%20Campaign`;
                 }} className="text-xs cursor-pointer hover:-translate-y-0.5 transition-all">
                   <MessageCircle className="size-4" />
                   Send Your Email
-                </Button>
+                </Button> */}
                 <Button
                   onClick={() => exportData({
                     data: donations,
