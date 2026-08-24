@@ -154,7 +154,9 @@ export default function CampaignFourPage() {
       toast.success(response?.message || "Campaign launched successfully!");
 
       if (accountInfo?.status?.toLowerCase() !== "active") {
-        toast.error("Please connect your bank account in Settings to receive payouts for your campaign.");
+        toast.error(
+          "Please connect your bank account in Settings to receive payouts for your campaign.",
+        );
       }
 
       resetDraft();
@@ -320,7 +322,7 @@ export default function CampaignFourPage() {
               Step 4 of 4
             </span>
             <div className="mt-5 flex items-start gap-5">
-              <span className="hidden size-20 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary sm:flex">
+              <span className="flex items-center gap-3 text-[32px] font-semibold leading-tight text-secondary">
                 <Rocket className="size-10" />
               </span>
               <div>

@@ -44,9 +44,9 @@ export default function SupportersPage() {
 
   // Email Compose State
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [emailSubject, setEmailSubject] = useState("Important Campaign Update");
+  const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState(
-    `<p>We’re excited to share an important update about our campaign!</p><p>Thanks to your generous support, we’ve reached <strong>75% of our fundraising goal</strong>.</p><p>Your contribution is helping us get closer to making this campaign a success. We truly appreciate your support.</p><h3>What’s next?</h3><ul><li>We’ll continue working toward our fundraising goal.</li><li>We’ll keep you updated on our progress.</li><li>We’ll share more details as the campaign moves forward.</li></ul><p>Thank you again for being part of our journey!</p><p><strong>Best regards,</strong><br />The Campaign Team</p>`
+    ``
   );
 
   const [sendEmailToSupporters, { isLoading: isSendingEmail }] = useSendEmailToSupportersMutation();
