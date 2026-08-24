@@ -561,7 +561,7 @@ export default function SettingsPage() {
                     toast.success("Thank you for your review!");
                     setShowReviewModal(false);
                   } catch (err: any) {
-                    toast.error(err?.data?.message || "Failed to submit review.");
+                    // toast.error(err?.data?.message || "Failed to submit review.");
                   }
                 }}
                 disabled={isSubmittingReview || isSkippingReview}

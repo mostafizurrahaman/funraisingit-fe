@@ -12,7 +12,7 @@ const reviewApi = baseApi.injectEndpoints({
     skipReview: builder.mutation({
       query: () => ({
         url: "/review/skip",
-        method: "POST",
+        method: "PATCH",
       }),
       invalidatesTags: ["Review"],
     }),
