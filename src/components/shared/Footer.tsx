@@ -54,7 +54,7 @@ const Footer = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsSubscribed(localStorage.getItem("newsletterSubscribed") === "true");
+      setIsSubscribed(sessionStorage.getItem("newsletterSubscribed") === "true");
     }
   }, []);
 
@@ -85,7 +85,7 @@ const Footer = () => {
       if (response.ok && data?.success !== false) {
         toast.success(data?.message || "Successfully subscribed to our newsletter!");
         setEmail("");
-        localStorage.setItem("newsletterSubscribed", "true");
+        sessionStorage.setItem("newsletterSubscribed", "true");
         setIsSubscribed(true);
       } else {
         toast.error(data?.message || "Failed to subscribe. Please try again.");
