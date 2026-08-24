@@ -44,9 +44,12 @@ export default function ProductsPage() {
   }, [sortedCampaigns, selectedCampaignId]);
 
   // Load campaign for the campaign status
-  const { data: campaignResponse } = useGetCampaignByIdQuery(selectedCampaignId, {
-    skip: !selectedCampaignId,
-  });
+  const { data: campaignResponse } = useGetCampaignByIdQuery(
+    selectedCampaignId,
+    {
+      skip: !selectedCampaignId,
+    },
+  );
   const campaignStatus = campaignResponse?.data?.status;
 
   // Load products specifically using the getProductsByCampaignId query
@@ -59,7 +62,8 @@ export default function ProductsPage() {
   });
 
   const products: Product[] = productsResponse?.data || [];
-  const isLoading = isLoadingCampaigns || (selectedCampaignId ? isLoadingProducts : true);
+  const isLoading =
+    isLoadingCampaigns || (selectedCampaignId ? isLoadingProducts : true);
   console.log("campaignStatus:", campaignStatus);
 
   // Statistics calculation
@@ -71,10 +75,13 @@ export default function ProductsPage() {
     (p) => p.productType === "digital",
   ).length;
 
-
   const filteredProducts = products.filter((p) => {
-    const nameMatch = p.name ? String(p.name).toLowerCase().includes(searchTerm.toLowerCase()) : false;
-    const skuMatch = p.sku ? String(p.sku).toLowerCase().includes(searchTerm.toLowerCase()) : false;
+    const nameMatch = p.name
+      ? String(p.name).toLowerCase().includes(searchTerm.toLowerCase())
+      : false;
+    const skuMatch = p.sku
+      ? String(p.sku).toLowerCase().includes(searchTerm.toLowerCase())
+      : false;
     const matchesSearch = nameMatch || skuMatch;
 
     if (!matchesSearch) return false;
@@ -376,7 +383,7 @@ export default function ProductsPage() {
             }}
             className="h-11 bg-secondary hover:bg-secondary/90 text-white font-semibold transition-all duration-300 rounded-md px-6"
           >
-            Add Product
+            Add Additional Product
           </Button>
         </div>
       )}
