@@ -106,14 +106,14 @@ const HowItWorks = () => {
             Trusted by thousands of creators, teams and entrepreneurs
           </p>
 
-          <div className="mt-8 grid grid-cols-1 gap-y-8 sm:grid-cols-4 sm:gap-0">
+          <div className="mt-8 grid grid-cols-1 gap-y-8 sm:grid-cols-4 sm:gap-0 ">
             {trustItems.map((item, index) => {
               const Icon = item.icon;
 
               return (
                 <div
                   key={item.label}
-                  className={`flex items-center justify-center gap-3 px-3 text-center transition-colors duration-300 hover:text-secondary ${index > 0 ? "sm:border-l sm:border-muted-foreground/40" : ""}`}
+                  className={`flex justify-start items-center gap-3 px-3 text-center transition-colors duration-300 hover:text-secondary ${index > 0 ? "sm:border-l sm:border-muted-foreground/40" : ""}`}
                 >
                   <Icon className="h-15 w-15 shrink-0 text-secondary stroke-[1.8] " aria-hidden="true" />
                   <span className="text-xl font-medium text-foreground sm:text-sm">
