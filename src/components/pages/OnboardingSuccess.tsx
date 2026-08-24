@@ -101,7 +101,7 @@ const OnboardingSuccess = () => {
             <div className="mt-8 grid gap-3">
               <Link
                 href="/dashboard/campaign"
-                className="flex h-11 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
+                className="flex h-11 px-1 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
                 <LayoutDashboard className="size-4" />
                 Check & Launch Your Campaign

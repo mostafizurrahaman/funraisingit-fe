@@ -338,11 +338,11 @@ function CampaignOneForm() {
             </div>
           </section>
 
-          <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr]">
+          <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr] ">
             <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
-              <Tag className="size-10" />
+              <Tag className="size-10 " />
             </span>
-            <div className="w-full">
+            <div className="w-full ">
               <h2 className="text-[32px] font-semibold leading-tight">
                 Campaign Category
               </h2>
@@ -357,7 +357,7 @@ function CampaignOneForm() {
                     campaignCategory: event.target.value,
                   });
                 }}
-                className="mt-4 w-full h-12 rounded-md border border-slate-400 px-4 text-base bg-white text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                className="mt-4 w-full h-12 rounded-md border border-slate-800  px-4 text-base  text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
               >
                 <option value="business">Launch a Business</option>
                 <option value="school_fundraiser">School Fundraiser</option>
