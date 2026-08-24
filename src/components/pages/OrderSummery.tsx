@@ -630,8 +630,7 @@ const OrderSummery = () => {
               </div>
             </section>
 
-            {currentShippingId !== "local_pickup" && (
-              <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
+            <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
                 <h2 className="text-xl font-semibold text-black">
                   Delivery Address
                 </h2>
@@ -698,7 +697,6 @@ const OrderSummery = () => {
                   </label>
                 </div>
               </section>
-            )}
 
             <button
               type="submit"

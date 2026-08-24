@@ -174,17 +174,17 @@ export default function CampaignFourPage() {
         err?.message ||
         "Failed to launch campaign. Please try again.";
 
-      if (
-        errMsg === "Before launching campaign setup organization bank account."
-      ) {
-        toast.error(errMsg);
+      // if (
+      //   errMsg === "Before launching campaign setup organization bank account."
+      // ) {
+      //   toast.error(errMsg);
 
-        setTimeout(() => {
-          router.push("/dashboard/settings");
-        }, 1500);
+      //   setTimeout(() => {
+      //     router.push("/dashboard/settings");
+      //   }, 1500);
 
-        return;
-      }
+      //   return;
+      // }
 
       setError(errMsg);
     }
