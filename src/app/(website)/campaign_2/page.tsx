@@ -286,7 +286,7 @@ export default function CampaignTwoPage() {
                   setError("");
                 }}
                 rows={9}
-                aria-invalid={Boolean(error)}
+                aria-invalid={Boolean(error && (error.includes("supporters") || error.includes("story")))}
               />
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <span className="text-sm text-muted-foreground">
