@@ -1,34 +1,43 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Sparkles, 
-  Loader2, 
-  X, 
-  CheckCircle, 
-  Ban, 
-  Eye, 
-  HelpCircle 
+import {
+  Sparkles,
+  Loader2,
+  X,
+  CheckCircle,
+  Ban,
+  Eye,
+  HelpCircle,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
-import { 
-  useGetAllMyCampaignsQuery, 
+import {
+  useGetAllMyCampaignsQuery,
   useCancelCampaignMutation,
-  useCompleteCampaignMutation
+  useCompleteCampaignMutation,
 } from "@/redux/features/campaign/campaignApi";
 import toast from "react-hot-toast";
 
 export default function MyCampaignsPage() {
-  const { data: response, isLoading, refetch } = useGetAllMyCampaignsQuery(undefined);
-  const [cancelCampaign, { isLoading: isCancelling }] = useCancelCampaignMutation();
-  const [completeCampaign, { isLoading: isCompleting }] = useCompleteCampaignMutation();
+  const {
+    data: response,
+    isLoading,
+    refetch,
+  } = useGetAllMyCampaignsQuery(undefined);
+  const [cancelCampaign, { isLoading: isCancelling }] =
+    useCancelCampaignMutation();
+  const [completeCampaign, { isLoading: isCompleting }] =
+    useCompleteCampaignMutation();
   const isUpdating = isCancelling || isCompleting;
   const campaigns = response?.data || [];
 
   // Story Modal State
-  const [selectedStory, setSelectedStory] = useState<{ name: string; story: string } | null>(null);
-  
+  const [selectedStory, setSelectedStory] = useState<{
+    name: string;
+    story: string;
+  } | null>(null);
+
   // Confirmation Modal State
   const [confirmAction, setConfirmAction] = useState<{
     campaignId: string;
@@ -42,18 +51,23 @@ export default function MyCampaignsPage() {
     const { campaignId, action } = confirmAction;
 
     try {
-      const res = action === "completed" 
-        ? await completeCampaign(campaignId).unwrap()
-        : await cancelCampaign({ campaignId, cancelledReason }).unwrap();
+      const res =
+        action === "completed"
+          ? await completeCampaign(campaignId).unwrap()
+          : await cancelCampaign({ campaignId, cancelledReason }).unwrap();
 
       if (res.success) {
-        toast.success(`Campaign ${action === "completed" ? "completed" : "cancelled"} successfully!`);
+        toast.success(
+          `Campaign ${action === "completed" ? "completed" : "cancelled"} successfully!`,
+        );
         refetch();
       } else {
         toast.error(res.message || "Failed to update campaign status.");
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || err?.message || "Something went wrong.");
+      toast.error(
+        err?.data?.message || err?.message || "Something went wrong.",
+      );
     } finally {
       setConfirmAction(null);
       setCancelledReason("");
@@ -77,7 +91,9 @@ export default function MyCampaignsPage() {
           </span>
           <div>
             <h2 className="text-2xl font-semibold">My Campaigns</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Manage and monitor all your fundraising campaigns.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage and monitor all your fundraising campaigns.
+            </p>
           </div>
         </div>
       </section>
@@ -86,7 +102,8 @@ export default function MyCampaignsPage() {
         <div className="flex items-center justify-between border-b border-border p-4">
           <h3 className="text-base font-semibold">Fundraisers List</h3>
           <p className="text-sm font-medium text-muted-foreground">
-            {campaigns.length} {campaigns.length === 1 ? "Campaign" : "Campaigns"}
+            {campaigns.length}{" "}
+            {campaigns.length === 1 ? "Campaign" : "Campaigns"}
           </p>
         </div>
 
@@ -94,7 +111,9 @@ export default function MyCampaignsPage() {
           {isLoading ? (
             <div className="flex h-64 flex-col items-center justify-center gap-2">
               <Loader2 className="size-8 animate-spin text-secondary" />
-              <p className="text-sm text-muted-foreground">Loading campaigns...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading campaigns...
+              </p>
             </div>
           ) : campaigns.length === 0 ? (
             <div className="flex h-64 flex-col items-center justify-center text-center p-4">
@@ -120,7 +139,10 @@ export default function MyCampaignsPage() {
                 {campaigns.map((campaign: any) => {
                   const isStoryClickable = !!campaign.story;
                   return (
-                    <tr key={campaign._id} className="transition-colors duration-300 hover:bg-secondary/5">
+                    <tr
+                      key={campaign._id}
+                      className="transition-colors duration-300 hover:bg-secondary/5"
+                    >
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           {campaign.thumbnail && (
@@ -134,10 +156,20 @@ export default function MyCampaignsPage() {
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p 
-                              onClick={() => isStoryClickable && setSelectedStory({ name: campaign.name, story: campaign.story })}
+                            <p
+                              onClick={() =>
+                                isStoryClickable &&
+                                setSelectedStory({
+                                  name: campaign.name,
+                                  story: campaign.story,
+                                })
+                              }
                               className={`font-semibold text-foreground truncate max-w-[240px] ${isStoryClickable ? "cursor-pointer hover:text-secondary underline decoration-dotted" : ""}`}
-                              title={isStoryClickable ? "Click to view full story" : undefined}
+                              title={
+                                isStoryClickable
+                                  ? "Click to view full story"
+                                  : undefined
+                              }
                             >
                               {campaign.name}
                             </p>
@@ -158,20 +190,27 @@ export default function MyCampaignsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <div>
-                          <p className="font-semibold text-secondary">${(campaign.raisedAmount || 0).toLocaleString()}</p>
+                          <p className="font-semibold text-secondary">
+                            ${(campaign.raisedAmount || 0).toLocaleString()}
+                          </p>
                           <p className="text-[10px] text-muted-foreground">
-                            {campaign.progress ? campaign.progress.toFixed(1) : 0}% of goal
+                            {campaign.progress
+                              ? campaign.progress.toFixed(1)
+                              : 0}
+                            % of goal
                           </p>
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${
-                          campaign.status === "active"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                            : campaign.status === "completed"
-                            ? "bg-blue-50 text-blue-700 border border-blue-100"
-                            : "bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${
+                            campaign.status === "active"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                              : campaign.status === "completed"
+                                ? "bg-blue-50 text-blue-700 border border-blue-100"
+                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}
+                        >
                           {campaign.status}
                         </span>
                       </td>
@@ -179,7 +218,12 @@ export default function MyCampaignsPage() {
                         <div className="flex items-center justify-end gap-2">
                           {campaign.story && (
                             <Button
-                              onClick={() => setSelectedStory({ name: campaign.name, story: campaign.story })}
+                              onClick={() =>
+                                setSelectedStory({
+                                  name: campaign.name,
+                                  story: campaign.story,
+                                })
+                              }
                               variant="outline"
                               size="sm"
                               className="h-8 text-xs gap-1 border-slate-200 text-slate-600 cursor-pointer"
@@ -191,24 +235,28 @@ export default function MyCampaignsPage() {
                           {campaign.status === "active" && (
                             <>
                               <Button
-                                onClick={() => setConfirmAction({
-                                  campaignId: campaign._id,
-                                  campaignName: campaign.name,
-                                  action: "completed"
-                                })}
+                                onClick={() =>
+                                  setConfirmAction({
+                                    campaignId: campaign._id,
+                                    campaignName: campaign.name,
+                                    action: "completed",
+                                  })
+                                }
                                 variant="outline"
                                 size="sm"
-                                className="h-8 text-xs gap-1 border-secondary text-secondary hover:bg-secondary/10 cursor-pointer"
+                                className="h-8 text-xs gap-1 border-secondary  hover:bg-secondary/10 cursor-pointer"
                               >
                                 <CheckCircle className="size-3.5" />
                                 Complete
                               </Button>
                               <Button
-                                onClick={() => setConfirmAction({
-                                  campaignId: campaign._id,
-                                  campaignName: campaign.name,
-                                  action: "cancelled"
-                                })}
+                                onClick={() =>
+                                  setConfirmAction({
+                                    campaignId: campaign._id,
+                                    campaignName: campaign.name,
+                                    action: "cancelled",
+                                  })
+                                }
                                 variant="outline"
                                 size="sm"
                                 className="h-8 text-xs gap-1 border-red-200 text-red-600 hover:bg-red-50 cursor-pointer"
@@ -239,13 +287,20 @@ export default function MyCampaignsPage() {
             >
               <X className="size-5" />
             </button>
-            <h3 className="text-lg font-bold text-foreground mb-2 pr-8">{selectedStory.name}</h3>
-            <p className="text-xs text-secondary font-semibold mb-4">Campaign Description / Story</p>
+            <h3 className="text-lg font-bold text-foreground mb-2 pr-8">
+              {selectedStory.name}
+            </h3>
+            <p className="text-xs text-secondary font-semibold mb-4">
+              Campaign Description / Story
+            </p>
             <div className="border-t border-slate-100 pt-4 text-sm text-slate-600 whitespace-pre-line leading-relaxed">
               {selectedStory.story}
             </div>
             <div className="mt-6 flex justify-end">
-              <Button onClick={() => setSelectedStory(null)} className="h-10 px-5 cursor-pointer">
+              <Button
+                onClick={() => setSelectedStory(null)}
+                className="h-10 px-5 cursor-pointer"
+              >
                 Close
               </Button>
             </div>
@@ -259,12 +314,23 @@ export default function MyCampaignsPage() {
           <div className="relative w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3 text-amber-600 mb-4">
               <HelpCircle className="size-8" />
-              <h3 className="text-lg font-bold text-foreground">Confirm Action</h3>
+              <h3 className="text-lg font-bold text-foreground">
+                Confirm Action
+              </h3>
             </div>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Are you sure you want to <strong>{confirmAction.action === "completed" ? "early complete" : "cancel"}</strong> the campaign <strong>&quot;{confirmAction.campaignName}&quot;</strong>? 
+              Are you sure you want to{" "}
+              <strong>
+                {confirmAction.action === "completed"
+                  ? "early complete"
+                  : "cancel"}
+              </strong>{" "}
+              the campaign{" "}
+              <strong>&quot;{confirmAction.campaignName}&quot;</strong>?
               <br />
-              <span className="text-xs text-red-500 mt-2 block font-medium">This action cannot be undone.</span>
+              <span className="text-xs text-red-500 mt-2 block font-medium">
+                This action cannot be undone.
+              </span>
             </p>
             {confirmAction.action === "cancelled" && (
               <div className="mt-4">
@@ -294,7 +360,11 @@ export default function MyCampaignsPage() {
               </Button>
               <Button
                 onClick={handleStatusUpdate}
-                disabled={isUpdating || (confirmAction.action === "cancelled" && !cancelledReason.trim())}
+                disabled={
+                  isUpdating ||
+                  (confirmAction.action === "cancelled" &&
+                    !cancelledReason.trim())
+                }
                 className={`h-10 px-5 text-white cursor-pointer ${confirmAction.action === "completed" ? "bg-secondary hover:bg-secondary/90" : "bg-red-600 hover:bg-red-700"}`}
               >
                 {isUpdating ? (
@@ -302,8 +372,10 @@ export default function MyCampaignsPage() {
                     <Loader2 className="size-4 animate-spin mr-1" />
                     Updating...
                   </>
+                ) : confirmAction.action === "completed" ? (
+                  "Complete Campaign"
                 ) : (
-                  confirmAction.action === "completed" ? "Complete Campaign" : "Cancel Campaign"
+                  "Cancel Campaign"
                 )}
               </Button>
             </div>

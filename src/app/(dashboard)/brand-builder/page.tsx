@@ -190,10 +190,10 @@ export default function BrandBuilder() {
 
   const [businessName, setBusinessName] = useState("");
   const [sellingItem, setSellingItem] = useState(
-    "example: Banana Pudding, Lemonade, Jewellery, etc.",
+    "",
   );
   const [brandVision, setBrandVision] = useState(
-    "Example: \"I own Jenna's Banana Pudding. I want a fun but professional look with Tiffany blue and orange colors. I'd like my tent, shirts, cups, and banner to all match.\"",
+    "",
   );
 
   const [brandStyle, setBrandStyle] = useState<string>("Fun & Playful");
