@@ -235,7 +235,7 @@ export default function MyBrandPage() {
                         </Button>
                       ) : (
                         <span className="text-xs text-muted-foreground font-medium">
-                          Paid
+                          Already Branded
                         </span>
                       )}
                     </td>
