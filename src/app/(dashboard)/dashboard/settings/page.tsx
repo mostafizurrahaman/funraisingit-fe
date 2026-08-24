@@ -208,7 +208,7 @@ export default function SettingsPage() {
           <Button
             onClick={() => setShowReviewModal(true)}
             variant="outline"
-            className="border-secondary text-secondary hover:bg-secondary/5 cursor-pointer"
+            className="border-secondary  hover:bg-secondary/10 hover:text-secondary gap-2 cursor-pointer"
           >
             Leave a Review
           </Button>
