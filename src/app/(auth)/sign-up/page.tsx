@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useState, useEffect, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -19,6 +19,45 @@ export default function SignUpPage() {
   const [signUp, { isLoading }] = useSignUpMutation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    terms: false,
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isReload =
+        (window.performance &&
+          window.performance.getEntriesByType("navigation")[0]?.type === "reload") ||
+        (window.performance && window.performance.navigation?.type === 1);
+
+      if (isReload) {
+        sessionStorage.removeItem("signUpFormData");
+      } else {
+        const savedData = sessionStorage.getItem("signUpFormData");
+        if (savedData) {
+          try {
+            setFormData(JSON.parse(savedData));
+          } catch (e) {
+            console.error("Error parsing saved signup form data", e);
+          }
+        }
+      }
+    }
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    const updated = {
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    };
+    setFormData(updated);
+    sessionStorage.setItem("signUpFormData", JSON.stringify(updated));
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -47,6 +86,7 @@ export default function SignUpPage() {
 
       if (typeof window !== "undefined") {
         localStorage.setItem("otpEmail", email);
+        sessionStorage.removeItem("signUpFormData");
       }
       router.push(`/verify-otp?email=${encodeURIComponent(email)}&flow=signup`);
     } catch (err: any) {
@@ -81,6 +121,8 @@ export default function SignUpPage() {
             <Input
               id="full-name"
               name="name"
+              value={formData.name}
+              onChange={handleChange}
               placeholder="John Doe"
               autoComplete="name"
               className="text-sm"
@@ -96,6 +138,8 @@ export default function SignUpPage() {
               id="email"
               name="email"
               type="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="you@example.com"
               autoComplete="email"
               className="text-sm"
@@ -115,6 +159,8 @@ export default function SignUpPage() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Create a password"
                 autoComplete="new-password"
                 minLength={8}
@@ -147,6 +193,8 @@ export default function SignUpPage() {
                 id="confirm-password"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 placeholder="Confirm your password"
                 autoComplete="new-password"
                 minLength={8}
@@ -182,6 +230,8 @@ export default function SignUpPage() {
             <input
               type="checkbox"
               name="terms"
+              checked={formData.terms}
+              onChange={handleChange}
               className="mt-1 size-4 shrink-0 accent-primary"
               required
             />
