@@ -22,6 +22,11 @@ import {
   ShoppingCart,
   Sparkles,
   Truck,
+  ClipboardList,
+  FileText,
+  Target,
+  Tag,
+  Calendar,
 } from "lucide-react";
 import hero from "@/assets/hero.png";
 import { Button } from "@/components/ui/button";
@@ -63,7 +68,8 @@ export default function CampaignFourPage() {
   const { draft, updateDraft, resetDraft } = useCampaignDraft();
   const [campaignId, setCampaignId] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
-  const [agreed, setAgreed] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToRefundPolicy, setAgreedToRefundPolicy] = useState(false);
   const [error, setError] = useState("");
   const [promoCode, setPromoCode] = useState("");
 
@@ -103,9 +109,9 @@ export default function CampaignFourPage() {
   async function handleLaunch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!agreed) {
+    if (!agreedToTerms || !agreedToRefundPolicy) {
       setError(
-        "Please confirm the campaign details and agree to the terms before launching.",
+        "Please confirm the campaign details, refund policy, and terms before launching.",
       );
       return;
     }
@@ -262,29 +268,46 @@ export default function CampaignFourPage() {
   const isDonationVal =
     previewData?.campaign?.allowDonation ?? draft.allowDonation;
 
-  const summary = [
-    [
-      "Campaign Name",
-      previewData?.campaign?.name || draft.name || "My Campaign",
-    ],
-    [
-      "Goal",
-      `$${(previewData?.campaign?.goalAmount || draft.goalAmount || 2500).toLocaleString()}`,
-    ],
-    ["Price", `$${firstProduct?.price || 10} each`],
-    [
-      "Campaign Length",
-      `${previewData?.campaign?.durationDays || draft.durationDays || 7} days`,
-    ],
-    ["Delivery Options", activeDelivery.join(", ") || "None"],
-    [
-      "Shipping Fee",
-      (previewData?.campaign?.allowShipping ?? draft.allowShipping)
-        ? `$${shippingFeeVal}`
-        : "$0",
-    ],
-    ["Donations", isDonationVal ? "Enabled" : "Disabled"],
-  ] as const;
+  const summaryRows = [
+    {
+      label: "Campaign Name",
+      value: previewData?.campaign?.name || draft.name || "My Campaign",
+      icon: FileText,
+    },
+    {
+      label: "Goal",
+      value: `$${(previewData?.campaign?.goalAmount || draft.goalAmount || 2500).toLocaleString()}`,
+      icon: Target,
+    },
+    {
+      label: "Price",
+      value: `$${firstProduct?.price || 10} Each`,
+      icon: Tag,
+    },
+    {
+      label: "Campaign Length",
+      value: `${previewData?.campaign?.durationDays || draft.durationDays || 7} Days`,
+      icon: Calendar,
+    },
+    {
+      label: "Delivery Option",
+      value: activeDelivery.join(", ") || "None",
+      icon: Truck,
+    },
+    {
+      label: "Shipping Fee",
+      value:
+        (previewData?.campaign?.allowShipping ?? draft.allowShipping)
+          ? `$${shippingFeeVal}`
+          : "$0",
+      icon: DollarSign,
+    },
+    {
+      label: "Donation",
+      value: isDonationVal ? "Enabled" : "Disabled",
+      icon: Heart,
+    },
+  ];
 
   return (
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
@@ -487,172 +510,237 @@ export default function CampaignFourPage() {
                 This is exactly how supporters will see your campaign.
               </p>
             </section>
-
-            <form
-              onSubmit={handleLaunch}
-              className="space-y-6 lg:sticky lg:top-6"
-            >
-              <Panel title="Campaign Summary" icon={CheckCircle2}>
-                <dl className="space-y-3">
-                  {summary.map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="grid grid-cols-[1fr_1.1fr] gap-3 text-sm"
-                    >
-                      <dt className="flex items-center gap-2 text-muted-foreground">
-                        <Check className="size-4 text-secondary" />
-                        {label}
-                      </dt>
-                      <dd className="text-right font-medium">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </Panel>
-
-              <Panel title="Ready To Launch!" icon={Rocket} tone="orange">
-                <p className="text-sm leading-6 text-muted-foreground">
-                  Your campaign has everything needed and is ready to go live.
-                </p>
-                <ul className="mt-4 space-y-3">
-                  {readiness.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-secondary" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
-
-              <Panel title="Fees & Payout" icon={DollarSign}>
-                <p className="text-sm text-muted-foreground">
-                  Here’s how campaign earnings are calculated:
-                </p>
-                <dl className="mt-4 space-y-3 text-sm">
-                  <FeeRow
-                    label="Product Price"
-                    value={`$${firstProduct?.price || 10}.00`}
-                  />
-                  <FeeRow
-                    label="Platform Fee (5%)"
-                    value={`−$${((firstProduct?.price || 10) * 0.05).toFixed(2)}`}
-                  />
-                  <FeeRow
-                    label="You Receive"
-                    value={`$${((firstProduct?.price || 10) * 0.95).toFixed(2)}`}
-                    strong
-                  />
-                </dl>
-              </Panel>
-
-              <Panel title="What Happens Next?" icon={Clock3}>
-                <ul className="space-y-3">
-                  {[
-                    "Campaign goes live instantly",
-                    "Receive orders and donations",
-                    "Track supporters",
-                    "Download customer spreadsheet",
-                    "Get paid when campaign ends",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-secondary" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
-
-              <div className="rounded-lg border border-secondary bg-secondary/10 p-5">
-                <h3 className="flex items-center gap-3 text-lg font-semibold text-secondary">
-                  <ShieldCheck className="size-6" />
-                  Build Today. Launch When You’re Ready
+            <div className="space-y-6 lg:sticky lg:top-6">
+              {/* Campaign Summary Card */}
+              <div className="bg-white border border-slate-200 rounded-[24px] p-6 shadow-sm">
+                <h3 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-5 pb-3 border-b border-slate-100">
+                  <ClipboardList className="size-5 text-teal-600" />
+                  Campaign Summary
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  You only pay when you’re ready to launch.
-                </p>
-              </div>
-
-              <div className="rounded-lg border border-slate-300 p-4 bg-white">
-                <label className="text-sm font-semibold text-foreground block mb-2">
-                  Promo Code (Optional)
-                </label>
-                <Input
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  placeholder="Enter promo code (e.g. WELCOME25)"
-                  className="w-full border-slate-300 focus:border-secondary focus:ring-secondary/20"
-                />
-              </div>
-
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 p-4 text-sm leading-6 transition-colors duration-300 hover:border-secondary">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(event) => {
-                    setAgreed(event.target.checked);
-                    setError("");
-                  }}
-                  className="mt-1 size-4 shrink-0 accent-primary"
-                />
-                <span>
-                  I’ve reviewed my campaign details and agree to the{" "}
-                  <Link
-                    href="/content/terms_and_conditions"
-                    className="font-medium text-secondary hover:underline"
-                  >
-                    Terms &amp; Conditions
-                  </Link>
-                  .
-                </span>
-              </label>
-              {error ? (
-                <div
-                  role="alert"
-                  className="text-base text-red-600 space-y-1.5"
-                >
-                  <p>{error}</p>
-                  {(error.includes("restricted") ||
-                    error.includes("pending") ||
-                    error.includes("bank account")) && (
-                    <div>
-                      <Link
-                        href="/dashboard/settings"
-                        className="text-sm font-bold text-secondary hover:underline inline-flex items-center gap-1 transition-all duration-300 hover:translate-x-0.5"
+                <div className="space-y-4">
+                  {summaryRows.map((row) => {
+                    const Icon = row.icon;
+                    return (
+                      <div
+                        key={row.label}
+                        className="flex items-center justify-between text-sm"
                       >
-                        Verify Now &rarr;
-                      </Link>
-                    </div>
-                  )}
+                        <div className="flex items-center gap-2.5 text-slate-500 font-medium">
+                          <Icon className="size-4 text-teal-600 shrink-0" />
+                          <span>{row.label}</span>
+                        </div>
+                        <span className="font-semibold text-slate-800 text-right max-w-[180px] truncate">
+                          {row.value}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ) : null}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push("/campaign_3")}
-                  className="border-secondary text-secondary"
-                >
-                  <Edit3 className="size-4" />
-                  Edit Campaign
-                </Button>
-                <Button type="submit" disabled={isLaunching}>
-                  <Rocket className="size-4" />
-                  {isLaunching ? "Launching..." : "Launch My Campaign"}
-                </Button>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => router.push("/dashboard/campaign")}
-                className="w-full"
+
+              <form
+                onSubmit={handleLaunch}
+                className="bg-white border-2 border-orange-300 rounded-[28px] p-6 sm:p-8 shadow-xl space-y-6"
               >
-                <ArrowLeft className="size-4" />
-                Back to All Campaigns
-              </Button>
-              <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <LockKeyhole className="size-4" />
-                Your information is secure and protected
-              </p>
-            </form>
+                {/* Ready to Launch Header */}
+                <div className="text-center">
+                  <div className="flex justify-start gap-2 mb-3">
+                    <span className="text-4xl">🚀</span>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      Ready To Launch?
+                    </h2>
+                  </div>
+
+                  <p className="text-sm text-slate-500 mt-1">
+                    Your Campaign has been created and is ready to go live.
+                  </p>
+                </div>
+
+                {/* Pricing Section */}
+                <div className="text-center py-2">
+                  <p className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
+                    One-Time Launch fee
+                  </p>
+                  <p className="text-5xl font-extrabold text-orange-500 mt-2">
+                    $
+                    {previewData?.paymentSummary?.payableAmount ||
+                      previewData?.campaign?.launchFee ||
+                      "18.99"}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-2">
+                    One-time fee -No monthly subscriptions
+                  </p>
+                </div>
+
+                {/* Example Box */}
+                <div className="bg-[#eaf8f7] rounded-2xl p-5 text-sm">
+                  <div className="flex items-center gap-2 font-bold text-teal-600 mb-3">
+                    <span className="flex size-5 items-center justify-center rounded-full bg-teal-600 text-white text-xs">
+                      $
+                    </span>
+                    <span className="text-base">Example</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-4">
+                    One-time fee -No monthly subscriptions
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-slate-700">
+                      <span>Sales</span>
+                      <span className="font-semibold">$1,000</span>
+                    </div>
+                    <div className="flex justify-between text-slate-700">
+                      <span>Platform Fee (6%)</span>
+                      <span className="font-semibold">-$60</span>
+                    </div>
+                    <div className="border-t border-teal-200/60 my-2 pt-2 flex justify-between font-bold text-teal-700">
+                      <span>You Receive</span>
+                      <span>$940</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* What Happens Next */}
+                <div className="space-y-4">
+                  <h3 className="flex items-center gap-2 font-bold text-slate-900 text-base">
+                    <span className="text-orange-500 text-xl">🎁</span>
+                    What Happens Next?
+                  </h3>
+                  <ul className="space-y-3 text-sm text-slate-700">
+                    {[
+                      "Campaign goes live instantly",
+                      "Receive orders & donations",
+                      "Track supporters",
+                      "Download customer spreadsheet",
+                      "Get paid after campaign ends",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-3">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-teal-500 text-white text-[10px]">
+                          ✓
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Build Today Teal Box */}
+                <div className="bg-[#eaf8f7] rounded-2xl p-5 text-center">
+                  <h4 className="font-bold text-teal-600 text-base">
+                    Build Today. Launch When You’re Ready
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-2">
+                    You only pay when you’re ready to launch.
+                  </p>
+                </div>
+
+                {/* Promo Code Option */}
+                <div className="rounded-xl border border-slate-200 p-4 bg-slate-50/50">
+                  <label className="text-xs font-semibold text-slate-700 block mb-2">
+                    Promo Code (Optional)
+                  </label>
+                  <Input
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Enter promo code (e.g. WELCOME25)"
+                    className="w-full border-slate-300 focus:border-secondary focus:ring-secondary/20 bg-white"
+                  />
+                </div>
+
+                {/* Checkboxes */}
+                <div className="space-y-3">
+                  <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={agreedToRefundPolicy}
+                      onChange={(event) => {
+                        setAgreedToRefundPolicy(event.target.checked);
+                        setError("");
+                      }}
+                      className="mt-1 size-4 shrink-0 accent-primary"
+                    />
+                    <span>
+                      I understand all sales are final and campaign launch fees
+                      are non-refundable
+                    </span>
+                  </label>
+
+                  <label className="flex cursor-pointer items-start gap-3 text-xs leading-5 text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={agreedToTerms}
+                      onChange={(event) => {
+                        setAgreedToTerms(event.target.checked);
+                        setError("");
+                      }}
+                      className="mt-1 size-4 shrink-0 accent-primary"
+                    />
+                    <span>
+                      I agree to the{" "}
+                      <Link
+                        href="/content/terms_and_conditions"
+                        className="font-medium text-teal-600 hover:underline"
+                      >
+                        Terms &amp; Conditions
+                      </Link>
+                    </span>
+                  </label>
+                </div>
+
+                {/* Errors */}
+                {error ? (
+                  <div
+                    role="alert"
+                    className="text-sm text-red-600 space-y-1.5"
+                  >
+                    <p>{error}</p>
+                    {(error.includes("restricted") ||
+                      error.includes("pending") ||
+                      error.includes("bank account")) && (
+                      <div>
+                        <Link
+                          href="/dashboard/settings"
+                          className="text-xs font-bold text-secondary hover:underline inline-flex items-center gap-1"
+                        >
+                          Verify Now &rarr;
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                {/* Actions */}
+                <div className="space-y-3 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={isLaunching}
+                    className="w-full h-11 bg-primary text-white hover:bg-primary/95 transition-all duration-300"
+                  >
+                    <Rocket className="size-4 mr-2" />
+                    {isLaunching ? "Launching..." : "Launch My Campaign"}
+                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => router.push("/campaign_3")}
+                      className="border-secondary text-secondary h-10 text-xs"
+                    >
+                      <Edit3 className="size-3.5 mr-1" />
+                      Edit Campaign
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => router.push("/dashboard/campaign")}
+                      className="h-10 text-xs"
+                    >
+                      <ArrowLeft className="size-3.5 mr-1" />
+                      All Campaigns
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
 
           <section className="mt-14 flex flex-col items-center gap-6 rounded-lg bg-secondary/10 p-7 text-center sm:flex-row sm:text-left">
