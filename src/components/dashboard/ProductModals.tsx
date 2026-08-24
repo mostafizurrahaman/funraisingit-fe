@@ -304,9 +304,10 @@ export function EditProductModal({
               <div className="space-y-1.5">
                 <label className="font-semibold text-muted-foreground">Product Type</label>
                 <select
+                  disabled
                   value={productType}
                   onChange={(e) => setProductType(e.target.value as "physical" | "digital")}
-                  className="flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 text-sm outline-none transition-all duration-300 focus:border-secondary"
+                  className="flex h-10 w-full rounded-md border border-slate-300 bg-slate-50 px-3 text-sm outline-none transition-all duration-300 focus:border-secondary disabled:cursor-not-allowed disabled:text-muted-foreground"
                 >
                   <option value="physical">Physical</option>
                   <option value="digital">Digital</option>
