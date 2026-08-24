@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useGetMyBrandsQuery } from "@/redux/features/brandBuilder/BrandBuilderApi";
-import { Loader2, Palette, Box, CheckCircle2, AlertCircle, Calendar, ExternalLink } from "lucide-react";
+import {
+  Loader2,
+  Palette,
+  Box,
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  ExternalLink,
+} from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,7 +21,11 @@ export default function MyBrandPage() {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  const { data: myBrandsResponse, isLoading, error } = useGetMyBrandsQuery({
+  const {
+    data: myBrandsResponse,
+    isLoading,
+    error,
+  } = useGetMyBrandsQuery({
     page,
     limit,
   });
@@ -49,7 +61,9 @@ export default function MyBrandPage() {
   return (
     <div className="container mx-auto  space-y-5">
       <div>
-        <h2 className="text-2xl font-semibold text-slate-800">My Brand Projects</h2>
+        <h2 className="text-2xl font-semibold text-slate-800">
+          My Brand Projects
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
           Review your custom Brand Builder requests and checkout links.
         </p>
@@ -59,17 +73,23 @@ export default function MyBrandPage() {
         {isLoading ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3">
             <Loader2 className="size-8 animate-spin text-secondary" />
-            <p className="text-sm text-muted-foreground">Loading brand projects...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading brand projects...
+            </p>
           </div>
         ) : error ? (
           <div className="flex h-64 flex-col items-center justify-center text-center p-4 gap-2">
             <AlertCircle className="size-10 text-rose-500" />
-            <p className="text-sm font-semibold text-muted-foreground">Failed to load brand data.</p>
+            <p className="text-sm font-semibold text-muted-foreground">
+              Failed to load brand data.
+            </p>
           </div>
         ) : brands.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center text-center p-6">
             <Palette className="size-12 text-slate-300 mb-2" />
-            <p className="text-sm font-semibold text-muted-foreground">No brand projects found.</p>
+            <p className="text-sm font-semibold text-muted-foreground">
+              No brand projects found.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -87,11 +107,18 @@ export default function MyBrandPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {brands.map((brand: any) => (
-                  <tr key={brand._id} className="transition-colors duration-300 hover:bg-slate-50/50">
+                  <tr
+                    key={brand._id}
+                    className="transition-colors duration-300 hover:bg-slate-50/50"
+                  >
                     {/* Business Info */}
                     <td className="px-5 py-4">
-                      <p className="font-semibold text-slate-800">{brand.businessName}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{brand.sellingItem}</p>
+                      <p className="font-semibold text-slate-800">
+                        {brand.businessName}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {brand.sellingItem}
+                      </p>
                       <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-2">
                         <Calendar className="size-3" />
                         <span>{formatDate(brand.createdAt)}</span>
@@ -155,7 +182,9 @@ export default function MyBrandPage() {
                             Inspiration <ExternalLink className="size-3" />
                           </a>
                         ) : (
-                          <span className="text-muted-foreground">No Image</span>
+                          <span className="text-muted-foreground">
+                            No Image
+                          </span>
                         )}
                       </div>
                     </td>
@@ -163,16 +192,24 @@ export default function MyBrandPage() {
                     {/* Budget & Fees */}
                     <td className="px-5 py-4">
                       <p className="text-xs text-muted-foreground">
-                        Budget: <span className="font-semibold text-slate-700">${brand.budget}</span>
+                        Budget:{" "}
+                        <span className="font-semibold text-slate-700">
+                          ${brand.budget}
+                        </span>
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Fee: <span className="font-semibold text-slate-700">${brand.brandBuilderFee?.toFixed(2)}</span>
+                        Fee:{" "}
+                        <span className="font-semibold text-slate-700">
+                          ${brand.brandBuilderFee?.toFixed(2)}
+                        </span>
                       </p>
                     </td>
 
                     {/* Status */}
                     <td className="px-5 py-4">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${getStatusStyle(brand.status)}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${getStatusStyle(brand.status)}`}
+                      >
                         {brand.status?.replace("_", " ")}
                       </span>
                     </td>
@@ -182,9 +219,13 @@ export default function MyBrandPage() {
                       {!brand.status?.toLowerCase().includes("paid") ? (
                         <Button
                           onClick={() => {
-                            const targetCampaignId = brand.campaignId || brand.campaign?._id || "";
+                            const targetCampaignId =
+                              brand.campaignId || brand.campaign?._id || "";
                             if (targetCampaignId) {
-                              localStorage.setItem("campaignId", targetCampaignId);
+                              localStorage.setItem(
+                                "campaignId",
+                                targetCampaignId,
+                              );
                             }
                             router.push("/brand-builder");
                           }}
@@ -193,7 +234,9 @@ export default function MyBrandPage() {
                           Brand your project
                         </Button>
                       ) : (
-                        <span className="text-xs text-muted-foreground font-medium">—</span>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          Paid
+                        </span>
                       )}
                     </td>
                   </tr>
