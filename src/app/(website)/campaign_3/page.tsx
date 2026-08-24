@@ -951,7 +951,7 @@ export default function CampaignThreePage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isAdding}
+                disabled={isAdding || dbProducts.length === 0}
                 className="w-full sm:w-56"
               >
                 {isAdding ? "Saving..." : "Continue"}
