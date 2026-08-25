@@ -38,6 +38,12 @@ export default function MyCampaignsPage() {
     story: string;
   } | null>(null);
 
+  // Cancel Reason Modal State
+  const [selectedCancelReason, setSelectedCancelReason] = useState<{
+    name: string;
+    reason: string;
+  } | null>(null);
+
   // Confirmation Modal State
   const [confirmAction, setConfirmAction] = useState<{
     campaignId: string;
@@ -208,7 +214,9 @@ export default function MyCampaignsPage() {
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                               : campaign.status === "completed"
                                 ? "bg-blue-50 text-blue-700 border border-blue-100"
-                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                                : campaign.status === "cancelled"
+                                  ? "bg-rose-50 text-rose-700 border border-rose-100"
+                                  : "bg-slate-100 text-slate-700 border border-slate-200"
                           }`}
                         >
                           {campaign.status}
@@ -230,6 +238,22 @@ export default function MyCampaignsPage() {
                             >
                               <Eye className="size-3.5" />
                               View Story
+                            </Button>
+                          )}
+                          {campaign.status === "cancelled" && campaign.cancelledReason && (
+                            <Button
+                              onClick={() =>
+                                setSelectedCancelReason({
+                                  name: campaign.name,
+                                  reason: campaign.cancelledReason,
+                                })
+                              }
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs gap-1 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+                            >
+                              <HelpCircle className="size-3.5" />
+                              View Reason
                             </Button>
                           )}
                           {campaign.status === "active" && (
@@ -377,6 +401,47 @@ export default function MyCampaignsPage() {
                 ) : (
                   "Cancel Campaign"
                 )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Reason Modal */}
+      {selectedCancelReason && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setSelectedCancelReason(null)}
+              className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-slate-100 transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+            <div className="flex items-center gap-3 text-red-600 mb-4">
+              <Ban className="size-8 animate-pulse" />
+              <div>
+                <h3 className="text-lg font-bold text-foreground pr-8">
+                  Cancellation Details
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  For: {selectedCancelReason.name}
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-4">
+              <span className="block text-xs font-semibold text-muted-foreground mb-1.5">
+                Reason for cancellation:
+              </span>
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-700 whitespace-pre-line leading-relaxed min-h-[80px]">
+                {selectedCancelReason.reason}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button
+                onClick={() => setSelectedCancelReason(null)}
+                className="h-10 px-5 cursor-pointer bg-slate-800 hover:bg-slate-900 text-white transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Close
               </Button>
             </div>
           </div>
