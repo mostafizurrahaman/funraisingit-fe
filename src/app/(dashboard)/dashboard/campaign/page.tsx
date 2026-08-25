@@ -45,7 +45,8 @@ import {
   useGetCampaignByIdQuery,
   useUpdateCampaignMutation,
   useGetDraftCampaignsQuery,
-  useLaunchCampaignMutation,
+  useGetProductsByCampaignIdQuery,
+  useLazyGetProductsByCampaignIdQuery,
 } from "@/redux/features/campaign/campaignApi";
 
 const defaultPurposes = [
@@ -62,7 +63,21 @@ export default function CampaignSettingsPage() {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
     null,
   );
+  const [checkingCampaignId, setCheckingCampaignId] = useState<string | null>(
+    null,
+  );
 
+  console.log("selectedCampaignId", selectedCampaignId);
+  const {
+    data: productsResponse,
+    isLoading: isLoadingProducts,
+    isError,
+  } = useGetProductsByCampaignIdQuery(selectedCampaignId, {
+    skip: !selectedCampaignId,
+  });
+  const [triggerGetProducts, { isLoading: isCheckingProducts }] =
+    useLazyGetProductsByCampaignIdQuery();
+  console.log("productsResponse:", productsResponse);
   // 1. Get draft campaigns list
   const {
     data: draftCampaignsResponse,
@@ -139,6 +154,37 @@ export default function CampaignSettingsPage() {
       setFundUsage(campaign.fundUsage || []);
     }
   }, [campaign]);
+
+  // Handle launch campaign
+  const handleLaunchCampaign = async (camp: any) => {
+    console.log("Campaign ID:", camp?._id);
+    setCheckingCampaignId(camp._id);
+
+    try {
+      // Fetch products dynamically for the specific campaign
+      const response = await triggerGetProducts(camp._id).unwrap();
+      const products = response?.data;
+
+      // Don't allow launch if there are no products
+      if (!products || products.length === 0) {
+        toast.error("You have not added any products to this campaign yet.");
+        return;
+      }
+
+      // Store campaign ID
+      if (typeof window !== "undefined") {
+        localStorage.setItem("campaignId", camp._id);
+      }
+
+      // Launch campaign
+      router.push("/campaign_4");
+    } catch (error) {
+      toast.error("Failed to check campaign products.");
+      console.error("Error during campaign launch validation:", error);
+    } finally {
+      setCheckingCampaignId(null);
+    }
+  };
 
   // Handle loading and error states for editing view
   if (selectedCampaignId && isDetailsLoading) {
@@ -276,25 +322,24 @@ export default function CampaignSettingsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             onClick={() => setSelectedCampaignId(camp._id)}
-                            className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-3"
+                            className="bg-secondary text-white text-xs hover:bg-secondary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-10"
                           >
                             <Edit3 className="size-3.5" />
                             Edit
                           </Button>
                           <Button
-                            onClick={() => {
-                              if (!camp.products || camp.products.length === 0) {
-                                return toast.error("Please add products before preview!");
-                              }
-                              if (typeof window !== "undefined") {
-                                localStorage.setItem("campaignId", camp._id);
-                              }
-                              router.push("/campaign_4");
-                            }}
-                            className="bg-primary text-white text-xs hover:bg-primary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-3"
+                            onClick={() => handleLaunchCampaign(camp)}
+                            disabled={checkingCampaignId !== null}
+                            className="bg-primary text-white text-xs hover:bg-primary/90 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer h-9 px-10 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Zap className="size-3.5" />
-                            Launch
+                            {checkingCampaignId === camp._id ? (
+                              <Loader2 className="size-3.5 animate-spin" />
+                            ) : (
+                              <Zap className="size-3.5" />
+                            )}
+                            {checkingCampaignId === camp._id
+                              ? "Launch"
+                              : "Launch"}
                           </Button>
                         </div>
                       </td>

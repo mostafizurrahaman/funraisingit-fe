@@ -149,5 +149,6 @@ export const {
   useCancelCampaignMutation,
   useCompleteCampaignMutation,
   useGetProductsByCampaignIdQuery,
+  useLazyGetProductsByCampaignIdQuery,
 } = campaignApi;
 export default campaignApi;
