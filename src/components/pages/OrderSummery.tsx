@@ -648,7 +648,6 @@ const OrderSummery = () => {
                       label="Address Line 2"
                       name="address2"
                       placeholder="Apt, suite, unit (optional)"
-                      required={true}
                     />
                   </div>
                   <FormField
