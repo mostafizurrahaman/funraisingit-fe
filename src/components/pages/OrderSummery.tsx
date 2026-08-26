@@ -17,7 +17,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
-import { useCreateOrderMutation, usePreviewOrderMutation } from "@/redux/features/orderManagement/orderManagementApi";
+import {
+  useCreateOrderMutation,
+  usePreviewOrderMutation,
+} from "@/redux/features/orderManagement/orderManagementApi";
 import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
 
@@ -75,7 +78,7 @@ const OrderSummery = () => {
   const previewData = previewResponse?.data;
 
   const { data: accountResponse } = useGetAccountQuery(undefined, {
-    skip: typeof window !== "undefined" && !localStorage.getItem("token")
+    skip: typeof window !== "undefined" && !localStorage.getItem("token"),
   });
   const accountInfo = accountResponse?.data;
 
@@ -196,7 +199,9 @@ const OrderSummery = () => {
     if (!campaign) return;
 
     if (accountInfo && accountInfo.status?.toLowerCase() !== "active") {
-      return toast.error("You cannot donate or place orders because your onboarding account status is not active. Please complete verification in Settings.");
+      return toast.error(
+        "You cannot donate or place orders because your onboarding account status is not active. Please complete verification in Settings.",
+      );
     }
 
     const orderItems = Object.entries(quantities)
@@ -247,7 +252,7 @@ const OrderSummery = () => {
     const email = formData.get("email") as string;
     const phone = formData.get("phone") as string;
     const address1 = (formData.get("address1") as string) || "";
-    const address2 = (formData.get("address2") as string) || "";
+    const address2 = (formData.get("address2") as string)?.trim();
     const city = (formData.get("city") as string) || "";
     const state = (formData.get("state") as string) || "";
     const postalCode = (formData.get("postalCode") as string) || "";
@@ -266,13 +271,16 @@ const OrderSummery = () => {
       phone,
       addressLine1:
         currentShippingId === "local_pickup" ? "Local Pickup" : address1,
-      addressLine2: address2,
+      ...(address2 && { addressLine2: address2 }),
       city: currentShippingId === "local_pickup" ? "Local Pickup" : city,
       state: currentShippingId === "local_pickup" ? "Local Pickup" : state,
       postalCode: currentShippingId === "local_pickup" ? "0000" : postalCode,
       country: currentShippingId === "local_pickup" ? "US" : country,
       shippingType,
     };
+    if (address2) {
+      orderPayload.addressLine2 = address2;
+    }
 
     try {
       const res = await createOrder(orderPayload).unwrap();
@@ -631,71 +639,71 @@ const OrderSummery = () => {
             </section>
 
             <section className="rounded-xl border border-muted-foreground/60 p-5 sm:p-6 bg-white">
-                <h2 className="text-xl font-semibold text-black">
-                  Delivery Address
-                </h2>
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <FormField
-                      label="Address Line 1"
-                      name="address1"
-                      placeholder="123 Main Street"
-                      required={true}
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <FormField
-                      label="Address Line 2"
-                      name="address2"
-                      placeholder="Apt, suite, unit (optional)"
-                    />
-                  </div>
+              <h2 className="text-xl font-semibold text-black">
+                Delivery Address
+              </h2>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
                   <FormField
-                    label="City"
-                    name="city"
-                    placeholder="Springfield"
+                    label="Address Line 1"
+                    name="address1"
+                    placeholder="123 Main Street"
                     required={true}
                   />
-                  <label className="block text-xs font-medium">
-                    State <span className="text-red-500">*</span>
-                    <select
-                      name="state"
-                      required={true}
-                      className={`mt-2 ${inputClassName}`}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>
-                        Select state
-                      </option>
-                      <option>California</option>
-                      <option>New York</option>
-                      <option>Texas</option>
-                    </select>
-                  </label>
-                  <FormField
-                    label="ZIP / Postal Code"
-                    name="postalCode"
-                    placeholder="62701"
-                    required={true}
-                  />
-                  <label className="block text-xs font-medium">
-                    Country <span className="text-red-500">*</span>
-                    <select
-                      name="country"
-                      required={true}
-                      className={`mt-2 ${inputClassName}`}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>
-                        Select country
-                      </option>
-                      <option>United States</option>
-                      <option>Canada</option>
-                      <option>United Kingdom</option>
-                    </select>
-                  </label>
                 </div>
-              </section>
+                <div className="sm:col-span-2">
+                  <FormField
+                    label="Address Line 2"
+                    name="address2"
+                    placeholder="Apt, suite, unit (optional)"
+                  />
+                </div>
+                <FormField
+                  label="City"
+                  name="city"
+                  placeholder="Springfield"
+                  required={true}
+                />
+                <label className="block text-xs font-medium">
+                  State <span className="text-red-500">*</span>
+                  <select
+                    name="state"
+                    required={true}
+                    className={`mt-2 ${inputClassName}`}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select state
+                    </option>
+                    <option>California</option>
+                    <option>New York</option>
+                    <option>Texas</option>
+                  </select>
+                </label>
+                <FormField
+                  label="ZIP / Postal Code"
+                  name="postalCode"
+                  placeholder="62701"
+                  required={true}
+                />
+                <label className="block text-xs font-medium">
+                  Country <span className="text-red-500">*</span>
+                  <select
+                    name="country"
+                    required={true}
+                    className={`mt-2 ${inputClassName}`}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select country
+                    </option>
+                    <option>United States</option>
+                    <option>Canada</option>
+                    <option>United Kingdom</option>
+                  </select>
+                </label>
+              </div>
+            </section>
 
             <button
               type="submit"
