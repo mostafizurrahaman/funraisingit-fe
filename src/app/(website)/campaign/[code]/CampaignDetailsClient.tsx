@@ -4,7 +4,17 @@ import React, { use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetCampaignsByCodeQuery } from "@/redux/features/campaign/campaignApi";
-import { Loader2, ArrowLeft, Heart, ShoppingCart, Users, Calendar, Award, ShoppingBag, Share2 } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  Heart,
+  ShoppingCart,
+  Users,
+  Calendar,
+  Award,
+  ShoppingBag,
+  Share2,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import cardImage from "@/assets/user.png";
 
@@ -15,15 +25,27 @@ interface PageProps {
   initialData?: any;
 }
 
-export default function CampaignDetailsClient({ params, initialData }: PageProps) {
+export default function CampaignDetailsClient({
+  params,
+  initialData,
+}: PageProps) {
   const resolvedParams = use(params);
   const code = resolvedParams.code;
 
-  const { data: campaignResponse, isLoading, error } = useGetCampaignsByCodeQuery(code);
+  const {
+    data: campaignResponse,
+    isLoading,
+    error,
+  } = useGetCampaignsByCodeQuery(code);
   const campaign = campaignResponse?.data || initialData;
 
   const progressPercent = campaign
-    ? Math.min(100, Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100))
+    ? Math.min(
+        100,
+        Math.round(
+          ((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100,
+        ),
+      )
     : 0;
 
   const handleActionCheck = (e: React.MouseEvent) => {
@@ -61,9 +83,12 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
           </div>
         ) : error || !campaign ? (
           <div className="flex min-h-[450px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-white p-8 text-center shadow-sm">
-            <h2 className="text-xl font-bold text-foreground">Campaign Not Found</h2>
+            <h2 className="text-xl font-bold text-foreground">
+              Campaign Not Found
+            </h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              We couldn't locate the campaign you requested. It might have ended or the link might be incorrect.
+              We couldn't locate the campaign you requested. It might have ended
+              or the link might be incorrect.
             </p>
             <Link
               href="/campaign"
@@ -109,14 +134,20 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
                       />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-semibold">Organized by</p>
-                      <p className="text-sm font-bold text-foreground">{campaign.organizerName || "Anonymous"}</p>
+                      <p className="text-xs text-muted-foreground font-semibold">
+                        Organized by
+                      </p>
+                      <p className="text-sm font-bold text-foreground">
+                        {campaign.organizerName || "Anonymous"}
+                      </p>
                     </div>
                   </div>
 
                   {/* Campaign Story */}
                   <div className="mt-6">
-                    <h2 className="text-lg font-bold text-foreground mb-3">Our Story</h2>
+                    <h2 className="text-lg font-bold text-foreground mb-3">
+                      Our Story
+                    </h2>
                     <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
                       {campaign.story}
                     </p>
@@ -168,14 +199,23 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
                         </div>
                         <div className="p-4 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="text-base font-bold text-foreground line-clamp-1">{product.name}</h3>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{product.description}</p>
+                            <h3 className="text-base font-bold text-foreground line-clamp-1">
+                              {product.name}
+                            </h3>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              {product.description}
+                            </p>
                           </div>
                           <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                            <span className="text-sm font-bold text-secondary">${product.price?.toFixed(2)}</span>
+                            <span className="text-sm font-bold text-secondary">
+                              ${product.price?.toFixed(2)}
+                            </span>
                             {product.stock !== undefined && (
                               <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-semibold text-muted-foreground">
-                                Stock: {product.isUnlimited ? "Unlimited" : product.stock}
+                                Stock:{" "}
+                                {product.isUnlimited
+                                  ? "Unlimited"
+                                  : product.stock}
                               </span>
                             )}
                           </div>
@@ -190,7 +230,9 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
             {/* Right side widgets (Actions & Progress) */}
             <div className="space-y-6 lg:sticky lg:top-24">
               <article className="rounded-2xl border border-border bg-white p-6 sm:p-8 shadow-sm">
-                <h2 className="text-lg font-bold text-foreground mb-4">Campaign Progress</h2>
+                <h2 className="text-lg font-bold text-foreground mb-4">
+                  Campaign Progress
+                </h2>
 
                 <div className="space-y-3">
                   <div className="h-3 overflow-hidden rounded-full bg-slate-100 border border-slate-200/50">
@@ -200,8 +242,14 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
                     />
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="font-bold text-secondary">${(campaign.raisedAmount || 0).toLocaleString()} Raised</span>
-                    <span className="text-muted-foreground font-semibold">Goal: ${campaign.goalAmount?.toLocaleString()}</span>
+                    <span className="font-bold text-secondary">
+                      $
+                      {(campaign.raisedAmount.tofixed(2) || 0).toLocaleString()}{" "}
+                      Raised
+                    </span>
+                    <span className="text-muted-foreground font-semibold">
+                      Goal: ${campaign.goalAmount?.toLocaleString()}
+                    </span>
                   </div>
                 </div>
 
@@ -209,13 +257,21 @@ export default function CampaignDetailsClient({ params, initialData }: PageProps
                 <div className="grid grid-cols-2 gap-4 border-t border-border mt-6 pt-6 text-center">
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-border/50">
                     <Users className="size-5 text-secondary mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground font-semibold">Supporters</p>
-                    <p className="text-base font-extrabold text-foreground mt-0.5">{campaign.totalSupporters || 0}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      Supporters
+                    </p>
+                    <p className="text-base font-extrabold text-foreground mt-0.5">
+                      {campaign.totalSupporters || 0}
+                    </p>
                   </div>
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-border/50">
                     <Calendar className="size-5 text-secondary mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground font-semibold">Days Left</p>
-                    <p className="text-base font-extrabold text-foreground mt-0.5">{campaign.remainingDays ?? campaign.durationDays}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      Days Left
+                    </p>
+                    <p className="text-base font-extrabold text-foreground mt-0.5">
+                      {campaign.remainingDays ?? campaign.durationDays}
+                    </p>
                   </div>
                 </div>
 

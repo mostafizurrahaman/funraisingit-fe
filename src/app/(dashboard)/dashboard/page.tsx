@@ -254,7 +254,7 @@ export default function DashboardPage() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Raised"
-          value={`$${data.raisedAmount}`}
+          value={`$${data.raisedAmount?.toFixed(2)}`}
           detail={`of $${data.goalAmount} goal`}
           icon={Banknote}
           tone="secondary"
@@ -289,7 +289,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className="text-base font-semibold">Campaign Progress</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  ${data.raisedAmount} raised of ${data.goalAmount} goal
+                  ${data.raisedAmount.toFixed(2)} raised of ${data.goalAmount} goal
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
