@@ -244,11 +244,11 @@ export default function CampaignDetailsClient({
                   <div className="flex justify-between text-sm">
                     <span className="font-bold text-secondary">
                       $
-                      {(campaign.raisedAmount.tofixed(2) || 0).toLocaleString()}{" "}
+                      {(campaign?.raisedAmount?.toFixed(2) || 0).toLocaleString()}{" "}
                       Raised
                     </span>
                     <span className="text-muted-foreground font-semibold">
-                      Goal: ${campaign.goalAmount?.toLocaleString()}
+                      Goal: ${campaign?.goalAmount?.toLocaleString()}
                     </span>
                   </div>
                 </div>
