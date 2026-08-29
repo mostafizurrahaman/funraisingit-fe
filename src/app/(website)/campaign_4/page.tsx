@@ -165,9 +165,11 @@ export default function CampaignFourPage() {
         );
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.setItem("lastLaunchedCampaignId", campaignId);
+      }
       resetDraft();
       removeCampaignIdFromLocalStorage();
-      router.push(response?.data?.url);
       router.push(response?.data?.url);
     } catch (err: any) {
       const rawErr = err?.data;
