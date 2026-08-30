@@ -212,18 +212,18 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
           {/* Campaign Link Copy Panel */}
           <section className="mt-5 rounded-2xl border border-secondary/20 bg-secondary/5 p-5 sm:p-6 shadow-sm">
             <div className="flex flex-col items-center gap-5 sm:flex-row justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-w-0">
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-secondary shadow-sm">
                   <Link2 className="size-5" />
                 </span>
-                <div className="min-w-0 text-left">
+                <div className="min-w-0 flex-1 text-left">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Your Campaign Link</p>
-                  <p className="mt-1 truncate text-lg font-bold text-secondary hover:underline cursor-pointer" onClick={() => copyLink("link")}>
+                  {/* <p className="mt-1 truncate text-sm sm:text-lg font-bold text-secondary hover:underline cursor-pointer max-w-[65vw] sm:max-w-none" onClick={() => copyLink("link")}>
                     {campaignUrl.replace(/^https?:\/\//, "")}
-                  </p>
+                  </p> */}
                 </div>
               </div>
-              <div className="relative flex flex-col items-center pb-6 sm:pb-0 shrink-0 w-full sm:w-auto">
+              <div className="relative flex flex-col items-center pb-8 sm:pb-0 shrink-0 w-full sm:w-auto">
                 <Button
                   type="button"
                   onClick={() => copyLink("link")}
