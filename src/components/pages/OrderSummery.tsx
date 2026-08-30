@@ -55,6 +55,68 @@ function FormField({ label, required, ...props }: FormFieldProps) {
   );
 }
 
+const US_STATES = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+];
+
+const TC_AREAS = [
+  "Providenciales",
+  "Grand Turk",
+  "North Caicos",
+  "Middle Caicos",
+  "South Caicos",
+  "Salt Cay",
+];
+
 const OrderSummery = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,6 +126,7 @@ const OrderSummery = () => {
   const [shippingId, setShippingId] = useState<
     "local_pickup" | "local_delivery" | "shipping"
   >("shipping");
+  const [selectedCountry, setSelectedCountry] = useState("United States");
 
   const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(
     code,
@@ -667,17 +730,28 @@ const OrderSummery = () => {
                 <label className="block text-xs font-medium">
                   State <span className="text-red-500">*</span>
                   <select
+                    key={selectedCountry}
                     name="state"
                     required={true}
                     className={`mt-2 ${inputClassName}`}
                     defaultValue=""
                   >
                     <option value="" disabled>
-                      Select state
+                      Select state/area
                     </option>
-                    <option>California</option>
-                    <option>New York</option>
-                    <option>Texas</option>
+                    {selectedCountry === "United States" ? (
+                      US_STATES.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))
+                    ) : (
+                      TC_AREAS.map((ar) => (
+                        <option key={ar} value={ar}>
+                          {ar}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </label>
                 <FormField
@@ -692,14 +766,11 @@ const OrderSummery = () => {
                     name="country"
                     required={true}
                     className={`mt-2 ${inputClassName}`}
-                    defaultValue=""
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
                   >
-                    <option value="" disabled>
-                      Select country
-                    </option>
-                    <option>United States</option>
-                    <option>Canada</option>
-                    <option>United Kingdom</option>
+                    <option value="United States">United States</option>
+                    <option value="Turks and Caicos">Turks and Caicos</option>
                   </select>
                 </label>
               </div>
