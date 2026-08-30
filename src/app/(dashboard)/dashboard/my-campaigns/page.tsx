@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Sparkles,
   Loader2,
@@ -9,6 +9,7 @@ import {
   Ban,
   Eye,
   HelpCircle,
+  Copy,
 } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,14 @@ import {
 import toast from "react-hot-toast";
 
 export default function MyCampaignsPage() {
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
+  }, []);
+
   const {
     data: response,
     isLoading,
@@ -134,6 +143,7 @@ export default function MyCampaignsPage() {
                 <tr>
                   <th className="px-4 py-3">Campaign Details</th>
                   <th className="px-4 py-3">Code</th>
+                  <th className="px-4 py-3">Campaign Link</th>
                   <th className="px-4 py-3">Category</th>
                   <th className="px-4 py-3">Goal</th>
                   <th className="px-4 py-3">Raised</th>
@@ -187,6 +197,29 @@ export default function MyCampaignsPage() {
                       </td>
                       <td className="px-4 py-4 font-mono text-xs font-semibold text-slate-600">
                         {campaign.campaignCode || "N/A"}
+                      </td>
+                      <td className="px-4 py-4">
+                        {campaign.campaignCode ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-slate-500 font-semibold select-all truncate max-w-[150px]" title={`${origin}/campaign/${campaign.campaignCode}`}>
+                              {`${origin.replace(/^https?:\/\//, "")}/campaign/${campaign.campaignCode}`}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const url = `${origin}/campaign/${campaign.campaignCode}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Campaign link copied!");
+                              }}
+                              className="inline-flex items-center justify-center p-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-secondary shadow-sm transition-all duration-300 hover:-translate-y-0.5 cursor-pointer size-7"
+                              title="Copy Campaign Link"
+                            >
+                              <Copy className="size-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">N/A</span>
+                        )}
                       </td>
                       <td className="px-4 py-4 text-xs font-medium text-slate-700">
                         {formatCategory(campaign.campaignCategory)}
