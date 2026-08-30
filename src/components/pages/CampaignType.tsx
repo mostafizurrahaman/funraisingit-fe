@@ -106,7 +106,7 @@ const campaignTypes = [
 
 const CampaignType = () => {
   return (
-    <section className="py-16 px-4 container mx-auto">
+    <section id="campaign-type" className="py-16 px-4 container mx-auto">
       <div className="text-center mb-12 relative">
         {/* Accent lines decoration */}
         <div className="inline-block relative">

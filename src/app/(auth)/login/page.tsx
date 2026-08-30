@@ -74,7 +74,7 @@ export default function LoginPage() {
         dispatch(setUser({ user, token }));
         dispatch(baseApi.util.resetApiState());
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.push("/#campaign-type");
       } else {
         console.error("Login response:", response);
         toast.error("Server did not return authentication token.");
