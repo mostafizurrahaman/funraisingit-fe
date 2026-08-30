@@ -16,7 +16,7 @@ const PaymentSuccessPage = async ({ searchParams }: PaymentSuccessPageProps) => 
   const params = await searchParams;
   
   if (params.campaignId) {
-    return <CampaignLaunchSuccess campaignId={params.campaignId} />;
+    return <CampaignLaunchSuccess campaignId={params.campaignId} campaignCode={params.campaignCode} />;
   }
 
   const parsedAmount = Number(params.amount);

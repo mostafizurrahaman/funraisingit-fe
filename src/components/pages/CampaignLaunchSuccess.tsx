@@ -32,12 +32,17 @@ import user from "@/assets/user.png";
 import sparkel from "@/assets/sparkel.png";
 
 // API
-import { useGetCampaignPreviewQuery } from "@/redux/features/campaign/campaignApi";
+import { 
+  useGetCampaignPreviewQuery,
+  useGetCampaignByIdQuery,
+  useGetProductsByCampaignIdQuery,
+} from "@/redux/features/campaign/campaignApi";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
 interface CampaignLaunchSuccessProps {
   campaignId: string;
+  campaignCode?: string;
 }
 
 const tips = [
@@ -48,7 +53,7 @@ const tips = [
   "Post updates throughout your campaign",
 ] as const;
 
-export default function CampaignLaunchSuccess({ campaignId: initialCampaignId }: CampaignLaunchSuccessProps) {
+export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, campaignCode: initialCampaignCode }: CampaignLaunchSuccessProps) {
   const router = useRouter();
   const [copied, setCopied] = useState<"link" | "share" | null>(null);
   const [origin, setOrigin] = useState("");
@@ -66,17 +71,30 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId }:
     setIsReady(true);
   }, [campaignId]);
 
-  const { data: previewResponse, isLoading, error } = useGetCampaignPreviewQuery(
+  // Query 1: Preview/Draft Query
+  const { data: previewResponse, isLoading: isPreviewLoading } = useGetCampaignPreviewQuery(
     { campaignId: campaignId || "" },
     { skip: !isReady || !campaignId }
   );
 
+  // Query 2: Live/Active Campaign Query
+  const { data: liveResponse, isLoading: isLiveLoading } = useGetCampaignByIdQuery(
+    campaignId,
+    { skip: !isReady || !campaignId }
+  );
+
+  // Query 3: Products Query
+  const { data: productsResponse, isLoading: isProductsLoading } = useGetProductsByCampaignIdQuery(
+    campaignId,
+    { skip: !isReady || !campaignId }
+  );
+
   const previewData = previewResponse?.data;
-  const campaign = previewData?.campaign;
-  const products = previewData?.products || [];
+  const campaign = previewData?.campaign || liveResponse?.data;
+  const products = previewData?.products || productsResponse?.data || [];
   const firstProduct = products[0] || null;
 
-  const campaignCode = campaign?.campaignCode || "";
+  const campaignCode = campaign?.campaignCode || initialCampaignCode || "";
   const campaignUrl = campaignCode ? `${origin}/campaign/${campaignCode}` : `${origin}/campaign`;
 
   async function copyLink(type: "link" | "share") {
@@ -94,7 +112,9 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId }:
     window.open(url, "_blank", "noopener,noreferrer,width=720,height=640");
   }
 
-  if (!isReady || isLoading) {
+  const isLoading = !campaign && (isPreviewLoading || isLiveLoading || isProductsLoading || !isReady);
+
+  if (isLoading) {
     return (
       <main className="bg-background px-5 py-20 sm:px-8 lg:px-10">
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
@@ -107,7 +127,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId }:
     );
   }
 
-  if (error || !campaign) {
+  if (!campaign) {
     return (
       <main className="bg-background px-5 py-20 sm:px-8 lg:px-10">
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
