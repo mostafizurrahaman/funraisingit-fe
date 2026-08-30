@@ -21,6 +21,7 @@ import {
   Trophy,
   Users,
   Loader2,
+  CarTaxiFront,
 } from "lucide-react";
 import { FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
@@ -472,7 +473,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                     onClick={() => router.push(`/campaign/${campaignCode}`)}
                   >
                     <ShoppingBag className="size-3.5 mr-1.5" />
-                    Buy {firstProduct?.name ? firstProduct.name.toLowerCase().replace(/^(jenna's|my)\s+/i, "") : "product"}
+                   <CarTaxiFront></CarTaxiFront> Buy 
                   </Button>
                   <Button
                     type="button"
