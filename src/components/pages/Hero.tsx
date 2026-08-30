@@ -177,9 +177,9 @@ const Hero = () => {
                       Jenny&apos;s Famous Scented Candle
                     </h3>
 
-                    <span className="hidden shrink-0 rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-bold text-secondary sm:block">
+                    {/* <span className="hidden shrink-0 rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-bold text-secondary sm:block">
                       VERIFIED
-                    </span>
+                    </span> */}
                   </div>
 
                   <p className="mt-1 text-xs leading-5 text-muted-foreground sm:text-sm">
