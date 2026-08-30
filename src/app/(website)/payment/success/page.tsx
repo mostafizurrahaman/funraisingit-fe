@@ -7,6 +7,8 @@ type PaymentSuccessPageProps = {
     transactionId?: string;
     email?: string;
     campaignId?: string;
+    campaignCode?: string;
+    session_id?: string;
   }>;
 };
 
