@@ -66,13 +66,13 @@ export default function CampaignDetailsClient({
   return (
     <main className="bg-slate-50 min-h-screen py-10 sm:py-16">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10 max-w-6xl">
-        <Link
+        {/* <Link
           href="/campaign"
           className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-all duration-300 hover:text-secondary mb-8 hover:-translate-x-0.5"
         >
           <ArrowLeft className="size-4" />
           Back to Campaigns
-        </Link>
+        </Link> */}
 
         {isLoading && !campaign ? (
           <div className="flex min-h-[450px] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-white p-8 shadow-sm">
