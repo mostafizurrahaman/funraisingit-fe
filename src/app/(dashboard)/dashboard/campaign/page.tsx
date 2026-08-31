@@ -130,13 +130,13 @@ export default function CampaignSettingsPage() {
   const [allowLocalDelivery, setAllowLocalDelivery] = useState(false);
   const [allowShipping, setAllowShipping] = useState(false);
   const [shippingFee, setShippingFee] = useState("");
-// console.log("shippingFee", shippingFee);
+console.log("shippingFee", shippingFee);
   const [allowDonation, setAllowDonation] = useState(false);
   const [fundUsage, setFundUsage] = useState<string[]>([]);
 
   // Sync form states with campaign data
   const campaign = campaignResponse?.data;
-// console.log("shippingFee", campaign?.campaignShippingFee);
+console.log("shippingFee", campaign?.campaignShippingFee);
   useEffect(() => {
     if (campaign) {
       setName(campaign.name || "");
@@ -883,7 +883,7 @@ export default function CampaignSettingsPage() {
         </DashboardCard>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[0.85fr_1.2fr_1fr]">
+      <section className="grid gap-4 xl:grid-cols-2">
         {/* Campaign Visibility */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
@@ -908,7 +908,7 @@ export default function CampaignSettingsPage() {
         </DashboardCard>
 
         {/* Quick Actions */}
-        <DashboardCard>
+        {/* <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
             <Zap className="size-5 text-secondary" />
             Quick Actions
@@ -937,7 +937,7 @@ export default function CampaignSettingsPage() {
               Email Supporters
             </button>
           </div>
-        </DashboardCard>
+        </DashboardCard> */}
 
         {/* Campaign Management */}
         <DashboardCard>
