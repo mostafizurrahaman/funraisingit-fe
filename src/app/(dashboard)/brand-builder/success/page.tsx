@@ -4,13 +4,26 @@ import React, { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ClipboardCheck, ShieldCheck, Calendar, ArrowRight } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardCheck,
+  ShieldCheck,
+  Calendar,
+  ArrowRight,
+} from "lucide-react";
 import glitter from "../../../../assets/glitter.png";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id") || "BB-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  // const sessionId = searchParams.get("session_id") || "BB-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  const sessionId =
+    searchParams.get("session_id") ||
+    "BB-" + Math.random().toString(36).substr(2, 9).toUpperCase();
 
+  const maskedSessionId =
+    sessionId.length > 8
+      ? `${sessionId.slice(0, 4)}**${sessionId.slice(-4)}`
+      : sessionId;
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -18,9 +31,24 @@ function SuccessContent() {
   });
 
   const details = [
-    { label: "Project Status", value: "Paid & Scheduled", icon: CheckCircle2, color: "text-secondary" },
-    { label: "Reference ID", value: sessionId, icon: ClipboardCheck, color: "text-primary" },
-    { label: "Date", value: currentDate, icon: Calendar, color: "text-primary" },
+    {
+      label: "Project Status",
+      value: "Paid & Scheduled",
+      icon: CheckCircle2,
+      color: "text-secondary",
+    },
+    {
+      label: "Reference ID",
+      value: maskedSessionId,
+      icon: ClipboardCheck,
+      color: "text-primary",
+    },
+    {
+      label: "Date",
+      value: currentDate,
+      icon: Calendar,
+      color: "text-primary",
+    },
   ] as const;
 
   return (
@@ -43,7 +71,9 @@ function SuccessContent() {
               Brand Project Started!
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-xs text-muted-foreground sm:text-sm leading-relaxed">
-              We have received your brand details and payment successfully. Our professional design team will start working on your custom concepts. Expect mockups in your inbox within 7 business days!
+              We have received your brand details and payment successfully. Our
+              professional design team will start working on your custom
+              concepts. Expect mockups in your inbox within 7 business days!
             </p>
           </div>
           <Image
@@ -65,12 +95,21 @@ function SuccessContent() {
               {details.map((detail) => {
                 const Icon = detail.icon;
                 return (
-                  <div key={detail.label} className="flex items-center gap-3 text-xs sm:text-sm">
-                    <div className={`flex size-8 items-center justify-center rounded-full bg-slate-50 ${detail.color}`}>
+                  <div
+                    key={detail.label}
+                    className="flex items-center gap-3 text-xs sm:text-sm"
+                  >
+                    <div
+                      className={`flex size-8 items-center justify-center rounded-full bg-slate-50 ${detail.color}`}
+                    >
                       <Icon className="size-4 shrink-0" />
                     </div>
-                    <dt className="font-semibold text-muted-foreground">{detail.label}</dt>
-                    <dd className="ml-auto text-right font-bold text-foreground">{detail.value}</dd>
+                    <dt className="font-semibold text-muted-foreground">
+                      {detail.label}
+                    </dt>
+                    <dd className="ml-auto text-right font-bold text-foreground">
+                      {detail.value}
+                    </dd>
                   </div>
                 );
               })}
@@ -105,11 +144,13 @@ function SuccessContent() {
 
 export default function BrandBuilderSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="size-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-slate-50">
+          <div className="size-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+        </div>
+      }
+    >
       <SuccessContent />
     </Suspense>
   );
