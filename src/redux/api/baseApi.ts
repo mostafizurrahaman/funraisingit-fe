@@ -9,7 +9,7 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import { RootState } from "../store";
 import { BASE_URL } from "@/utils/baseUrl";
 import toast from "react-hot-toast";
-import { logout } from "../features/auth/authSlice";
+import { logout, setTokens } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `${BASE_URL}`,
@@ -33,7 +33,7 @@ const baseQueryWithRefreshToken: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(args, api, extraOptions);
 
   if (result.error) {
     const status = result.error.status;
@@ -42,16 +42,52 @@ const baseQueryWithRefreshToken: BaseQueryFn<
 
     if (status === 500) {
       toast.error(errorMessage, { id: errorMessage });
-    }
-    if (status === 404 && errorMessage !== "No Draft campaign exists." && errorMessage !== "User doesn't exists!" && errorMessage !== "Account not found" )   {
+    } else if (status === 404 && errorMessage !== "No Draft campaign exists." && errorMessage !== "User doesn't exists!" && errorMessage !== "Account not found" )   {
       toast.error(errorMessage, { id: errorMessage });
-    }
-    if (status === 403) {
+    } else if (status === 403) {
       toast.error(errorMessage, { id: errorMessage });
-    }
-    if (status === 401) {
+    } else if (status === 401) {
       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
       if (currentPath !== "/login") {
+        const state = api.getState() as RootState;
+        const refreshToken = state?.auth?.refreshToken || localStorage.getItem("refreshToken");
+
+        if (refreshToken) {
+          try {
+            const refreshResult = await baseQuery(
+              {
+                url: "/auth/refresh-token",
+                method: "POST",
+                body: { refreshToken },
+              },
+              api,
+              extraOptions
+            );
+
+            if (refreshResult.data) {
+              const resData = refreshResult.data as any;
+              const newToken =
+                resData?.token ||
+                resData?.data?.token ||
+                resData?.accessToken ||
+                resData?.data?.accessToken;
+              const newRefreshToken =
+                resData?.refreshToken ||
+                resData?.data?.refreshToken;
+
+              if (newToken) {
+                api.dispatch(setTokens({ token: newToken, refreshToken: newRefreshToken }));
+                // Retry the original query
+                result = await baseQuery(args, api, extraOptions);
+                return result;
+              }
+            }
+          } catch (refreshErr) {
+            console.error("Token refresh failed:", refreshErr);
+          }
+        }
+
+        // Session expired / invalid refresh token
         toast.error("Session expired. Please log in again.", { id: "session-expired" });
         api.dispatch(logout());
         if (typeof window !== "undefined") {
@@ -59,10 +95,6 @@ const baseQueryWithRefreshToken: BaseQueryFn<
         }
       }
     }
-    // If you want to include 400 (Bad Request):
-    // if (status === 400) {
-    //   message.error(errorMessage);
-    // }
   }
 
   return result;

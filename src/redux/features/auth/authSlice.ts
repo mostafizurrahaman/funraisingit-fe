@@ -10,24 +10,52 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
   token: null,
+  refreshToken: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      const { user, token } = action.payload;
+    setUser: (
+      state,
+      action: PayloadAction<{ user: User; token: string; refreshToken?: string }>
+    ) => {
+      const { user, token, refreshToken } = action.payload;
       state.user = user;
       state.token = token;
+      if (refreshToken) {
+        state.refreshToken = refreshToken;
+      }
       if (typeof window !== "undefined") {
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("token", token);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+      }
+    },
+
+    setTokens: (
+      state,
+      action: PayloadAction<{ token: string; refreshToken?: string }>
+    ) => {
+      const { token, refreshToken } = action.payload;
+      state.token = token;
+      if (refreshToken) {
+        state.refreshToken = refreshToken;
+      }
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", token);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
       }
     },
 
@@ -35,9 +63,11 @@ const authSlice = createSlice({
       console.log("Logout");
       state.user = null;
       state.token = null;
+      state.refreshToken = null;
       if (typeof window !== "undefined") {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
       }
     },
 
@@ -47,7 +77,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logout, getUser } = authSlice.actions;
+export const { setUser, setTokens, logout, getUser } = authSlice.actions;
 export default authSlice.reducer;
 
 export const userCurrentToken = (state: RootState) => state.auth.token;

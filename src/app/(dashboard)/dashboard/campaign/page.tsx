@@ -130,13 +130,13 @@ export default function CampaignSettingsPage() {
   const [allowLocalDelivery, setAllowLocalDelivery] = useState(false);
   const [allowShipping, setAllowShipping] = useState(false);
   const [shippingFee, setShippingFee] = useState("");
-
+// console.log("shippingFee", shippingFee);
   const [allowDonation, setAllowDonation] = useState(false);
   const [fundUsage, setFundUsage] = useState<string[]>([]);
 
   // Sync form states with campaign data
   const campaign = campaignResponse?.data;
-
+// console.log("shippingFee", campaign?.campaignShippingFee);
   useEffect(() => {
     if (campaign) {
       setName(campaign.name || "");
@@ -149,7 +149,7 @@ export default function CampaignSettingsPage() {
       setAllowLocalPickup(!!campaign.allowLocalPickup);
       setAllowLocalDelivery(!!campaign.allowLocalDelivery);
       setAllowShipping(!!campaign.allowShipping);
-      setShippingFee(campaign.shippingFee ? String(campaign.shippingFee) : "0");
+      setShippingFee(campaign?.campaignShippingFee ? String(campaign?.campaignShippingFee) : "0");
       setAllowDonation(!!campaign.allowDonation);
       setFundUsage(campaign.fundUsage || []);
     }
@@ -719,8 +719,8 @@ export default function CampaignSettingsPage() {
                 <p className="mt-2 font-semibold">Shipping Fee</p>
                 <p>
                   $
-                  {campaign.shippingFee
-                    ? Number(campaign.shippingFee).toFixed(2)
+                  {campaign.campaignShippingFee
+                    ? Number(campaign.campaignShippingFee).toFixed(2)
                     : "0.00"}
                 </p>
               </div>
@@ -791,7 +791,9 @@ export default function CampaignSettingsPage() {
           <div className="mt-4 flex items-center justify-between">
             <div className="rounded-md bg-secondary/10 px-3 py-2 text-center text-xs font-semibold text-secondary">
               Shipping Fee: $
-              {shippingFee ? Number(shippingFee).toFixed(2) : "0.00"}
+              {campaign.campaignShippingFee
+                ? Number(campaign.campaignShippingFee).toFixed(2)
+                : "0.00"}
             </div>
             <button
               type="button"

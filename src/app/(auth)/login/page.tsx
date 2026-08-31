@@ -68,10 +68,14 @@ export default function LoginPage() {
         response?.accessToken ||
         response?.data?.accessToken ||
         response?.data?.data?.token;
+      const refreshToken =
+        response?.refreshToken ||
+        response?.data?.refreshToken ||
+        response?.data?.data?.refreshToken;
       const user = response?.user || response?.data?.user || { email: emailVal };
 
       if (token) {
-        dispatch(setUser({ user, token }));
+        dispatch(setUser({ user, token, refreshToken }));
         dispatch(baseApi.util.resetApiState());
         toast.success("Signed in successfully!");
         router.push("/#campaign-type");
