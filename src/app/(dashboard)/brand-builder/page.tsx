@@ -249,6 +249,18 @@ export default function BrandBuilder() {
       toast.error("Please describe your brand vision.");
       return;
     }
+    if (selectedColors.length === 0) {
+      toast.error("Please select at least one brand color.");
+      return;
+    }
+    if (!brandLogoFile) {
+      toast.error("Please upload inspiration photos.");
+      return;
+    }
+    if (!brandImageFile) {
+      toast.error("Please upload your brand logo.");
+      return;
+    }
 
     const formData = new FormData();
 
