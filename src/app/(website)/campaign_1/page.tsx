@@ -25,11 +25,13 @@ import {
   Check,
   DollarSign,
   Tag,
+  Users,
 } from "lucide-react";
-import hero from "@/assets/hero.png";
+import hero from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import user from "../../../assets/user.jpg";
+// import hero from "../../assets/hero.jpg";
 const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
 const amounts = [500, 1000, 2500, 5000] as const;
 const durations = [2, 3, 5, 7] as const;
@@ -46,7 +48,6 @@ import { useSelector } from "react-redux";
 import { userCurrentToken } from "@/redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { useCampaignDraft } from "@/Providers/CampaignDraftProvider";
-
 
 function CampaignOneForm() {
   const router = useRouter();
@@ -65,7 +66,8 @@ function CampaignOneForm() {
   }, [categoryParam, isCategoryInitialized, updateDraft]);
 
   useEffect(() => {
-    const localToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const localToken =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
       toast.error("Please log in first to start a campaign.");
       router.push("/login");
@@ -77,8 +79,14 @@ function CampaignOneForm() {
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const selectedAmount = amounts.includes(draft.goalAmount as any) ? (draft.goalAmount as number | "custom") : "custom";
-  const selectedShippingAmount = shippingAmounts.includes(draft.shippingFee as any) ? (draft.shippingFee as number | "custom") : "custom";
+  const selectedAmount = amounts.includes(draft.goalAmount as any)
+    ? (draft.goalAmount as number | "custom")
+    : "custom";
+  const selectedShippingAmount = shippingAmounts.includes(
+    draft.shippingFee as any,
+  )
+    ? (draft.shippingFee as number | "custom")
+    : "custom";
   const [customShipping, setCustomShipping] = useState("");
 
   useEffect(() => {
@@ -102,7 +110,7 @@ function CampaignOneForm() {
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
-          
+
           const MAX_DIM = 1200;
           if (width > height) {
             if (width > MAX_DIM) {
@@ -115,7 +123,7 @@ function CampaignOneForm() {
               height = MAX_DIM;
             }
           }
-          
+
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext("2d");
@@ -124,17 +132,21 @@ function CampaignOneForm() {
             canvas.toBlob(
               (blob) => {
                 if (blob) {
-                  const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
-                    type: "image/jpeg",
-                    lastModified: Date.now(),
-                  });
+                  const compressedFile = new File(
+                    [blob],
+                    file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+                    {
+                      type: "image/jpeg",
+                      lastModified: Date.now(),
+                    },
+                  );
                   resolve(compressedFile);
                 } else {
                   resolve(file);
                 }
               },
               "image/jpeg",
-              0.75
+              0.75,
             );
           } else {
             resolve(file);
@@ -219,8 +231,14 @@ function CampaignOneForm() {
     }
 
     // 6. Delivery Options Validation (At least one must be selected)
-    if (!draft.allowLocalPickup && !draft.allowLocalDelivery && !draft.allowShipping) {
-      setError("Please select at least one delivery option (Local Pickup, Local Delivery, or Shipping).");
+    if (
+      !draft.allowLocalPickup &&
+      !draft.allowLocalDelivery &&
+      !draft.allowShipping
+    ) {
+      setError(
+        "Please select at least one delivery option (Local Pickup, Local Delivery, or Shipping).",
+      );
       return;
     }
 
@@ -263,7 +281,7 @@ function CampaignOneForm() {
           ))}
         </ol>
 
-        <section className="mt-14 grid items-center gap-8 md:grid-cols-[1fr_0.9fr] lg:mt-20 lg:gap-20">
+        <section className="mx-auto mt-14 grid max-w-5xl w-full items-center gap-8 md:grid-cols-2 md:gap-12">
           <div>
             <span className="inline-flex bg-secondary/10 px-3 py-1.5 text-base font-medium text-secondary">
               Step 1 of 4
@@ -276,11 +294,184 @@ function CampaignOneForm() {
               started.
             </p>
           </div>
-          <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg">
+
+          <div className="relative w-full max-w-[460px] md:ml-auto">
+            {/* Decorative top label */}
+            <div className="absolute -top-4 left-6 z-20 rounded-full border border-slate-100 bg-white px-4 py-2 shadow-sm">
+              <p className="text-xs font-bold text-[#0B1530]">
+                ✦ Live Campaign
+              </p>
+            </div>
+
+            {/* Main Card */}
+            <div className="relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-3 shadow-[0_25px_70px_rgba(7,18,47,0.12)] sm:p-4">
+              {/* Image */}
+              <div className="relative aspect-[1.91/1] overflow-hidden rounded-[22px] bg-slate-100">
+                <Image
+                  src={hero}
+                  alt="Jenny holding banana pudding"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+
+                {/* Image overlay */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent p-5 pt-16">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-white/80">
+                        Campaign goal
+                      </p>
+                      <p className="mt-0.5 text-xl font-bold text-white">
+                        $2,500
+                      </p>
+                    </div>
+
+                    <div className="rounded-full bg-white/95 px-3 py-1.5">
+                      <p className="text-xs font-bold text-secondary">
+                        98% Funded
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Raised card */}
+                <div className="absolute right-4 top-4 w-[175px] rounded-2xl border border-white/60 bg-white/95 p-3.5 shadow-lg backdrop-blur-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-medium text-muted-foreground">
+                      Raised
+                    </p>
+
+                    <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-bold text-secondary">
+                      98%
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-xl font-bold text-secondary">
+                    $2,450
+                  </p>
+
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary/10">
+                    <div className="h-full w-[98%] rounded-full bg-secondary" />
+                  </div>
+
+                  <p className="mt-1 text-[9px] text-muted-foreground">
+                    of $2,500 goal
+                  </p>
+                </div>
+              </div>
+
+              {/* Campaign details */}
+              <div className="px-1 pb-1 pt-5 sm:px-2">
+                {/* Creator */}
+                <div className="flex items-start gap-3">
+                  <div className="relative size-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-100 shadow-sm">
+                    <Image
+                      src={user}
+                      alt="Jenny"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="truncate text-base font-bold leading-tight text-[#0B1530] sm:text-lg">
+                        Jenny&apos;s Famous Scented Candle
+                      </h3>
+
+                      {/* <span className="hidden shrink-0 rounded-full bg-secondary/10 px-2 py-0.5 text-[9px] font-bold text-secondary sm:block">
+                                VERIFIED
+                              </span> */}
+                    </div>
+
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground sm:text-sm">
+                      Help me launch my homemade scented candle business!
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                {/* <div className="mt-5 grid grid-cols-3 divide-x rounded-2xl bg-slate-50 py-3">
+                  <div className="text-center">
+                    <p className="text-base font-bold text-[#0B1530]">84</p>
+                    <p className="text-[10px] text-muted-foreground">Orders</p>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-base font-bold text-[#0B1530]">42</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Supporters
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-base font-bold text-[#0B1530]">12</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Days left
+                    </p>
+                  </div>
+                </div> */}
+
+                {/* Actions */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-white px-3 text-xs font-bold text-secondary"
+                  >
+                    <Heart className="size-4 fill-current" />
+                    Donate
+                  </button>
+
+                  <button
+                    type="button"
+                    className="inline-flex h-11 items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white"
+                  >
+                    Buy Now
+                  </button>
+                </div>
+
+                {/* Supporters */}
+                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-2">
+                      {[1, 2, 3].map((supporter) => (
+                        <div
+                          key={supporter}
+                          className="relative size-6 overflow-hidden rounded-full border-2 border-white bg-slate-100"
+                        >
+                          <Image
+                            src={user}
+                            alt=""
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-[11px] font-semibold text-foreground">
+                      Join 42 supporters
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                    <Users className="size-3.5" />
+                    Community funded
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Decorative corner */}
+            <div className="pointer-events-none absolute -bottom-5 -right-5 -z-10 size-28 rounded-full bg-[#FF7800]/10" />
+            <div className="pointer-events-none absolute -left-6 top-20 -z-10 size-20 rounded-full bg-secondary/10" />
+          </div>
+          {/* <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg">
             <Image
               src={hero}
               alt="Banana pudding fundraising campaign"
-              className="aspect-[1.55/1] h-auto w-full object-cover object-right"
+              className="aspect-[1.55/1] h-auto w-full object-cover object-top-right "
               sizes="(max-width: 768px) 90vw, 40vw"
               priority
             />
@@ -288,7 +479,7 @@ function CampaignOneForm() {
               className="absolute right-4 top-4 size-8 rotate-[-12deg] fill-white text-secondary drop-shadow"
               aria-hidden="true"
             />
-          </div>
+          </div> */}
         </section>
 
         <form onSubmit={handleSubmit} className="mt-14 space-y-12 lg:mt-16">
@@ -363,10 +554,14 @@ function CampaignOneForm() {
                 <option value="school_fundraiser">School Fundraiser</option>
                 <option value="church_campaign">Church Campaign</option>
                 <option value="sports_team">Sports Team</option>
-                <option value="products_pre_orders">Products & Pre-Orders</option>
+                <option value="products_pre_orders">
+                  Products & Pre-Orders
+                </option>
                 <option value="events_tickets">Events & Tickets</option>
                 <option value="digital_products">Digital Products</option>
-                <option value="community_nonprofit">Community & Nonprofits</option>
+                <option value="community_nonprofit">
+                  Community & Nonprofits
+                </option>
               </select>
             </div>
           </section>
@@ -459,7 +654,7 @@ function CampaignOneForm() {
                   onClick={() => updateDraft({ goalAmount: 0 })}
                   className={`h-12 px-1 rounded-md border text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-sm sm:col-span-2 ${selectedAmount === "custom" ? "border-secondary bg-secondary/10 text-secondary" : "border-slate-400 bg-white"}`}
                 >
-                  Custom 
+                  Custom
                 </button>
                 {selectedAmount === "custom" ? (
                   <label className="col-span-full">
@@ -471,7 +666,9 @@ function CampaignOneForm() {
                       value={customAmount}
                       onChange={(event) => {
                         setCustomAmount(event.target.value);
-                        updateDraft({ goalAmount: Number(event.target.value) || 0 });
+                        updateDraft({
+                          goalAmount: Number(event.target.value) || 0,
+                        });
                       }}
                       placeholder="Enter custom amount "
                       className="h-12 w-full rounded-md border border-slate-400 px-4 text-lg outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
@@ -646,7 +843,10 @@ function CampaignOneForm() {
             <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
               <div>
                 <h2 className="text-[32px] font-semibold leading-tight">
-                  3. Shipping Fee <span className="text-lg font-normal text-muted-foreground">(Only applies if shipping is selected)</span>
+                  3. Shipping Fee{" "}
+                  <span className="text-lg font-normal text-muted-foreground">
+                    (Only applies if shipping is selected)
+                  </span>
                 </h2>
                 <p className="mt-2 text-lg leading-7 text-muted-foreground">
                   How much will you charge for shipping?
@@ -655,8 +855,7 @@ function CampaignOneForm() {
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {shippingAmounts.map((amount) => {
                   const isSelected =
-                    draft.allowShipping &&
-                    selectedShippingAmount === amount;
+                    draft.allowShipping && selectedShippingAmount === amount;
                   return (
                     <button
                       key={amount}
@@ -697,11 +896,12 @@ function CampaignOneForm() {
                   }`}
                 >
                   Custom
-                  {draft.allowShipping && selectedShippingAmount === "custom" && (
-                    <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
-                      <Check className="size-3 stroke-[3]" />
-                    </span>
-                  )}
+                  {draft.allowShipping &&
+                    selectedShippingAmount === "custom" && (
+                      <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-secondary text-white border border-white">
+                        <Check className="size-3 stroke-[3]" />
+                      </span>
+                    )}
                 </button>
                 {draft.allowShipping && selectedShippingAmount === "custom" ? (
                   <label className="col-span-full">
@@ -727,7 +927,10 @@ function CampaignOneForm() {
           </section>
 
           {error ? (
-            <p role="alert" className="text-lg text-red-600 text-center mb-4 font-semibold">
+            <p
+              role="alert"
+              className="text-lg text-red-600 text-center mb-4 font-semibold"
+            >
               {error}
             </p>
           ) : null}
@@ -753,14 +956,18 @@ function CampaignOneForm() {
 
 export default function CampaignOnePage() {
   return (
-    <Suspense fallback={
-      <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
-        <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
-          <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
-          <p className="text-muted-foreground font-medium">Loading campaign details...</p>
-        </div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+          <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
+            <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+            <p className="text-muted-foreground font-medium">
+              Loading campaign details...
+            </p>
+          </div>
+        </main>
+      }
+    >
       <CampaignOneForm />
     </Suspense>
   );
