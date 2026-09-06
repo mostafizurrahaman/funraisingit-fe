@@ -12,7 +12,7 @@ const Hero = () => {
       <div className="pointer-events-none absolute -left-32 bottom-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
 
       <div className="container relative mx-auto grid items-center gap-12 px-5 pb-16 pt-10 sm:px-8 md:grid-cols-2 md:gap-10 lg:px-10 lg:pb-24 lg:pt-12">
-        
+
         {/* LEFT CONTENT */}
         <div className="relative z-10 text-center md:text-left">
           {/* Small badge */}
@@ -90,7 +90,7 @@ const Hero = () => {
 
         {/* RIGHT CAMPAIGN CARD */}
         <div className="relative mx-auto w-full max-w-[550px]">
-          
+
           {/* Decorative top label */}
           <div className="absolute -top-4 left-6 z-20 rounded-full border border-slate-100 bg-white px-4 py-2 shadow-sm">
             <p className="text-xs font-bold text-[#0B1530]">
@@ -100,7 +100,7 @@ const Hero = () => {
 
           {/* Main Card */}
           <div className="relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-3 shadow-[0_25px_70px_rgba(7,18,47,0.12)] sm:p-4">
-            
+
             {/* Image */}
             <div className="relative aspect-[1.4/1] overflow-hidden rounded-[22px] bg-slate-100">
               <Image
@@ -159,7 +159,7 @@ const Hero = () => {
 
             {/* Campaign details */}
             <div className="px-1 pb-1 pt-5 sm:px-2">
-              
+
               {/* Creator */}
               <div className="flex items-start gap-3">
                 <div className="relative size-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-100 shadow-sm">
@@ -188,35 +188,7 @@ const Hero = () => {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="mt-5 grid grid-cols-3 divide-x rounded-2xl bg-slate-50 py-3">
-                <div className="text-center">
-                  <p className="text-base font-bold text-[#0B1530]">
-                    84
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Orders
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <p className="text-base font-bold text-[#0B1530]">
-                    42
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Supporters
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <p className="text-base font-bold text-[#0B1530]">
-                    12
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Days left
-                  </p>
-                </div>
-              </div>
+          
 
               {/* Actions */}
               <div className="mt-4 grid grid-cols-2 gap-3">
