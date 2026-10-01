@@ -62,8 +62,26 @@ const SupportersApi = baseApi.injectEndpoints({
 
     // Send Email to Supporters
     sendEmailToSupporters: builder.mutation({
-      query: (data) => ({
+      query: (data: { campaignId: string; subject: string; message: string }) => ({
         url: "/supporter/send-email",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    // Send Message to Supporters
+    sendMessageToSupporters: builder.mutation({
+      query: (data: { campaignId?: string; message: string }) => ({
+        url: "/supporter/send-message",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    // Send SMS to Supporters (alias route /supporter/send-sms)
+    sendSmsToSupporters: builder.mutation({
+      query: (data: { campaignId?: string; message: string }) => ({
+        url: "/supporter/send-sms",
         method: "POST",
         body: data,
       }),
@@ -79,4 +97,6 @@ export const {
   useUpdateSupporterMutation,
   useDeleteSupporterMutation,
   useSendEmailToSupportersMutation,
+  useSendMessageToSupportersMutation,
+  useSendSmsToSupportersMutation,
 } = SupportersApi;
