@@ -20,6 +20,7 @@ import {
   Star,
   Trophy,
   Users,
+  Video,
   Loader2,
   CarTaxiFront,
 } from "lucide-react";
@@ -327,6 +328,38 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                       </div>
                     );
                   })}
+                </div>
+              </Panel>
+
+              {/* How to Manage Your Campaign Video */}
+              <Panel title="How to Manage Your Campaign" icon={Video}>
+                <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                  Watch this step-by-step video to learn how to monitor incoming orders, track donations, communicate with supporters, and manage your live campaign from your dashboard.
+                </p>
+                <div className="mt-4 relative overflow-hidden rounded-2xl border border-secondary/20 bg-slate-950 shadow-md aspect-video">
+                  <video
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-contain"
+                    src="https://funraising-it.s3.us-east-1.amazonaws.com/second_video_draft_1.mp4"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+                <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                    <Sparkles className="size-4 text-secondary shrink-0" />
+                    <span>Quick guide: Order fulfillment, payouts & updates</span>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => router.push("/dashboard/campaign")}
+                    className="w-full sm:w-auto bg-secondary text-white hover:bg-secondary/90 font-bold rounded-lg text-xs transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                  >
+                    Open Campaign Manager
+                  </Button>
                 </div>
               </Panel>
 
