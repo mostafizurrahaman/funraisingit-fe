@@ -14,6 +14,10 @@ export type OrderDetails = {
   quantity: number;
   delivery: "Pickup" | "Delivery" | "Shipping";
   total: string;
+  subTotal?: string;
+  shippingAmount?: string;
+  gstAmount?: string;
+  stripeFeeAmount?: string;
   date: string;
   status: string;
   productImage?: string;
@@ -72,6 +76,10 @@ export function OrderDetailsModal({ order }: { order: OrderDetails }) {
                 <div className="mt-4 space-y-3 text-sm">
                   <DetailRow icon={Package} label="Product" value={order.product} />
                   <DetailRow icon={CalendarDays} label="Date" value={dateLines.join(" at ")} />
+                  {order.subTotal && <DetailRow icon={ShoppingBag} label="Subtotal" value={order.subTotal} />}
+                  {order.shippingAmount && <DetailRow icon={Truck} label="Shipping" value={order.shippingAmount} />}
+                  {order.gstAmount && <DetailRow icon={ShoppingBag} label="Tax (GST)" value={order.gstAmount} />}
+                  {order.stripeFeeAmount && <DetailRow icon={ShoppingBag} label="Processing Fee" value={order.stripeFeeAmount} />}
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-muted-foreground">Payment Status</span>
                     <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">{order.status}</span>

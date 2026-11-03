@@ -38,7 +38,12 @@ import {
   useGetCampaignPreviewQuery,
   useGetCampaignByIdQuery,
   useGetProductsByCampaignIdQuery,
+  useGetCampaignsByCodeQuery,
 } from "@/redux/features/campaign/campaignApi";
+import {
+  useGetAccountQuery,
+  useConnectAccountMutation,
+} from "@/redux/features/auth/authApi";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
@@ -91,10 +96,41 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
     { skip: !isReady || !campaignId }
   );
 
+  // Query 4: Campaign by Code Query (if id not loaded or code passed)
+  const { data: codeResponse, isLoading: isCodeLoading } = useGetCampaignsByCodeQuery(
+    initialCampaignCode || "",
+    { skip: !isReady || !initialCampaignCode }
+  );
+
+  // Query 5: Connected Account Query
+  const { data: accountResponse, isLoading: isLoadingAccount } = useGetAccountQuery(undefined, {
+    skip: typeof window !== "undefined" && !localStorage.getItem("token"),
+  });
+  const [connectAccount, { isLoading: isConnectingAccount }] = useConnectAccountMutation();
+
   const previewData = previewResponse?.data;
-  const campaign = previewData?.campaign || liveResponse?.data;
+  const campaign = previewData?.campaign || liveResponse?.data || codeResponse?.data;
   const products = previewData?.products || productsResponse?.data || [];
   const firstProduct = products[0] || null;
+
+  const accountInfo = accountResponse?.data;
+  const isAccountConnected =
+    accountInfo?.status?.toLowerCase() === "active" ||
+    accountInfo?.chargesEnabled === true ||
+    accountInfo?.payoutsEnabled === true;
+
+  const handleConnectAccount = async () => {
+    try {
+      const res = await connectAccount(undefined).unwrap();
+      if (res?.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        toast.error("Could not initiate Stripe connect. Please try from Settings.");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to initiate Stripe onboarding");
+    }
+  };
 
   const campaignCode = campaign?.campaignCode || initialCampaignCode || "";
   const campaignUrl = campaignCode ? `${origin}/campaign/${campaignCode}` : `${origin}/campaign`;
@@ -114,7 +150,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
     window.open(url, "_blank", "noopener,noreferrer,width=720,height=640");
   }
 
-  const isLoading = !campaign && (isPreviewLoading || isLiveLoading || isProductsLoading || !isReady);
+  const isLoading = !campaign && (isPreviewLoading || isLiveLoading || isProductsLoading || isCodeLoading || !isReady);
 
   if (isLoading) {
     return (
@@ -210,34 +246,140 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
             </p>
           </section>
 
-          {/* Campaign Link Copy Panel */}
-          <section className="mt-5 rounded-2xl border border-secondary/20 bg-secondary/5 p-5 sm:p-6 shadow-sm">
-            <div className="flex flex-col items-center gap-5 sm:flex-row justify-between">
-              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto min-w-0">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-secondary shadow-sm">
-                  <Link2 className="size-5" />
+          {/* Highlighted 2-Step Action Container */}
+          <section className="mt-8 rounded-2xl border-2 border-secondary/30 bg-gradient-to-br from-amber-50/50 via-white to-secondary/5 p-5 sm:p-7 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                  <Sparkles className="size-3.5" />
+                  Required Action
                 </span>
-                <div className="min-w-0 flex-1 text-left">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Your Campaign Link</p>
-                  {/* <p className="mt-1 truncate text-sm sm:text-lg font-bold text-secondary hover:underline cursor-pointer max-w-[65vw] sm:max-w-none" onClick={() => copyLink("link")}>
-                    {campaignUrl.replace(/^https?:\/\//, "")}
-                  </p> */}
-                </div>
+                <h2 className="mt-2 text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  Now you have to complete these two steps:
+                </h2>
               </div>
-              <div className="relative flex flex-col items-center pb-8 sm:pb-0 shrink-0 w-full sm:w-auto">
-                <Button
-                  type="button"
-                  onClick={() => copyLink("link")}
-                  className="w-full sm:w-44 h-11 bg-primary text-white font-bold rounded-xl transition-all duration-300 hover:scale-[1.03] hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] cursor-pointer"
-                >
-                  <Copy className="size-4 mr-2" />
-                  {copied === "link" ? "COPIED!" : "COPY MY LINK"}
-                </Button>
-                <div className="absolute top-[48px] flex items-center gap-1.5 text-xs text-muted-foreground italic font-medium whitespace-nowrap">
-                  <svg className="w-4 h-3 text-[#00aaa6]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"></path>
-                  </svg>
-                  <span>Share this link anywhere!</span>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500">
+                Ensure payout readiness &amp; launch your outreach
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2 items-stretch">
+              {/* Step 1: Check Connected Account Status */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                      Step 1 • Payout Account
+                    </span>
+                    {isLoadingAccount ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                        <Loader2 className="size-3 animate-spin" /> Checking...
+                      </span>
+                    ) : isAccountConnected ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold text-emerald-800">
+                        <CheckCircle2 className="size-3.5 text-emerald-600" />
+                        Account Connected
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-800">
+                        Action Required
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-3 text-base font-bold text-slate-900">
+                    Connected Account Status
+                  </h3>
+
+                  {/* Highlighted text for account */}
+                  <div
+                    className={`mt-3 rounded-lg p-3.5 border ${
+                      isAccountConnected
+                        ? "bg-emerald-50/70 border-emerald-200/80"
+                        : "bg-amber-50/70 border-amber-200/80"
+                    }`}
+                  >
+                    {isAccountConnected ? (
+                      <p className="text-sm font-bold text-emerald-800">
+                        ✓ Account Connected — Your Stripe account is active and verified to receive payouts directly from campaign orders and donations.
+                      </p>
+                    ) : (
+                      <p className="text-sm font-semibold text-amber-900">
+                        ⚠️ Please connect your bank account to receive direct payouts for all incoming orders and donations.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {!isAccountConnected && !isLoadingAccount && (
+                  <div className="mt-4 pt-3 border-t border-slate-100">
+                    <Button
+                      type="button"
+                      disabled={isConnectingAccount}
+                      onClick={handleConnectAccount}
+                      className="w-full h-10 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 text-xs transition-all duration-300 cursor-pointer"
+                    >
+                      {isConnectingAccount ? (
+                        <>
+                          <Loader2 className="size-3.5 animate-spin mr-1.5" />
+                          Redirecting to Stripe...
+                        </>
+                      ) : (
+                        "Connect Bank Account Now"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Step 2: Share Link to Get Orders and Donations */}
+              <div className="rounded-xl border border-secondary/30 bg-white p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider text-secondary">
+                      Step 2 • Share Your Link
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-0.5 text-[11px] font-bold text-secondary">
+                      Ready to Share
+                    </span>
+                  </div>
+
+                  <h3 className="mt-3 text-base font-bold text-slate-900">
+                    Share Your Fundraiser
+                  </h3>
+
+                  {/* Highlighted text explicitly requested by user */}
+                  <div className="mt-3 rounded-lg bg-orange-50 p-3.5 border border-primary/30">
+                    <p className="text-sm font-black text-primary">
+                      To get orders and donations, copy the link and share it with your supporters!
+                    </p>
+                  </div>
+
+                  {/* Visible Campaign Link Box */}
+                  <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 font-mono select-all">
+                    <Link2 className="size-4 shrink-0 text-secondary" />
+                    <span className="flex-1 truncate font-medium">{campaignUrl}</span>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => copyLink("link")}
+                    className="flex-1 h-10 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover text-xs transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                  >
+                    <Copy className="size-3.5 mr-1.5" />
+                    {copied === "link" ? "COPIED TO CLIPBOARD!" : "COPY MY LINK"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.open(campaignUrl, "_blank")}
+                    className="h-10 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 text-xs px-3 cursor-pointer"
+                    title="Open campaign in new tab"
+                  >
+                    <ExternalLink className="size-3.5" />
+                  </Button>
                 </div>
               </div>
             </div>

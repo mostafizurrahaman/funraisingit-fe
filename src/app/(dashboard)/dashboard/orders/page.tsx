@@ -142,6 +142,10 @@ export default function OrdersPage() {
       quantity: quantity,
       delivery: deliveryVal,
       total: `$${(order.totalAmount || order.amount || order.total || 0).toFixed(2)}`,
+      subTotal: order.subTotal ? `$${order.subTotal.toFixed(2)}` : undefined,
+      shippingAmount: order.shippingAmount ? `$${order.shippingAmount.toFixed(2)}` : undefined,
+      gstAmount: order.gstAmount ? `$${order.gstAmount.toFixed(2)}` : undefined,
+      stripeFeeAmount: order.stripeFeeAmount ? `$${order.stripeFeeAmount.toFixed(2)}` : undefined,
       date: dateFormatted,
       status: order.orderStatus || order.paymentStatus || order.status || "Paid",
       productImage: productImage,
@@ -201,19 +205,36 @@ export default function OrdersPage() {
 
   const overview = getOrderOverviewResponse?.data || {};
 
-  const statsTotalOrders = typeof overview.totalOrders !== "undefined" ? overview.totalOrders : totalOrders;
-  const statsTotalItemsSold = typeof overview.totalItemsSold !== "undefined" ? overview.totalItemsSold : totalItemsSold;
-  
-  let statsTotalSales = `$${totalSales.toFixed(2)}`;
-  if (typeof overview.totalSales !== "undefined") {
-    statsTotalSales = typeof overview.totalSales === "number" ? `$${overview.totalSales.toFixed(2)}` : String(overview.totalSales);
-  }
+  const statsTotalOrders =
+    typeof overview.totalOrder !== "undefined"
+      ? overview.totalOrder
+      : (typeof overview.totalOrders !== "undefined" ? overview.totalOrders : totalOrders);
 
-  const statsToBeDelivered = typeof overview.toBeDelivered !== "undefined"
-    ? overview.toBeDelivered
-    : (typeof overview.toBeDeliverd !== "undefined" ? overview.toBeDeliverd : countToBeDelivered);
-  
-  const statsCompleted = typeof overview.completed !== "undefined" ? overview.completed : countCompleted;
+  const statsTotalItemsSold =
+    typeof overview.totalOrderedItems !== "undefined"
+      ? overview.totalOrderedItems
+      : (typeof overview.totalItemsSold !== "undefined" ? overview.totalItemsSold : totalItemsSold);
+
+  const saleNum =
+    typeof overview.totalSale?.totalAmount === "number"
+      ? overview.totalSale.totalAmount
+      : (typeof overview.totalSale === "number"
+          ? overview.totalSale
+          : (typeof overview.totalSales === "number" ? overview.totalSales : totalSales));
+
+  const statsTotalSales = `$${Number(saleNum).toFixed(2)}`;
+
+  const statsToBeDelivered =
+    typeof overview.deliverableOrders !== "undefined"
+      ? overview.deliverableOrders
+      : (typeof overview.toBeDelivered !== "undefined"
+          ? overview.toBeDelivered
+          : (typeof overview.toBeDeliverd !== "undefined" ? overview.toBeDeliverd : countToBeDelivered));
+
+  const statsCompleted =
+    typeof overview.deliveredOrders !== "undefined"
+      ? overview.deliveredOrders
+      : (typeof overview.completed !== "undefined" ? overview.completed : countCompleted);
 
   const summaryStats = [
     {

@@ -479,7 +479,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Available Balance</span>
                 <span className="font-semibold text-secondary">
-                  ${data.remainingBalance}
+                  ${data.raisedAmount}
                 </span>
               </div>
             </div>

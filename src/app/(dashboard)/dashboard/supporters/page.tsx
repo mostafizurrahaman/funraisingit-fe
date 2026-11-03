@@ -98,7 +98,7 @@ export default function SupportersPage() {
     error: listError,
   } = useGetAllSupportersQuery(
     { campaignId, skipPagination: true },
-    { skip: !campaignId }
+    { skip: !campaignId },
   );
   const supportersData = supportersResponse?.data || [];
 
@@ -119,10 +119,10 @@ export default function SupportersPage() {
 
   // Calculate reachability for communication
   const supportersWithPhone = supportersData.filter((s: any) =>
-    Boolean((s.phone || s.phoneNumber || "").toString().trim())
+    Boolean((s.phone || s.phoneNumber || "").toString().trim()),
   );
   const supportersWithEmail = supportersData.filter((s: any) =>
-    Boolean((s.email || "").toString().trim())
+    Boolean((s.email || "").toString().trim()),
   );
 
   const totalSupporters = overview?.totalSupporters || 0;
@@ -139,7 +139,7 @@ export default function SupportersPage() {
       title: "Total Orders",
       value: `$${(overview?.totalOrders?.amount || 0).toLocaleString(
         undefined,
-        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
       )}`,
       detail: `From ${overview?.totalOrders?.fromSupporters || 0} supporters`,
       icon: Heart,
@@ -149,7 +149,7 @@ export default function SupportersPage() {
       title: "Total Donations",
       value: `$${(overview?.totalDonations?.amount || 0).toLocaleString(
         undefined,
-        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
       )}`,
       detail: `From ${
         overview?.totalDonations?.fromSupporters || 0
@@ -161,7 +161,7 @@ export default function SupportersPage() {
       title: "Total Support",
       value: `$${(overview?.totalSupport?.amount || 0).toLocaleString(
         undefined,
-        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
       )}`,
       detail: "Combined total",
       icon: Star,
@@ -272,7 +272,7 @@ export default function SupportersPage() {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `${campaignData?.name || "campaign"}_supporters.csv`
+      `${campaignData?.name || "campaign"}_supporters.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -290,26 +290,26 @@ export default function SupportersPage() {
   };
 
   const handleApplyEmailTemplate = (
-    templateType: "thank_you" | "update" | "milestone"
+    templateType: "thank_you" | "update" | "milestone",
   ) => {
     const campaignName = campaignData?.name || "our campaign";
     switch (templateType) {
       case "thank_you":
         setEmailSubject(`Thank you for supporting ${campaignName}!`);
         setEmailMessage(
-          `Dear {name},\n\nWe wanted to extend our heartfelt gratitude for your generous support of ${campaignName}.\n\nYour contribution makes a huge difference to our mission and directly powers our progress.\n\nWarm regards,\nThe Campaign Team`
+          `Dear {name},\n\nWe wanted to extend our heartfelt gratitude for your generous support of ${campaignName}.\n\nYour contribution makes a huge difference to our mission and directly powers our progress.\n\nWarm regards,\nThe Campaign Team`,
         );
         break;
       case "update":
         setEmailSubject(`Exciting Update on ${campaignName}`);
         setEmailMessage(
-          `Dear {name},\n\nWe're thrilled to share our latest milestone update on ${campaignName}!\n\nThanks to incredible supporters like you, we are moving closer to reaching our final goal. We will continue to keep you updated along the way.\n\nThank you once again for your generosity!\n\nBest regards,\nThe Campaign Team`
+          `Dear {name},\n\nWe're thrilled to share our latest milestone update on ${campaignName}!\n\nThanks to incredible supporters like you, we are moving closer to reaching our final goal. We will continue to keep you updated along the way.\n\nThank you once again for your generosity!\n\nBest regards,\nThe Campaign Team`,
         );
         break;
       case "milestone":
         setEmailSubject(`We Reached a New Milestone for ${campaignName}!`);
         setEmailMessage(
-          `Dear {name},\n\nBig news! We just crossed another significant milestone on ${campaignName}.\n\nThis achievement would not have been possible without your belief and backing. Please feel free to share our campaign link with your network to help us finish strong!\n\nWith gratitude,\nThe Campaign Team`
+          `Dear {name},\n\nBig news! We just crossed another significant milestone on ${campaignName}.\n\nThis achievement would not have been possible without your belief and backing. Please feel free to share our campaign link with your network to help us finish strong!\n\nWith gratitude,\nThe Campaign Team`,
         );
         break;
     }
@@ -334,7 +334,7 @@ export default function SupportersPage() {
 
       if (response?.success) {
         toast.success(
-          response?.message || "Email sent to supporters successfully!"
+          response?.message || "Email sent to supporters successfully!",
         );
         setEmailSubject("");
         setEmailMessage("");
@@ -346,7 +346,7 @@ export default function SupportersPage() {
       toast.error(
         err?.data?.message ||
           err?.message ||
-          "Something went wrong while sending email."
+          "Something went wrong while sending email.",
       );
     }
   };
@@ -361,23 +361,23 @@ export default function SupportersPage() {
   };
 
   const handleApplySmsTemplate = (
-    templateType: "thank_you" | "update" | "reminder"
+    templateType: "thank_you" | "update" | "reminder",
   ) => {
     const campaignName = campaignData?.name || "our campaign";
     switch (templateType) {
       case "thank_you":
         setSmsMessage(
-          `Hi {name}, thank you so much for supporting ${campaignName}! Your generous support means the world to us.`
+          `Hi {name}, thank you so much for supporting ${campaignName}! Your generous support means the world to us.`,
         );
         break;
       case "update":
         setSmsMessage(
-          `Hi {name}, exciting news! Thanks to supporters like you, ${campaignName} is making huge progress toward our goal.`
+          `Hi {name}, exciting news! Thanks to supporters like you, ${campaignName} is making huge progress toward our goal.`,
         );
         break;
       case "reminder":
         setSmsMessage(
-          `Hi {name}, our campaign ${campaignName} is in its final days! Thank you for standing with us, and please consider sharing it with friends.`
+          `Hi {name}, our campaign ${campaignName} is in its final days! Thank you for standing with us, and please consider sharing it with friends.`,
         );
         break;
     }
@@ -397,7 +397,7 @@ export default function SupportersPage() {
 
       if (response?.success) {
         toast.success(
-          response?.message || "SMS message sent to supporters successfully!"
+          response?.message || "SMS message sent to supporters successfully!",
         );
         setSmsMessage("");
         setIsMessageModalOpen(false);
@@ -408,7 +408,7 @@ export default function SupportersPage() {
       toast.error(
         err?.data?.message ||
           err?.message ||
-          "Something went wrong while sending SMS."
+          "Something went wrong while sending SMS.",
       );
     }
   };
@@ -521,7 +521,7 @@ export default function SupportersPage() {
                 <span
                   className={cn(
                     "inline-flex size-11 shrink-0 items-center justify-center rounded-full",
-                    toneStyles[stat.tone]
+                    toneStyles[stat.tone],
                   )}
                 >
                   <Icon className="size-5" />
@@ -658,7 +658,7 @@ export default function SupportersPage() {
                         <td className="px-4 py-3 text-muted-foreground">
                           {supporter.lastActivity
                             ? new Date(
-                                supporter.lastActivity
+                                supporter.lastActivity,
                               ).toLocaleDateString()
                             : "N/A"}
                         </td>
@@ -757,7 +757,7 @@ export default function SupportersPage() {
                 <span
                   className={cn(
                     "inline-flex size-10 items-center justify-center rounded-lg",
-                    toneStyles[insight.tone]
+                    toneStyles[insight.tone],
                   )}
                 >
                   <Icon className="size-5" />
@@ -905,7 +905,7 @@ export default function SupportersPage() {
                   type="button"
                   onClick={() =>
                     setSmsMessage((prev) =>
-                      prev ? `${prev} {name}` : "{name}"
+                      prev ? `${prev} {name}` : "{name}",
                     )
                   }
                   className="inline-flex items-center gap-1 rounded bg-secondary/10 px-2 py-0.5 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors cursor-pointer"
@@ -1086,7 +1086,7 @@ export default function SupportersPage() {
                     type="button"
                     onClick={() =>
                       setEmailMessage((prev) =>
-                        prev ? `${prev} {name}` : "{name}"
+                        prev ? `${prev} {name}` : "{name}",
                       )
                     }
                     className="inline-flex items-center gap-1 rounded bg-secondary/10 px-2 py-0.5 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors cursor-pointer"

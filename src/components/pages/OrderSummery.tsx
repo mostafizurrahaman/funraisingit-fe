@@ -127,6 +127,10 @@ const OrderSummery = () => {
     "local_pickup" | "local_delivery" | "shipping"
   >("shipping");
   const [selectedCountry, setSelectedCountry] = useState("United States");
+  const [address1, setAddress1] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
 
   const { data: campaignResponse, isLoading } = useGetCampaignsByCodeQuery(
     code,
@@ -227,7 +231,12 @@ const OrderSummery = () => {
     shippingMethods.find((method) => method.id === currentShippingId)?.price ??
     0;
 
-  // Auto-fetch order preview when quantities or shipping details change
+  const hasPhysical = products.some(
+    (p: any) => (quantities[p._id] || 0) > 0 && p.productType === "physical",
+  );
+  const isPickup = currentShippingId === "local_pickup";
+
+  // Auto-fetch order preview when quantities, shipping details or address change
   useEffect(() => {
     if (!campaign?._id) return;
 
@@ -245,17 +254,39 @@ const OrderSummery = () => {
 
     if (orderItems.length === 0) return;
 
-    let shippingType = "shipping";
-    if (currentShippingId === "local_pickup") shippingType = "local_pickup";
-    else if (currentShippingId === "local_delivery")
-      shippingType = "local_delivery";
+    const hasPhysicalItems = orderItems.some((item) => item.productType === "physical");
+    let shippingType: string | undefined = undefined;
+    if (hasPhysicalItems) {
+      if (currentShippingId === "local_pickup") shippingType = "local_pickup";
+      else if (currentShippingId === "local_delivery")
+        shippingType = "local_delivery";
+      else shippingType = "shipping";
+    }
 
     previewOrder({
       campaignId: campaign._id,
       orderItems,
-      shippingType,
+      ...(shippingType && { shippingType }),
+      ...(currentShippingId !== "local_pickup" && {
+        addressLine1: address1.trim() || undefined,
+        city: city.trim() || undefined,
+        state: state.trim() || undefined,
+        postalCode: postalCode.trim() || undefined,
+        country: selectedCountry === "United States" ? "US" : "TC",
+      }),
     });
-  }, [quantities, currentShippingId, campaign?._id, previewOrder, products]);
+  }, [
+    quantities,
+    currentShippingId,
+    campaign?._id,
+    previewOrder,
+    products,
+    address1,
+    city,
+    state,
+    postalCode,
+    selectedCountry,
+  ]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -321,26 +352,32 @@ const OrderSummery = () => {
     const postalCode = (formData.get("postalCode") as string) || "";
     const country = (formData.get("country") as string) || "";
 
-    let shippingType = "shipping";
-    if (currentShippingId === "local_pickup") shippingType = "local_pickup";
-    else if (currentShippingId === "local_delivery")
-      shippingType = "local_delivery";
+    const hasPhysicalItems = orderItems.some((item) => item.productType === "physical");
+    let shippingType: string | undefined = undefined;
+    if (hasPhysicalItems) {
+      if (currentShippingId === "local_pickup") shippingType = "local_pickup";
+      else if (currentShippingId === "local_delivery")
+        shippingType = "local_delivery";
+      else shippingType = "shipping";
+    }
 
-    const orderPayload = {
+    const orderPayload: any = {
       campaignId: campaign._id,
       orderItems,
       fullName: `${firstName} ${lastName}`,
       email,
       phone,
       addressLine1:
-        currentShippingId === "local_pickup" ? "Local Pickup" : address1,
+        currentShippingId === "local_pickup" ? (address1.trim() || "Local Pickup") : address1,
       ...(address2 && { addressLine2: address2 }),
-      city: currentShippingId === "local_pickup" ? "Local Pickup" : city,
-      state: currentShippingId === "local_pickup" ? "Local Pickup" : state,
-      postalCode: currentShippingId === "local_pickup" ? "0000" : postalCode,
-      country: currentShippingId === "local_pickup" ? "US" : country,
-      shippingType,
+      city: currentShippingId === "local_pickup" ? (city.trim() || "Local Pickup") : city,
+      state: currentShippingId === "local_pickup" ? (state.trim() || "Local Pickup") : state,
+      postalCode: currentShippingId === "local_pickup" ? (postalCode.trim() || "00000") : postalCode,
+      country: currentShippingId === "local_pickup" ? (country || "US") : country,
     };
+    if (shippingType) {
+      orderPayload.shippingType = shippingType;
+    }
     if (address2) {
       orderPayload.addressLine2 = address2;
     }
@@ -615,24 +652,40 @@ const OrderSummery = () => {
                   <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Subtotal</dt>
-                      <dd>${previewData.subtotal.toFixed(2)}</dd>
+                      <dd className="font-medium">${previewData.subtotal.toFixed(2)}</dd>
                     </div>
+                    {currentShippingId === "local_pickup" ? (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Shipping Fee</dt>
+                        <dd className="font-medium text-emerald-600">Free (Pickup)</dd>
+                      </div>
+                    ) : previewData.shippingFee > 0 ? (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Shipping Fee</dt>
+                        <dd className="font-medium">${previewData.shippingFee.toFixed(2)}</dd>
+                      </div>
+                    ) : hasPhysical ? (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Shipping Fee</dt>
+                        <dd className="font-medium">$0.00</dd>
+                      </div>
+                    ) : null}
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Shipping Fee</dt>
-                      <dd>${previewData.shippingFee.toFixed(2)}</dd>
+                      <dt className="text-muted-foreground">
+                        {previewData.gstAmount > 0
+                          ? `Estimated Tax ${previewData.taxRateApplied ? `(${previewData.taxRateApplied}%)` : ""}`
+                          : "Estimated Tax"}
+                      </dt>
+                      <dd className="font-medium">
+                        ${(previewData.gstAmount || 0).toFixed(2)}
+                      </dd>
                     </div>
-                    {/* <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Stripe Fee</dt>
-                      <dd>${previewData.stripeFee.toFixed(2)}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Platform Fee</dt>
-                      <dd>${previewData.platformFee.toFixed(2)}</dd>
-                    </div>
-                    <div className="flex justify-between border-t border-dashed border-muted-foreground/20 pt-2 font-medium">
-                      <dt className="text-muted-foreground">Organizer Net Amount</dt>
-                      <dd className="text-secondary">${previewData.organizerNetAmount.toFixed(2)}</dd>
-                    </div> */}
+                    {typeof previewData.stripeFee === "number" && previewData.stripeFee > 0 && (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Processing Fee</dt>
+                        <dd className="font-medium">${previewData.stripeFee.toFixed(2)}</dd>
+                      </div>
+                    )}
                   </dl>
                   <div className="flex items-center justify-between pt-4 text-sm font-semibold">
                     <span>Total</span>
@@ -646,17 +699,25 @@ const OrderSummery = () => {
                   <dl className="space-y-3 border-b border-muted-foreground/30 py-4 text-xs">
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Subtotal</dt>
-                      <dd>${subtotal.toFixed(2)}</dd>
+                      <dd className="font-medium">${subtotal.toFixed(2)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Shipping</dt>
-                      <dd>${selectedShippingFee.toFixed(2)}</dd>
+                      <dt className="text-muted-foreground">Shipping Fee</dt>
+                      <dd className="font-medium">
+                        {currentShippingId === "local_pickup"
+                          ? "Free (Pickup)"
+                          : `$${selectedShippingFee.toFixed(2)}`}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Estimated Tax</dt>
+                      <dd className="font-medium">$0.00</dd>
                     </div>
                   </dl>
                   <div className="flex items-center justify-between pt-4 text-sm font-semibold">
                     <span>Total</span>
                     <span className="text-xl text-secondary">
-                      ${(subtotal + selectedShippingFee).toFixed(2)}
+                      ${(subtotal + (currentShippingId === "local_pickup" ? 0 : selectedShippingFee)).toFixed(2)}
                     </span>
                   </div>
                 </>
@@ -712,6 +773,8 @@ const OrderSummery = () => {
                     name="address1"
                     placeholder="123 Main Street"
                     required={true}
+                    value={address1}
+                    onChange={(e) => setAddress1(e.target.value)}
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -726,6 +789,8 @@ const OrderSummery = () => {
                   name="city"
                   placeholder="Springfield"
                   required={true}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
                 />
                 <label className="block text-xs font-medium">
                   State <span className="text-red-500">*</span>
@@ -734,7 +799,8 @@ const OrderSummery = () => {
                     name="state"
                     required={true}
                     className={`mt-2 ${inputClassName}`}
-                    defaultValue=""
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
                   >
                     <option value="" disabled>
                       Select state/area
@@ -759,6 +825,8 @@ const OrderSummery = () => {
                   name="postalCode"
                   placeholder="62701"
                   required={true}
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
                 />
                 <label className="block text-xs font-medium">
                   Country <span className="text-red-500">*</span>
