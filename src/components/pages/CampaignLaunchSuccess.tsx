@@ -497,7 +497,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                   <Button
                     type="button"
                     size="sm"
-                    onClick={() => router.push("/dashboard/campaign")}
+                    onClick={() => router.push("/dashboard/my-campaigns")}
                     className="w-full sm:w-auto bg-secondary text-white hover:bg-secondary/90 font-bold rounded-lg text-xs transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                   >
                     Open Campaign Manager
@@ -539,7 +539,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Button
                     type="button"
-                    onClick={() => router.push("/dashboard/campaign")}
+                    onClick={() => router.push("/dashboard/my-campaigns")}
                     className="h-auto py-3.5 px-4 bg-primary text-white font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] hover:bg-primary-hover hover:shadow-md active:scale-[0.98] flex flex-col items-center justify-center text-center gap-0.5 cursor-pointer"
                   >
                     <div className="flex items-center gap-2">

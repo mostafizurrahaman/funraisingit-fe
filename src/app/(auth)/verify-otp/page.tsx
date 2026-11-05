@@ -102,10 +102,10 @@ function VerifyOtpForm() {
     try {
       if (flow === "signup") {
         const res = await resendSignUpOtp({ email }).unwrap();
-        toast.success(res?.message || "OTP resent successfully!");
+        toast.success(res?.message || "A new OTP has been sent. Please check your spam or junk mail.");
       } else {
         const res = await resendOtp({ email }).unwrap();
-        toast.success(res?.message || "OTP resent successfully!");
+        toast.success(res?.message || "A new OTP has been sent. Please check your spam or junk mail.");
       }
       setTimeLeft(60);
     } catch (err: any) {
@@ -148,6 +148,9 @@ function VerifyOtpForm() {
         <h1 className="text-2xl font-semibold tracking-tight">OTP Verification</h1>
         <p className="mx-auto mt-1 max-w-md text-sm leading-7">
           Enter the 6 digits code that you received on your email {email ? `(${email})` : ""}
+        </p>
+        <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground leading-relaxed">
+          Please check your spam or junk mail. If the first code does not work, request another one.
         </p>
       </div>
       <form onSubmit={handleSubmit} className="mt-4" noValidate>

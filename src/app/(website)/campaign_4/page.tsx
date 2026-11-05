@@ -170,7 +170,11 @@ export default function CampaignFourPage() {
       }
       resetDraft();
       removeCampaignIdFromLocalStorage();
-      router.push(response?.data?.url);
+      if (response?.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        router.push(`/campaign-launch-success?campaignId=${campaignId}`);
+      }
     } catch (err: any) {
       const rawErr = err?.data;
       const errMsg =

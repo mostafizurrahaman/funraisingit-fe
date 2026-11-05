@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Rocket,
   ShieldCheck,
+  Share2,
 } from "lucide-react";
 
 import glitter from "../../assets/glitter.png";
@@ -100,20 +101,20 @@ const OnboardingSuccess = () => {
 
             <div className="mt-8 grid gap-3">
               <Link
-                href="/dashboard/campaign"
+                href="/campaign-launch-success"
                 className="flex h-11 px-1 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
-                <LayoutDashboard className="size-4" />
-                Check & Launch Your Campaign
+                <Share2 className="size-4" />
+                Share Your Campaign
                 <ArrowRight className="size-4" />
               </Link>
-              {/* <Link
-                href="/campaign_1"
-                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-secondary text-sm font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
+              <Link
+                href="/dashboard"
+                className="flex h-11 items-center justify-center gap-2 rounded-lg border border-border text-sm font-semibold text-foreground transition-all duration-300 hover:bg-slate-50"
               >
-                <Rocket className="size-4" />
-                Start My First Campaign
-              </Link> */}
+                <LayoutDashboard className="size-4" />
+                Go to Dashboard
+              </Link>
             </div>
           </article>
 
