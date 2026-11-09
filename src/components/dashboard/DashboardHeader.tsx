@@ -42,7 +42,7 @@ export function DashboardHeader() {
             <SheetContent className="left-0 right-auto w-[82%] max-w-72 translate-x-0 border-l-0 border-r p-0 data-[state=closed]:-translate-x-full">
               <SheetTitle className="sr-only">Dashboard menu</SheetTitle>
               <DashboardSidebar
-                className="static flex h-dvh w-full border-r-0"
+                className="static flex h-full w-full border-r-0"
                 onItemClick={() => setOpen(false)}
               />
             </SheetContent>
