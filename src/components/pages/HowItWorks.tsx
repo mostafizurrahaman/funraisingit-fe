@@ -29,20 +29,20 @@ interface TrustItem {
 const steps: Step[] = [
   {
     number: 1,
-    title: "Create Your Campaign",
+    title: "Create Your Sales Event",
     description: "Add your product, story, photos and set your goal in a few easy clicks.",
     icon: Pencil,
   },
   {
     number: 2,
     title: "Share Your Link",
-    description: "Post on social media, text or email directly to your supporters and community.",
+    description: "Post on social media, text or email directly to your customers and community.",
     icon: Share2,
   },
   {
     number: 3,
-    title: "Collect Orders & Donations",
-    description: "Supporters can seamlessly buy your products or donate directly to your cause.",
+    title: "Collect Orders",
+    description: "Customers can seamlessly buy your products.",
     icon: ShoppingBag,
   },
   {
@@ -78,7 +78,7 @@ const HowItWorks = ({ showVideo = true }: HowItWorksProps) => {
             Get Started in 4 Easy Steps
           </h2>
           <p className="mt-4 text-base sm:text-lg lg:text-xl text-muted-foreground font-medium leading-relaxed">
-            Watch our quick video walkthrough or follow the simple guide below to create, launch, and succeed with your fundraiser.
+            Watch our quick video walkthrough or follow the simple guide below to create, launch, and succeed with your sales event.
           </p>
         </div>
 

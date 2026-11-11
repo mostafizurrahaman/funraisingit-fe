@@ -128,7 +128,7 @@ function SuccessContent() {
                 href="/campaign"
                 className="flex h-11 items-center justify-center gap-2 rounded-xl border border-secondary text-sm font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white"
               >
-                Browse Campaigns
+                Browse Sales Events
               </Link>
             </div>
           </article>

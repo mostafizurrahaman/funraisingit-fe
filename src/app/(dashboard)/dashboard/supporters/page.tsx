@@ -129,7 +129,7 @@ export default function SupportersPage() {
 
   const stats = [
     {
-      title: "Total Supporters",
+      title: "Total Customers",
       value: String(totalSupporters),
       detail: "People",
       icon: Users,
@@ -141,21 +141,9 @@ export default function SupportersPage() {
         undefined,
         { minimumFractionDigits: 2, maximumFractionDigits: 2 },
       )}`,
-      detail: `From ${overview?.totalOrders?.fromSupporters || 0} supporters`,
+      detail: `From ${overview?.totalOrders?.fromSupporters || 0} customers`,
       icon: Heart,
       tone: "rose",
-    },
-    {
-      title: "Total Donations",
-      value: `$${(overview?.totalDonations?.amount || 0).toLocaleString(
-        undefined,
-        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-      )}`,
-      detail: `From ${
-        overview?.totalDonations?.fromSupporters || 0
-      } supporters`,
-      icon: Gift,
-      tone: "blue",
     },
     {
       title: "Total Support",
@@ -170,32 +158,17 @@ export default function SupportersPage() {
     {
       title: "New This Week",
       value: String(overview?.newSupportersThisWeek || 0),
-      detail: "New supporters",
+      detail: "New customers",
       icon: Users,
       tone: "violet",
     },
   ] as const;
 
   // Support Overview Chart calculations
-  const ordersOnly = overview?.supportOverview?.ordersOnly || 0;
-  const donationsOnly = overview?.supportOverview?.donationsOnly || 0;
-  const bothOrdersAndDonations =
-    overview?.supportOverview?.bothOrdersAndDonations || 0;
+  const ordersOnly = overview?.supportOverview?.ordersOnly || totalSupporters;
+  const ordersPercentage = totalSupporters > 0 ? 100 : 0;
 
-  const ordersPercentage =
-    totalSupporters > 0 ? Math.round((ordersOnly / totalSupporters) * 100) : 0;
-  const donationsPercentage =
-    totalSupporters > 0
-      ? Math.round((donationsOnly / totalSupporters) * 100)
-      : 0;
-  const bothPercentage =
-    totalSupporters > 0
-      ? Math.round((bothOrdersAndDonations / totalSupporters) * 100)
-      : 0;
-
-  const chartGradient = `conic-gradient(var(--secondary) 0% ${ordersPercentage}%, #f43f5e ${ordersPercentage}% ${
-    ordersPercentage + donationsPercentage
-  }%, #3b82f6 ${ordersPercentage + donationsPercentage}% 100%)`;
+  const chartGradient = `conic-gradient(var(--secondary) 0% ${ordersPercentage}%, #e2e8f0 ${ordersPercentage}% 100%)`;
 
   const topSupporters = overview?.topSupporters || [];
 
@@ -203,7 +176,7 @@ export default function SupportersPage() {
     {
       title: "Most Active Day",
       value: overview?.mostActiveDay?.day || "N/A",
-      detail: `${overview?.mostActiveDay?.supporterCount || 0} supporters`,
+      detail: `${overview?.mostActiveDay?.supporterCount || 0} customers`,
       icon: Users,
       tone: "secondary",
     },
@@ -215,9 +188,9 @@ export default function SupportersPage() {
       tone: "blue",
     },
     {
-      title: "Repeat Supporters",
+      title: "Repeat Customers",
       value: String(overview?.repeatSupporters || 0),
-      detail: "Active on both fronts",
+      detail: "Repeat buyers",
       icon: Heart,
       tone: "violet",
     },
@@ -228,20 +201,11 @@ export default function SupportersPage() {
       icon: ShoppingBag,
       tone: "primary",
     },
-    {
-      title: "Average Donations",
-      value: `$${(overview?.averageDonationValue || 0).toFixed(2)}`,
-      detail: `From ${
-        overview?.totalDonations?.totalDonationsCount || 0
-      } donations`,
-      icon: Gift,
-      tone: "green",
-    },
   ] as const;
 
   const handleExport = () => {
     if (supportersData.length === 0) {
-      toast.error("No supporters to export.");
+      toast.error("No customers to export.");
       return;
     }
     const headers = [
@@ -249,7 +213,6 @@ export default function SupportersPage() {
       "Email",
       "Phone",
       "Orders",
-      "Donations",
       "Total Support",
       "Last Activity",
     ];
@@ -258,7 +221,6 @@ export default function SupportersPage() {
       s.email || "N/A",
       s.phone || s.phoneNumber || "N/A",
       s.totalOrders || 0,
-      s.totalDonations || 0,
       s.totalAmount || 0,
       s.lastActivity ? new Date(s.lastActivity).toLocaleDateString() : "N/A",
     ]);
@@ -272,18 +234,18 @@ export default function SupportersPage() {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `${campaignData?.name || "campaign"}_supporters.csv`,
+      `${campaignData?.name || "sell_event"}_customers.csv`,
     );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("Supporters list exported successfully!");
+    toast.success("Customers list exported successfully!");
   };
 
   // --- Email Logic ---
   const handleOpenSendEmail = () => {
     if (supportersData.length === 0) {
-      toast.error("No supporters found for this campaign.");
+      toast.error("No customers found for this sales event.");
       return;
     }
     setIsEmailModalOpen(true);
@@ -292,24 +254,24 @@ export default function SupportersPage() {
   const handleApplyEmailTemplate = (
     templateType: "thank_you" | "update" | "milestone",
   ) => {
-    const campaignName = campaignData?.name || "our campaign";
+    const campaignName = campaignData?.name || "our sales event";
     switch (templateType) {
       case "thank_you":
         setEmailSubject(`Thank you for supporting ${campaignName}!`);
         setEmailMessage(
-          `Dear {name},\n\nWe wanted to extend our heartfelt gratitude for your generous support of ${campaignName}.\n\nYour contribution makes a huge difference to our mission and directly powers our progress.\n\nWarm regards,\nThe Campaign Team`,
+          `Dear {name},\n\nWe wanted to extend our heartfelt gratitude for your generous support of ${campaignName}.\n\nYour contribution makes a huge difference to our mission and directly powers our progress.\n\nWarm regards,\nThe Sales Event Team`,
         );
         break;
       case "update":
         setEmailSubject(`Exciting Update on ${campaignName}`);
         setEmailMessage(
-          `Dear {name},\n\nWe're thrilled to share our latest milestone update on ${campaignName}!\n\nThanks to incredible supporters like you, we are moving closer to reaching our final goal. We will continue to keep you updated along the way.\n\nThank you once again for your generosity!\n\nBest regards,\nThe Campaign Team`,
+          `Dear {name},\n\nWe're thrilled to share our latest milestone update on ${campaignName}!\n\nThanks to incredible customers like you, we are moving closer to reaching our final goal. We will continue to keep you updated along the way.\n\nThank you once again for your generosity!\n\nBest regards,\nThe Sales Event Team`,
         );
         break;
       case "milestone":
         setEmailSubject(`We Reached a New Milestone for ${campaignName}!`);
         setEmailMessage(
-          `Dear {name},\n\nBig news! We just crossed another significant milestone on ${campaignName}.\n\nThis achievement would not have been possible without your belief and backing. Please feel free to share our campaign link with your network to help us finish strong!\n\nWith gratitude,\nThe Campaign Team`,
+          `Dear {name},\n\nBig news! We just crossed another significant milestone on ${campaignName}.\n\nThis achievement would not have been possible without your belief and backing. Please feel free to share our sales event link with your network to help us finish strong!\n\nWith gratitude,\nThe Sales Event Team`,
         );
         break;
     }
@@ -334,7 +296,7 @@ export default function SupportersPage() {
 
       if (response?.success) {
         toast.success(
-          response?.message || "Email sent to supporters successfully!",
+          response?.message || "Email sent to customers successfully!",
         );
         setEmailSubject("");
         setEmailMessage("");
@@ -354,7 +316,7 @@ export default function SupportersPage() {
   // --- SMS / Message Logic ---
   const handleOpenSendMessage = () => {
     if (supportersData.length === 0) {
-      toast.error("No supporters found for this campaign.");
+      toast.error("No customers found for this sales event.");
       return;
     }
     setIsMessageModalOpen(true);
@@ -363,7 +325,7 @@ export default function SupportersPage() {
   const handleApplySmsTemplate = (
     templateType: "thank_you" | "update" | "reminder",
   ) => {
-    const campaignName = campaignData?.name || "our campaign";
+    const campaignName = campaignData?.name || "our sales event";
     switch (templateType) {
       case "thank_you":
         setSmsMessage(
@@ -372,12 +334,12 @@ export default function SupportersPage() {
         break;
       case "update":
         setSmsMessage(
-          `Hi {name}, exciting news! Thanks to supporters like you, ${campaignName} is making huge progress toward our goal.`,
+          `Hi {name}, exciting news! Thanks to customers like you, ${campaignName} is making huge progress toward our goal.`,
         );
         break;
       case "reminder":
         setSmsMessage(
-          `Hi {name}, our campaign ${campaignName} is in its final days! Thank you for standing with us, and please consider sharing it with friends.`,
+          `Hi {name}, our sales event ${campaignName} is in its final days! Thank you for standing with us, and please consider sharing it with friends.`,
         );
         break;
     }
@@ -397,7 +359,7 @@ export default function SupportersPage() {
 
       if (response?.success) {
         toast.success(
-          response?.message || "SMS message sent to supporters successfully!",
+          response?.message || "SMS message sent to customers successfully!",
         );
         setSmsMessage("");
         setIsMessageModalOpen(false);
@@ -417,12 +379,12 @@ export default function SupportersPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-5">
-      {/* Campaign Selector Banner */}
+      {/* Sales Event Selector Banner */}
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
           <p className="text-xs text-muted-foreground">
-            Select a campaign to filter supporters
+            Select a sales event to filter customers
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -430,7 +392,7 @@ export default function SupportersPage() {
             htmlFor="campaign-filter"
             className="text-sm font-semibold text-muted-foreground shrink-0"
           >
-            Campaign:
+            Sales Event:
           </label>
           <select
             id="campaign-filter"
@@ -460,16 +422,16 @@ export default function SupportersPage() {
             <Users className="size-7" />
           </span>
           <div>
-            <h2 className="text-2xl font-semibold">Supporters</h2>
+            <h2 className="text-2xl font-semibold">Customers</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Everyone who has supported your campaign.
+              Everyone who has supported your sales event.
             </p>
             <p className="mt-3 text-sm font-semibold">
-              {campaignData?.name || "Loading Campaign..."}
+              {campaignData?.name || "Loading Sales Event..."}
             </p>
             {campaignData?.status && (
               <p className="mt-1.5 flex items-center gap-2 text-xs font-medium">
-                Campaign Status:
+                Sales Event Status:
                 <span className="inline-flex rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-semibold text-secondary capitalize">
                   {campaignData.status}
                 </span>
@@ -508,7 +470,7 @@ export default function SupportersPage() {
       </section>
 
       {/* Stats Cards */}
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
 
@@ -548,7 +510,7 @@ export default function SupportersPage() {
         <DashboardCard className="p-0">
           <div className="flex flex-col gap-4 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h3 className="text-base font-semibold">All Supporters</h3>
+              <h3 className="text-base font-semibold">All Customers</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {supportersWithPhone.length} reachable by SMS •{" "}
                 {supportersWithEmail.length} reachable by Email
@@ -567,7 +529,9 @@ export default function SupportersPage() {
               </div>
               <p className="shrink-0 text-sm font-medium text-muted-foreground">
                 {filteredSupporters.length}{" "}
-                {filteredSupporters.length === 1 ? "Supporter" : "Supporters"}
+                {filteredSupporters.length === 1
+                  ? "Customer"
+                  : "Customers"}
               </p>
             </div>
           </div>
@@ -577,13 +541,13 @@ export default function SupportersPage() {
               <div className="flex h-64 flex-col items-center justify-center gap-2">
                 <Loader2 className="size-8 animate-spin text-secondary" />
                 <p className="text-sm text-muted-foreground">
-                  Loading supporters data...
+                  Loading customers data...
                 </p>
               </div>
             ) : listError ? (
               <div className="flex h-64 flex-col items-center justify-center text-center p-4">
                 <p className="text-lg font-semibold text-rose-500">
-                  Failed to load supporters.
+                  Failed to load customers.
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Please try again later.
@@ -594,18 +558,17 @@ export default function SupportersPage() {
                 <Users className="size-12 text-slate-300 mb-2" />
                 <p className="text-base font-semibold text-muted-foreground">
                   {supportersData.length === 0
-                    ? "No supporters found for this campaign yet."
+                    ? "No customers found for this sales event yet."
                     : "No search results match your criteria."}
                 </p>
               </div>
             ) : (
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-[780px] text-left text-sm">
                 <thead className="text-xs font-semibold text-muted-foreground bg-slate-50 border-b border-border">
                   <tr>
-                    <th className="px-4 py-3">Supporter</th>
+                    <th className="px-4 py-3">Customer</th>
                     <th className="px-4 py-3">Contact</th>
                     <th className="px-4 py-3">Orders</th>
-                    <th className="px-4 py-3">Donations</th>
                     <th className="px-4 py-3">Total Support</th>
                     <th className="px-4 py-3">Last Activity</th>
                   </tr>
@@ -626,7 +589,7 @@ export default function SupportersPage() {
                               {(supporter.name || "S").slice(0, 2)}
                             </span>
                             <span className="font-semibold text-foreground">
-                              {supporter.name || "Anonymous Supporter"}
+                              {supporter.name || "Anonymous Customer"}
                             </span>
                           </div>
                         </td>
@@ -648,9 +611,6 @@ export default function SupportersPage() {
 
                         <td className="px-4 py-3 font-medium">
                           ${(supporter.totalOrders || 0).toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 font-medium">
-                          ${(supporter.totalDonations || 0).toFixed(2)}
                         </td>
                         <td className="px-4 py-3 font-semibold text-foreground">
                           ${(supporter.totalAmount || 0).toFixed(2)}
@@ -690,18 +650,8 @@ export default function SupportersPage() {
               <div className="space-y-3 text-sm w-full">
                 <LegendDot
                   className="bg-secondary"
-                  label="Orders Only"
+                  label="Orders"
                   value={`${ordersOnly} (${ordersPercentage}%)`}
-                />
-                <LegendDot
-                  className="bg-rose-500"
-                  label="Donations Only"
-                  value={`${donationsOnly} (${donationsPercentage}%)`}
-                />
-                <LegendDot
-                  className="bg-blue-500"
-                  label="Both"
-                  value={`${bothOrdersAndDonations} (${bothPercentage}%)`}
                 />
               </div>
             </div>
@@ -710,12 +660,12 @@ export default function SupportersPage() {
           <DashboardCard>
             <h3 className="flex items-center gap-2 text-base font-semibold">
               <Trophy className="size-5 text-primary" />
-              Top Supporters
+              Top Customers
             </h3>
             <div className="mt-4 space-y-3">
               {topSupporters.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-2">
-                  No top supporters yet.
+                  No top customers yet.
                 </p>
               ) : (
                 topSupporters.map((supporter: any, index: number) => (
@@ -742,10 +692,10 @@ export default function SupportersPage() {
         </aside>
       </section>
 
-      {/* Supporter Insights Card */}
+      {/* Customer Insights Card */}
       <DashboardCard>
-        <h3 className="text-base font-semibold">Supporter Insights</h3>
-        <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <h3 className="text-base font-semibold">Customer Insights</h3>
+        <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {insights.map((insight) => {
             const Icon = insight.icon;
 
@@ -781,8 +731,8 @@ export default function SupportersPage() {
           <TrendingUp className="size-5 text-primary shrink-0" />
           <span>
             <span className="font-semibold text-foreground">Tip:</span>{" "}
-            Supporters who receive a thank-you email or SMS update are 3x more
-            likely to support again in the future.
+            Customers who receive a thank-you email or SMS update are 3x more
+            likely to buy again in the future.
           </span>
         </p>
         <div className="flex items-center gap-2.5 w-full sm:w-auto">
@@ -826,10 +776,10 @@ export default function SupportersPage() {
               </span>
               <div>
                 <h3 className="text-lg font-bold text-foreground">
-                  Send SMS to Supporters
+                  Send SMS to Customers
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Broadcast a direct text message to supporters of this campaign
+                  Broadcast a direct text message to customers of this sales event
                 </p>
               </div>
             </div>
@@ -837,9 +787,9 @@ export default function SupportersPage() {
             {/* Recipient summary banner */}
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/75 p-3.5 text-xs space-y-1.5">
               <div className="flex items-center justify-between text-slate-700">
-                <span className="font-medium">Campaign:</span>
+                <span className="font-medium">Sales Event:</span>
                 <span className="font-semibold text-secondary">
-                  {campaignData?.name || "Selected Campaign"}
+                  {campaignData?.name || "Selected Sales Event"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-slate-600">
@@ -855,7 +805,7 @@ export default function SupportersPage() {
                   <AlertCircle className="size-3.5 shrink-0" />
                   <span>
                     {supportersData.length - supportersWithPhone.length}{" "}
-                    supporter(s) do not have a phone number on file and will be
+                    customer(s) do not have a phone number on file and will be
                     skipped.
                   </span>
                 </p>
@@ -929,7 +879,7 @@ export default function SupportersPage() {
                   <code className="text-secondary font-mono font-semibold">
                     {"{name}"}
                   </code>{" "}
-                  is automatically replaced with the supporter's name.
+                  is automatically replaced with the customer&apos;s name.
                 </span>
                 <span className="font-semibold text-slate-700">
                   {smsMessage.length} chars •{" "}
@@ -965,7 +915,7 @@ export default function SupportersPage() {
                 ) : (
                   <>
                     <Send className="size-4" />
-                    Send to {supportersWithPhone.length} Supporter
+                    Send to {supportersWithPhone.length} Customer
                     {supportersWithPhone.length === 1 ? "" : "s"}
                   </>
                 )}
@@ -997,7 +947,7 @@ export default function SupportersPage() {
                   Compose Update Email
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Broadcast an update email to supporters of this campaign
+                  Broadcast an update email to customers of this sales event
                 </p>
               </div>
             </div>
@@ -1005,9 +955,9 @@ export default function SupportersPage() {
             {/* Recipient summary banner */}
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/75 p-3.5 text-xs space-y-1.5">
               <div className="flex items-center justify-between text-slate-700">
-                <span className="font-medium">Campaign:</span>
+                <span className="font-medium">Sales Event:</span>
                 <span className="font-semibold text-secondary">
-                  {campaignData?.name || "Selected Campaign"}
+                  {campaignData?.name || "Selected Sales Event"}
                 </span>
               </div>
               <div className="flex items-center justify-between text-slate-600">
@@ -1023,7 +973,7 @@ export default function SupportersPage() {
                   <AlertCircle className="size-3.5 shrink-0" />
                   <span>
                     {supportersData.length - supportersWithEmail.length}{" "}
-                    supporter(s) do not have an email on file and will be
+                    customer(s) do not have an email on file and will be
                     skipped.
                   </span>
                 </p>
@@ -1136,7 +1086,7 @@ export default function SupportersPage() {
                 ) : (
                   <>
                     <Send className="size-4" />
-                    Send to {supportersWithEmail.length} Supporter
+                    Send to {supportersWithEmail.length} Customer
                     {supportersWithEmail.length === 1 ? "" : "s"}
                   </>
                 )}

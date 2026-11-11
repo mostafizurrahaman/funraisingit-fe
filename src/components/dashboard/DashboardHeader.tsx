@@ -49,7 +49,7 @@ export function DashboardHeader() {
           </Sheet>
           <div>
             <p className="text-xs font-medium text-muted-foreground">
-              Campaign dashboard
+              Sales Event dashboard
             </p>
             <h1 className="text-lg font-semibold sm:text-xl">
               Welcome back, {displayName}
@@ -67,7 +67,7 @@ export function DashboardHeader() {
               variant="outline"
               className="hidden rounded-full px-4 text-xs sm:inline-flex"
             >
-              View All Campaign
+              View All Sales Events
             </Button>
           </Link>
           {/* <button type="button" aria-label="Notifications" className="inline-flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:border-secondary hover:bg-secondary/10 hover:text-secondary">

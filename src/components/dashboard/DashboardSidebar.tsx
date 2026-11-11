@@ -36,14 +36,13 @@ type NavigationItem = {
 
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
-  { label: "Create Campaign", href: "/campaign_1", icon: Sparkles },
+  { label: "Create Sales Event", href: "/campaign_1", icon: Sparkles },
   { label: "Products", href: "/dashboard/products", icon: ShoppingBag },
   { label: "Orders", href: "/dashboard/orders", icon: Package },
-  { label: "Donations", href: "/dashboard/donation", icon: Heart },
-  { label: "Supporters", href: "/dashboard/supporters", icon: BarChart3 },
+  { label: "Customers", href: "/dashboard/supporters", icon: BarChart3 },
   { label: "Payouts", href: "/dashboard/payouts", icon: WalletCards },
-  { label: "My Campaigns", href: "/dashboard/my-campaigns", icon: Sparkles },
-  { label: "Update Campaign", href: "/dashboard/campaign", icon: UploadCloud },
+  { label: "My Sales Events", href: "/dashboard/my-campaigns", icon: Sparkles },
+  { label: "Update Sales Event", href: "/dashboard/campaign", icon: UploadCloud },
   { label: "My Brand", href: "/dashboard/my-brand", icon: Palette },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;

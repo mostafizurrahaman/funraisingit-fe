@@ -48,8 +48,8 @@ const tips = [
   "Quickly Success Tip",
   "Text family and friends first",
   "Post on social media today",
-  "Thank every supporter",
-  "Post updates throughout your campaign",
+  "Thank every customer",
+  "Post updates throughout your sales event",
 ] as const;
 
 export default function CampaignFivePage() {
@@ -65,7 +65,7 @@ export default function CampaignFivePage() {
       window.setTimeout(() => setCopied(null), 1800);
     } catch {
       setCopyError(
-        "Could not copy automatically. Please copy the campaign URL manually.",
+        "Could not copy automatically. Please copy the sales event URL manually.",
       );
     }
   }
@@ -81,14 +81,14 @@ export default function CampaignFivePage() {
           <div className="flex flex-col items-center justify-between gap-3 rounded-lg bg-slate-50 px-5 py-4 text-center sm:flex-row sm:text-left">
             <p className="flex items-center gap-3 text-lg">
               <PartyPopper className="size-6 text-primary" />
-              <span>Campaign Status:</span>
+              <span>Sales Event Status:</span>
               <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 font-semibold text-green-700">
                 <span className="size-2 rounded-full bg-green-500" />
                 Live
               </span>
             </p>
             <p className="text-lg font-medium">
-              Your campaign is now accepting orders and donations!
+              Your sales event is now accepting orders!
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export default function CampaignFivePage() {
               Jenna’s Banana Pudding Is Now Live!
             </p>
             <p className="relative z-10 mt-2 text-lg leading-7 text-muted-foreground">
-              Your fundraiser is officially accepting orders and donations.
+              Your sales event is officially accepting orders.
             </p>
           </section>
 
@@ -121,7 +121,7 @@ export default function CampaignFivePage() {
                 <Link2 className="size-10" />
               </span>
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <p className="text-lg font-semibold">Your Campaign Link:</p>
+                <p className="text-lg font-semibold">Your Sales Event Link:</p>
                 <p className="mt-1 truncate text-lg font-medium text-secondary">
                   funraisingit.com/jennas-banana-pudding
                 </p>
@@ -144,7 +144,7 @@ export default function CampaignFivePage() {
 
           <section className="mt-10 text-center">
             <h2 className="text-[32px] font-semibold leading-tight">
-              Share Your Campaign
+              Share Your Sales Event
             </h2>
             <p className="mt-2 text-lg leading-7 text-muted-foreground">
               The faster you share, the faster you’ll start receiving orders.
@@ -198,7 +198,7 @@ export default function CampaignFivePage() {
 
           <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1.25fr_0.75fr]">
             <div className="space-y-7">
-              <Panel title="Campaign Snapshot" icon={BarChart3}>
+              <Panel title="Sales Event Snapshot" icon={BarChart3}>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {stats.map(({ icon: Icon, value, label, detail }) => (
                     <div
@@ -218,10 +218,10 @@ export default function CampaignFivePage() {
                 </div>
               </Panel>
 
-              {/* How to Manage Your Campaign Video */}
-              <Panel title="How to Manage Your Campaign" icon={Video}>
+              {/* How to Manage Your Sales Event Video */}
+              <Panel title="How to Manage Your Sales Event" icon={Video}>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  Watch this step-by-step video to learn how to monitor incoming orders, track donations, communicate with supporters, and manage your live campaign from your dashboard.
+                  Watch this step-by-step video to learn how to monitor incoming orders, communicate with customers, and manage your live sales event from your dashboard.
                 </p>
                 <div className="mt-4 relative overflow-hidden rounded-2xl border border-secondary/20 bg-slate-950 shadow-md aspect-video">
                   <video
@@ -245,14 +245,14 @@ export default function CampaignFivePage() {
                     onClick={() => router.push("/dashboard/campaign")}
                     className="w-full sm:w-auto bg-secondary text-white hover:bg-secondary/90 font-bold rounded-lg text-xs transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                   >
-                    Open Campaign Manager
+                    Open Sales Event Manager
                   </Button>
                 </div>
               </Panel>
 
-              <Panel title="First Supporter Challenge" icon={Sparkles}>
+              <Panel title="First Customer Challenge" icon={Sparkles}>
                 <p className="text-lg leading-7 text-muted-foreground">
-                  Most successful campaigns receive their first supporters
+                  Most successful sales events receive their first customers
                   within 24 hours.
                 </p>
                 <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row">
@@ -267,13 +267,13 @@ export default function CampaignFivePage() {
                   <p className="text-[32px] font-semibold text-secondary">
                     0/5{" "}
                     <span className="block text-sm font-normal text-foreground">
-                      Supporters
+                      Customers
                     </span>
                   </p>
                 </div>
                 <p className="mt-5 flex items-center gap-2 text-lg">
                   <Trophy className="size-6 text-yellow-500" />
-                  <strong>Reward:</strong> Unlock your First Campaign Success
+                  <strong>Reward:</strong> Unlock your First Sales Event Success
                   Badge
                 </p>
               </Panel>
@@ -289,7 +289,7 @@ export default function CampaignFivePage() {
                     <span>
                       Go To Dashboard
                       <small className="block font-normal">
-                        View orders, donations, supporters and more
+                        View orders, customers and more
                       </small>
                     </span>
                   </Button>
@@ -301,9 +301,9 @@ export default function CampaignFivePage() {
                   >
                     <ExternalLink className="size-5" />
                     <span>
-                      View My Campaign
+                      View My Sales Event
                       <small className="block font-normal text-muted-foreground">
-                        See how your campaign looks to supporters
+                        See how your sales event looks to customers
                       </small>
                     </span>
                   </Button>
@@ -327,11 +327,11 @@ export default function CampaignFivePage() {
                 </ul>
               </Panel>
 
-              <Panel title="Your Campaign Preview" icon={Heart}>
+              <Panel title="Your Sales Event Preview" icon={Heart}>
                 <div className="flex gap-4">
                   <Image
                     src={hero}
-                    alt="Banana pudding campaign"
+                    alt="Banana pudding sales event"
                     className="size-28 rounded-lg object-cover object-right"
                   />
                   <div className="min-w-0">
@@ -351,19 +351,15 @@ export default function CampaignFivePage() {
                     </div>
                     <div className="mt-2 flex justify-between text-xs">
                       <span>$80 Raised</span>
-                      <span>0 Supporters</span>
+                      <span>0 Customers</span>
                     </div>
                     <p className="mt-2 text-xs text-secondary">7 Days Left</p>
                   </div>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Button type="button" size="sm">
+                <div className="mt-4">
+                  <Button type="button" size="sm" className="w-full">
                     <ShoppingBag className="size-4" />
                     Buy
-                  </Button>
-                  <Button type="button" size="sm" variant="outline">
-                    <Heart className="size-4" />
-                    Donate
                   </Button>
                 </div>
               </Panel>
@@ -373,28 +369,28 @@ export default function CampaignFivePage() {
           <section className="relative mt-12 overflow-hidden rounded-lg bg-secondary/10 p-7 sm:p-9">
             <Image
               src={price}
-              alt="Campaign success reward"
+              alt="Sales event success reward"
               className="absolute bottom-0 left-3 hidden h-auto w-36 sm:block"
             />
             <Image
               src={like}
-              alt="Supporter appreciation"
+              alt="Customer appreciation"
               className="absolute bottom-0 right-3 hidden h-auto w-36 sm:block"
             />
             <div className="relative z-10 mx-auto max-w-2xl text-center">
               <Trophy className="mx-auto size-10 text-yellow-500" />
               <h2 className="mt-3 text-[32px] font-semibold leading-tight text-secondary">
-                Most successful campaigns get their first 5 supporters within
+                Most successful sales events get their first 5 customers within
                 the first 24 hours.
               </h2>
               <p className="mt-3 text-lg leading-7 text-muted-foreground">
-                Share your campaign now and start building momentum.
+                Share your sales event now and start building momentum.
               </p>
             </div>
           </section>
           <p className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <LockKeyhole className="size-4" />
-            Your campaign is live and secure.
+            Your sales event is live and secure.
           </p>
         </div>
       </div>

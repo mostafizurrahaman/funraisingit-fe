@@ -167,7 +167,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
 
       // Don't allow launch if there are no products
       if (!products || products.length === 0) {
-        toast.error("You have not added any products to this campaign yet.");
+        toast.error("You have not added any products to this sales event yet.");
         return;
       }
 
@@ -179,7 +179,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
       // Launch campaign
       router.push("/campaign_4");
     } catch (error) {
-      toast.error("Failed to check campaign products.");
+      toast.error("Failed to check sales event products.");
       console.error("Error during campaign launch validation:", error);
     } finally {
       setCheckingCampaignId(null);
@@ -192,7 +192,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <Loader2 className="size-8 animate-spin text-secondary" />
         <p className="text-sm text-muted-foreground">
-          Loading campaign details...
+          Loading sales event details...
         </p>
       </div>
     );
@@ -202,7 +202,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <p className="text-lg font-semibold text-rose-500">
-          Failed to load campaign data.
+          Failed to load sales event data.
         </p>
         <div className="flex gap-2">
           <Button onClick={() => setSelectedCampaignId(null)} variant="outline">
@@ -221,7 +221,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
         <div className="flex h-96 flex-col items-center justify-center gap-3">
           <Loader2 className="size-8 animate-spin text-secondary" />
           <p className="text-sm text-muted-foreground">
-            Loading draft campaigns...
+            Loading draft sales events...
           </p>
         </div>
       );
@@ -242,10 +242,10 @@ console.log("shippingFee", campaign?.campaignShippingFee);
       <div className="mx-auto max-w-[1180px] space-y-5">
         <div>
           <h2 className="text-2xl font-semibold text-slate-800">
-            Draft Campaigns
+            Draft Sales Events
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Select a draft campaign to continue setup and editing.
+            Select a draft sales event to continue setup and editing.
           </p>
         </div>
 
@@ -255,13 +255,12 @@ console.log("shippingFee", campaign?.campaignShippingFee);
               <Package className="size-10 text-slate-300" />
               <div>
                 <p className="text-sm font-semibold text-muted-foreground">
-                  {(draftsError as any)?.data?.message ||
-                    "No draft campaigns found."}
+                  No draft sales events found.
                 </p>
               </div>
               <Link href="/campaign_1">
                 <Button className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300 text-xs">
-                  Create Campaign
+                  Create Sales Event
                 </Button>
               </Link>
             </div>
@@ -271,7 +270,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
                 <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className="px-5 py-4 font-semibold">Thumbnail</th>
-                    <th className="px-5 py-4 font-semibold">Campaign Name</th>
+                    <th className="px-5 py-4 font-semibold">Sales Event Name</th>
                     <th className="px-5 py-4 font-semibold">Category</th>
                     <th className="px-5 py-4 font-semibold">Goal Amount</th>
                     <th className="px-5 py-4 font-semibold">Status</th>
@@ -371,7 +370,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
     formData.append("allowLocalDelivery", String(allowLocalDelivery));
     formData.append("allowShipping", String(allowShipping));
     formData.append("shippingFee", shippingFee);
-    formData.append("allowDonation", String(allowDonation));
+    formData.append("allowDonation", "false");
 
     fundUsage.forEach((item) => {
       formData.append("fundUsage", item);
@@ -387,14 +386,14 @@ console.log("shippingFee", campaign?.campaignShippingFee);
         formData,
       }).unwrap();
       if (res.success) {
-        toast.success(res.message || "Campaign updated successfully!");
+        toast.success(res.message || "Sales event updated successfully!");
         refetch();
       } else {
-        toast.error(res.message || "Failed to update campaign.");
+        toast.error(res.message || "Failed to update sales event.");
       }
     } catch (err: any) {
       toast.error(
-        err?.data?.message || "An error occurred while updating the campaign.",
+        err?.data?.message || "An error occurred while updating the sales event.",
       );
     }
   };
@@ -403,9 +402,9 @@ console.log("shippingFee", campaign?.campaignShippingFee);
     if (campaign && campaign.campaignCode) {
       const link = `${window.location.origin}/order-summary?code=${campaign.campaignCode}`;
       navigator.clipboard.writeText(link);
-      toast.success("Campaign link copied to clipboard!");
+      toast.success("Sales event link copied to clipboard!");
     } else {
-      toast.error("Campaign link not available.");
+      toast.error("Sales event link not available.");
     }
   };
 
@@ -421,7 +420,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
           >
             &larr; Back to Drafts
           </button>
-          <h2 className="text-2xl font-semibold">Campaign Settings</h2>
+          <h2 className="text-2xl font-semibold">Sales Event Settings</h2>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
             <span>{campaign.name}</span>
             <span className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary capitalize">
@@ -437,11 +436,11 @@ console.log("shippingFee", campaign?.campaignShippingFee);
       </header>
 
       <section className="grid gap-4 xl:grid-cols-[1.1fr_1.2fr_0.68fr]">
-        {/* Campaign Health */}
+        {/* Sales Event Health */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
             <Heart className="size-5 fill-secondary text-secondary" />
-            Campaign Health
+            Sales Event Health
           </h3>
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
             <div className="space-y-2.5">
@@ -485,39 +484,29 @@ console.log("shippingFee", campaign?.campaignShippingFee);
                 />
                 Delivery Selected
               </p>
-              <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2
-                  className={cn(
-                    "size-4 fill-secondary text-white",
-                    !campaign.allowDonation && "opacity-40",
-                  )}
-                />
-                Donation Enabled
-              </p>
             </div>
             <div className="text-center">
               <div className="relative mx-auto flex size-28 items-center justify-center rounded-full border-[10px] border-secondary">
                 <div>
                   <p className="text-4xl font-semibold">
                     {Math.round(
-                      (campaign.thumbnail ? 20 : 0) +
-                        (campaign.story ? 20 : 0) +
+                      (campaign.thumbnail ? 25 : 0) +
+                        (campaign.story ? 25 : 0) +
                         (campaign.products && campaign.products.length > 0
-                          ? 20
+                          ? 25
                           : 0) +
                         (campaign.allowShipping ||
                         campaign.allowLocalPickup ||
                         campaign.allowLocalDelivery
-                          ? 20
-                          : 0) +
-                        (campaign.allowDonation ? 20 : 0),
+                          ? 25
+                          : 0),
                     )}
                   </p>
                   <p className="text-xs font-medium">/100</p>
                 </div>
               </div>
               <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                Campaign Score
+                Sales Event Score
               </p>
               <div className="mt-1 flex justify-center gap-0.5 text-amber-400">
                 {Array.from({ length: 5 }).map((_, index) => (
@@ -528,17 +517,17 @@ console.log("shippingFee", campaign?.campaignShippingFee);
           </div>
         </DashboardCard>
 
-        {/* Edit Campaign */}
+        {/* Edit Sales Event */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
             <ClipboardEdit className="size-5" />
-            Edit Campaign
+            Edit Sales Event
           </h3>
           <div className="mt-4 space-y-4">
             <div className="grid gap-3 text-sm sm:grid-cols-[150px_1fr_auto] sm:items-center">
               <span className="flex items-center gap-2 font-medium text-muted-foreground">
                 <Edit3 className="size-4 text-foreground" />
-                Campaign Name
+                Sales Event Name
               </span>
               <span className="font-semibold truncate pr-2">{name}</span>
               <button
@@ -553,7 +542,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
             <div className="grid gap-3 text-sm sm:grid-cols-[150px_1fr_auto] sm:items-center">
               <span className="flex items-center gap-2 font-medium text-muted-foreground">
                 <Target className="size-4 text-foreground" />
-                Fundraising Goal
+                Sales Goal
               </span>
               <span className="font-semibold">
                 ${Number(goalAmount || 0).toLocaleString()}
@@ -570,7 +559,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
             <div className="grid gap-3 text-sm sm:grid-cols-[150px_1fr_auto] sm:items-center">
               <span className="flex items-center gap-2 font-medium text-muted-foreground">
                 <CalendarDays className="size-4 text-foreground" />
-                Campaign Length
+                Sales Event Length
               </span>
               <span className="font-semibold">{durationDays} Days</span>
               <button
@@ -585,14 +574,14 @@ console.log("shippingFee", campaign?.campaignShippingFee);
             <div className="grid gap-3 text-sm sm:grid-cols-[150px_1fr_auto] sm:items-center">
               <span className="flex items-center gap-2 font-medium text-muted-foreground">
                 <ImageIcon className="size-4 text-foreground" />
-                Campaign Photo
+                Sales Event Photo
               </span>
               <span className="font-semibold">
                 {thumbnailPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={thumbnailPreview}
-                    alt="Campaign thumbnail"
+                    alt="Sales event thumbnail"
                     className="size-12 rounded-md object-cover"
                   />
                 ) : (
@@ -614,17 +603,17 @@ console.log("shippingFee", campaign?.campaignShippingFee);
           </div>
         </DashboardCard>
 
-        {/* Campaign Performance */}
+        {/* Sales Event Performance */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-sm font-semibold">
             <ArrowUpRight className="size-4" />
-            Campaign Performance
+            Sales Event Performance
           </h3>
           <div className="mt-4 space-y-2.5">
             <div className="flex items-center justify-between gap-3 text-xs">
               <span className="flex items-center gap-2 font-semibold text-muted-foreground">
                 <Heart className="size-4 text-rose-500" />
-                Supporters
+                Customers
               </span>
               <span className="font-semibold">
                 {campaign.totalSupporters || 0}
@@ -694,7 +683,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
         </DashboardCard>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[0.78fr_0.9fr_1.1fr_0.78fr]">
+      <section className="grid gap-4 xl:grid-cols-3">
         {/* Product Details */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
@@ -826,69 +815,14 @@ console.log("shippingFee", campaign?.campaignShippingFee);
             Edit Story
           </Button>
         </DashboardCard>
-
-        {/* Donation Settings */}
-        <DashboardCard>
-          <h3 className="flex items-center gap-2 text-base font-semibold">
-            <Heart className="size-5 fill-rose-500 text-rose-500" />
-            Donation Settings
-          </h3>
-          <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-secondary">
-              Donations Enabled
-            </p>
-            <span
-              className={cn(
-                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                allowDonation ? "bg-secondary" : "bg-gray-200",
-              )}
-            >
-              <span
-                className={cn(
-                  "pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                  allowDonation ? "translate-x-5" : "translate-x-0",
-                )}
-              />
-            </span>
-          </div>
-          <div className="mt-4">
-            <p className="text-xs font-semibold text-muted-foreground">
-              Fund Usage Goals:
-            </p>
-            <div className="mt-2 flex flex-wrap gap-1.5 max-h-[70px] overflow-y-auto">
-              {fundUsage && fundUsage.length > 0 ? (
-                fundUsage.map((usage: string, i: number) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary"
-                  >
-                    {usage}
-                  </span>
-                ))
-              ) : (
-                <span className="text-xs text-muted-foreground">
-                  None specified
-                </span>
-              )}
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditDonationOpen(true)}
-            className="mt-5 w-full text-xs transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
-          >
-            Edit Donation Settings
-          </Button>
-        </DashboardCard>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        {/* Campaign Visibility */}
+        {/* Sales Event Visibility */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
             <Globe2 className="size-5 text-secondary" />
-            Campaign Status Info
+            Sales Event Status Info
           </h3>
           <div className="mt-4 space-y-3">
             <div className="flex w-full items-start gap-3 rounded-md border border-secondary bg-secondary/5 p-3 text-left">
@@ -899,55 +833,23 @@ console.log("shippingFee", campaign?.campaignShippingFee);
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {campaign.status === "draft"
-                    ? "This campaign is in draft. Complete all sections to launch it."
-                    : "This campaign is pending review and approval."}
+                    ? "This sales event is in draft. Complete all sections to launch it."
+                    : "This sales event is pending review and approval."}
                 </span>
               </span>
             </div>
           </div>
         </DashboardCard>
 
-        {/* Quick Actions */}
-        {/* <DashboardCard>
-          <h3 className="flex items-center gap-2 text-base font-semibold">
-            <Zap className="size-5 text-secondary" />
-            Quick Actions
-          </h3>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={copyCampaignLink}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-secondary text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white hover:shadow-sm text-xs font-semibold cursor-pointer"
-            >
-              <Copy className="size-4" />
-              Copy Campaign Link
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (campaign.organizerEmail) {
-                  window.location.href = `mailto:${campaign.organizerEmail}?subject=Campaign%20Update:%20${encodeURIComponent(campaign.name)}`;
-                } else {
-                  toast.error("Organizer email not found.");
-                }
-              }}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary hover:text-white hover:shadow-sm text-xs font-semibold cursor-pointer"
-            >
-              <Mail className="size-4" />
-              Email Supporters
-            </button>
-          </div>
-        </DashboardCard> */}
-
-        {/* Campaign Management */}
+        {/* Sales Event Management */}
         <DashboardCard>
           <h3 className="flex items-center gap-2 text-base font-semibold">
             <ShieldCheck className="size-5 text-secondary" />
-            Campaign Management
+            Sales Event Management
           </h3>
           <div className="mt-5 space-y-3">
             <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
-              Only live/active campaigns can be paused or ended. This campaign
+              Only live/active sales events can be paused or ended. This sales event
               is currently in <strong>{campaign.status}</strong> status.
             </div>
           </div>
@@ -990,10 +892,10 @@ console.log("shippingFee", campaign?.campaignShippingFee);
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
                   <Dialog.Title className="text-xl font-semibold">
-                    Edit Campaign Details
+                    Edit Sales Event Details
                   </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
-                    Update the campaign name, goal, length, and photo.
+                    Update the sales event name, goal, length, and photo.
                   </Dialog.Description>
                 </div>
                 <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
@@ -1003,12 +905,12 @@ console.log("shippingFee", campaign?.campaignShippingFee);
 
               <div className="space-y-4 p-5">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold">Campaign Name</label>
+                  <label className="text-sm font-semibold">Sales Event Name</label>
                   <Input
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter campaign name"
+                    placeholder="Enter sales event name"
                   />
                 </div>
 
@@ -1043,7 +945,7 @@ console.log("shippingFee", campaign?.campaignShippingFee);
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold">
-                    Campaign Photo / Thumbnail
+                    Sales Event Photo / Thumbnail
                   </label>
                   <div className="flex items-center gap-4">
                     {thumbnailPreview && (
@@ -1114,10 +1016,10 @@ console.log("shippingFee", campaign?.campaignShippingFee);
               <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
                 <div>
                   <Dialog.Title className="text-xl font-semibold">
-                    Edit Campaign Story
+                    Edit Sales Event Story
                   </Dialog.Title>
                   <Dialog.Description className="mt-1 text-sm text-muted-foreground">
-                    Describe your campaign to inspire supporters.
+                    Describe your sales event to inspire customers.
                   </Dialog.Description>
                 </div>
                 <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
@@ -1257,118 +1159,6 @@ console.log("shippingFee", campaign?.campaignShippingFee);
                     placeholder="e.g. 8.00"
                     disabled={!allowShipping}
                   />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
-                <Dialog.Close asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="cursor-pointer"
-                  >
-                    Cancel
-                  </Button>
-                </Dialog.Close>
-                <Button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="gap-2 cursor-pointer"
-                >
-                  {isUpdating && <Loader2 className="size-4 animate-spin" />}
-                  Save Changes
-                </Button>
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-
-      {/* 4. EDIT DONATION & FUND USAGE MODAL */}
-      <Dialog.Root
-        open={isEditDonationOpen}
-        onOpenChange={setIsEditDonationOpen}
-      >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[1px]" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-white p-0 text-foreground shadow-2xl outline-none">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setIsEditDonationOpen(false);
-              }}
-            >
-              <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
-                <div>
-                  <Dialog.Title className="text-xl font-semibold">
-                    Edit Donation &amp; Fund Usage
-                  </Dialog.Title>
-                  <Dialog.Description className="mt-1 text-sm text-muted-foreground">
-                    Configure donations and select where the raised funds will
-                    be allocated.
-                  </Dialog.Description>
-                </div>
-                <Dialog.Close className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all duration-300 hover:bg-secondary/10 hover:text-secondary cursor-pointer">
-                  <X className="size-5" />
-                </Dialog.Close>
-              </div>
-
-              <div className="space-y-4 p-5">
-                <label className="flex items-center gap-3 rounded-md border border-border p-3 hover:bg-slate-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={allowDonation}
-                    onChange={(e) => setAllowDonation(e.target.checked)}
-                    className="size-4 text-secondary accent-secondary"
-                  />
-                  <div>
-                    <span className="block text-sm font-semibold">
-                      Enable Donations
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Allow supporters to donate directly to the campaign.
-                    </span>
-                  </div>
-                </label>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold block">
-                    Fund Allocation Purposes
-                  </label>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Select all options that apply:
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {defaultPurposes.map((purpose) => {
-                      const isSelected = fundUsage.includes(purpose);
-                      return (
-                        <button
-                          key={purpose}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              setFundUsage(
-                                fundUsage.filter((item) => item !== purpose),
-                              );
-                            } else {
-                              setFundUsage([...fundUsage, purpose]);
-                            }
-                          }}
-                          className={cn(
-                            "flex items-center justify-between rounded-md border p-2.5 text-left text-xs font-semibold transition-all duration-300 cursor-pointer",
-                            isSelected
-                              ? "border-secondary bg-secondary/10 text-secondary"
-                              : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700",
-                          )}
-                        >
-                          {purpose}
-                          {isSelected && (
-                            <CheckCircle2 className="size-4 fill-secondary text-white shrink-0 ml-1.5" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
               </div>
 

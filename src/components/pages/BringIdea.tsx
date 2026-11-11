@@ -38,7 +38,7 @@ const BringIdea = () => {
             </h2>
 
             <p className="mt-4 text-xl leading-8 text-foreground">
-              Create your campaign free and see it before you launch.
+              Create your sales event free and see it before you launch.
             </p>
 
             <div className="mt-6">
@@ -46,7 +46,7 @@ const BringIdea = () => {
                 href="/campaign_1"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
-                Start My Campaign
+                Start My Sales Event
                 <ArrowRight className="size-5" aria-hidden="true" />
               </Link>
             </div>

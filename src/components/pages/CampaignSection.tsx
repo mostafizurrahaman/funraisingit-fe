@@ -55,20 +55,20 @@ const CampaignSection = () => {
     <section className="bg-background py-14 sm:py-20">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10">
         <h2 className="text-center text-5xl font-semibold text-foreground">
-          Campaign
+          Sales Events
         </h2>
 
         {isLoading ? (
           <div className="mt-20 flex flex-col items-center justify-center gap-2">
             <Loader2 className="size-8 animate-spin text-secondary" />
             <p className="text-sm text-muted-foreground">
-              Loading campaigns...
+              Loading sales events...
             </p>
           </div>
         ) : filteredCampaigns.length === 0 ? (
           <div className="mt-20 flex flex-col items-center justify-center gap-4 text-center">
             <p className="text-lg font-medium text-muted-foreground">
-              Campaign not available with this category.
+              Sales event not available with this category.
             </p>
             {categoryQuery && (
               <button
@@ -117,7 +117,7 @@ const CampaignSection = () => {
                       <div className="relative size-12 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm bg-slate-50">
                         <Image
                           src={campaign.organizerProfileImage || cardImage}
-                          alt="Campaign owner"
+                          alt="Sales event owner"
                           fill
                           className="object-cover"
                           sizes="48px"
@@ -191,7 +191,7 @@ const CampaignSection = () => {
                         </div>
                       )}
                       <p className="text-xs text-foreground">
-                        Join {campaign.totalSupporters || 0} supporters
+                        Join {campaign.totalSupporters || 0} customers
                       </p>
                     </div>
                   </div>

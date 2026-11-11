@@ -60,7 +60,7 @@ const TtransparentPricing = () => {
               </p>
               
               <p className="mt-5 text-sm text-slate-500 leading-relaxed">
-                We take a {platformFeeVal}% platform fee from every order and donation.
+                We take a {platformFeeVal}% platform fee from every order.
               </p>
             </div>
             
@@ -75,7 +75,7 @@ const TtransparentPricing = () => {
             </div>
           </div>
 
-          {/* Card 2: Campaign Launch */}
+          {/* Card 2: Sales Event Launch */}
           <div className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
             <div className="flex flex-col items-center text-center">
               {/* Icon Container */}
@@ -84,7 +84,7 @@ const TtransparentPricing = () => {
               </div>
               
               <h3 className="mt-6 text-lg font-semibold text-[#F97316]">
-                Campaign Launch
+                Sales Event Launch
               </h3>
               
               <p className="mt-3 text-4xl sm:text-5xl font-bold text-[#0F172A]">
@@ -92,7 +92,7 @@ const TtransparentPricing = () => {
               </p>
               
               <p className="mt-5 text-sm text-slate-500 leading-relaxed">
-                A one-time ${launchFeeVal} fee is required to launch a campaign.
+                A one-time ${launchFeeVal} fee is required to launch a sales event.
               </p>
             </div>
             
@@ -102,7 +102,7 @@ const TtransparentPricing = () => {
                 <Check className="h-3 w-3" />
               </div>
               <p className="text-xs font-medium text-slate-700 leading-snug">
-                Covers campaign setup, review, and getting you live.
+                Covers sales event setup, review, and getting you live.
               </p>
             </div>
           </div>
@@ -124,7 +124,7 @@ const TtransparentPricing = () => {
               </p>
               
               <p className="mt-5 text-sm text-slate-500 leading-relaxed">
-                A one-time ${brandBuilderPricingVal} fee to build and customize your campaign brand.
+                A one-time ${brandBuilderPricingVal} fee to build and customize your sales event brand.
               </p>
             </div>
             
@@ -146,7 +146,7 @@ const TtransparentPricing = () => {
           <div className="flex items-center gap-2 rounded-full bg-[#EBF7F7] px-6 py-3 text-sm text-[#006666]">
             <Info className="h-4 w-4 shrink-0" />
             <p className="text-center font-medium">
-              <span className="font-bold">No monthly fees.</span> You only pay when you launch a campaign or use premium branding.
+              <span className="font-bold">No monthly fees.</span> You only pay when you launch a sales event or use premium branding.
             </p>
           </div>
         </div>

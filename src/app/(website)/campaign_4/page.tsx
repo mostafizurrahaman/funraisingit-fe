@@ -32,14 +32,13 @@ import hero from "@/assets/hero.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
+const steps = ["Your Sales Event", "Your Story", "Details", "Preview"] as const;
 
 const readiness = [
-  "Campaign name and photo added",
+  "Sales event name and photo added",
   "Personal story completed",
   "Product and pricing configured",
   "Delivery options selected",
-  "Donation preference confirmed",
 ] as const;
 
 import { useSelector } from "react-redux";
@@ -60,7 +59,7 @@ export default function CampaignFourPage() {
     const localToken =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
-      toast.error("Please log in first to start a campaign.");
+      toast.error("Please log in first to start a sales event.");
       router.push("/login");
     }
   }, [token, router]);
@@ -111,7 +110,7 @@ export default function CampaignFourPage() {
 
     if (!agreedToTerms || !agreedToRefundPolicy) {
       setError(
-        "Please confirm the campaign details, refund policy, and terms before launching.",
+        "Please confirm the sales event details, refund policy, and terms before launching.",
       );
       return;
     }
@@ -135,7 +134,7 @@ export default function CampaignFourPage() {
         !accountInfo.payoutsEnabled
       ) {
         setError(
-          "Your onboarding account verification is still pending. You cannot launch campaigns until verification is complete.",
+          "Your onboarding account verification is still pending. You cannot launch sales events until verification is complete.",
         );
         toast.error(
           "Verification Pending. Please wait for verification to complete.",
@@ -145,7 +144,7 @@ export default function CampaignFourPage() {
     }
 
     if (!campaignId) {
-      setError("Campaign ID not found. Please start from Step 1.");
+      setError("Sales Event ID not found. Please start from Step 1.");
       return;
     }
 
@@ -157,11 +156,11 @@ export default function CampaignFourPage() {
         body: launchBody,
       }).unwrap();
 
-      toast.success(response?.message || "Campaign launched successfully!");
+      toast.success(response?.message || "Sales event launched successfully!");
 
       if (accountInfo?.status?.toLowerCase() !== "active") {
         toast.error(
-          "Please connect your bank account in Settings to receive payouts for your campaign.",
+          "Please connect your bank account in Settings to receive payouts for your sales event.",
         );
       }
 
@@ -186,7 +185,7 @@ export default function CampaignFourPage() {
           ? rawErr.errorSources.map((e: any) => e.message).join(", ")
           : "") ||
         err?.message ||
-        "Failed to launch campaign. Please try again.";
+        "Failed to launch sales event. Please try again.";
 
       // if (
       //   errMsg === "Before launching campaign setup organization bank account."
@@ -210,7 +209,7 @@ export default function CampaignFourPage() {
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
           <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
           <p className="text-muted-foreground font-medium">
-            Loading campaign preview...
+            Loading sales event preview...
           </p>
         </div>
       </main>
@@ -225,17 +224,17 @@ export default function CampaignFourPage() {
             <Heart className="size-8 text-secondary fill-secondary" />
           </div>
           <h2 className="text-2xl font-bold text-foreground">
-            Campaign Not Found
+            Sales Event Not Found
           </h2>
           <p className="text-muted-foreground max-w-md">
-            We couldn&apos;t find an active campaign session. Please create a
-            campaign first to see the preview.
+            We couldn&apos;t find an active sales event session. Please create a
+            sales event first to see the preview.
           </p>
           <Link
             href="/dashboard/campaign"
             className="mt-4 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
           >
-            See All Drafts Campaigns
+            See All Draft Sales Events
           </Link>
         </div>
       </main>
@@ -248,7 +247,7 @@ export default function CampaignFourPage() {
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
           <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
           <p className="text-muted-foreground font-medium">
-            Loading campaign preview...
+            Loading sales event preview...
           </p>
         </div>
       </main>
@@ -276,8 +275,8 @@ export default function CampaignFourPage() {
 
   const summaryRows = [
     {
-      label: "Campaign Name",
-      value: previewData?.campaign?.name || draft.name || "My Campaign",
+      label: "Sales Event Name",
+      value: previewData?.campaign?.name || draft.name || "My Sales Event",
       icon: FileText,
     },
     {
@@ -291,7 +290,7 @@ export default function CampaignFourPage() {
       icon: Tag,
     },
     {
-      label: "Campaign Length",
+      label: "Sales Event Length",
       value: `${previewData?.campaign?.durationDays || draft.durationDays || 7} Days`,
       icon: Calendar,
     },
@@ -308,18 +307,13 @@ export default function CampaignFourPage() {
           : "$0",
       icon: DollarSign,
     },
-    {
-      label: "Donation",
-      value: isDonationVal ? "Enabled" : "Disabled",
-      icon: Heart,
-    },
   ];
 
   return (
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
         <ol
-          aria-label="Campaign creation progress"
+          aria-label="Sales event creation progress"
           className="mx-auto flex max-w-3xl items-start"
         >
           {steps.map((step, index) => {
@@ -356,11 +350,11 @@ export default function CampaignFourPage() {
               </span>
               <div>
                 <h1 className="text-[32px] font-semibold leading-tight tracking-tight text-black">
-                  Your Campaign is Ready!
+                  Your Sales Event is Ready!
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg leading-7 text-muted-foreground">
-                  Review your campaign below. If everything looks good, launch
-                  and start accepting orders and donations.
+                  Review your sales event below. If everything looks good, launch
+                  and start accepting orders.
                 </p>
               </div>
             </div>
@@ -370,7 +364,7 @@ export default function CampaignFourPage() {
             <section>
               <h2 className="flex items-center gap-3 text-[32px] font-semibold leading-tight">
                 <Sparkles className="size-10 text-secondary" />
-                Campaign Preview
+                Sales Event Preview
               </h2>
               <div className="mx-auto mt-6 max-w-md rounded-[3rem] border-[10px] border-slate-950 bg-white p-2 shadow-2xl">
                 <div className="mx-auto mb-2 h-5 w-28 rounded-b-2xl bg-slate-950" />
@@ -385,7 +379,7 @@ export default function CampaignFourPage() {
                       alt={
                         previewData?.campaign?.name ||
                         draft.name ||
-                        "Campaign Preview"
+                        "Sales Event Preview"
                       }
                       fill
                       priority
@@ -398,9 +392,6 @@ export default function CampaignFourPage() {
                       className="object-cover"
                     />
                     <div className="absolute right-3 top-3 flex gap-2">
-                      <span className="flex size-9 items-center justify-center rounded-full bg-white shadow">
-                        <Heart className="size-5 text-secondary" />
-                      </span>
                       <span className="flex size-9 items-center justify-center rounded-full bg-white shadow">
                         <ShoppingCart className="size-5 text-secondary" />
                       </span>
@@ -416,7 +407,7 @@ export default function CampaignFourPage() {
                       <h3 className="text-xl font-semibold leading-6">
                         {previewData?.campaign?.name ||
                           draft.name ||
-                          "My Campaign"}
+                          "My Sales Event"}
                       </h3>
                     </div>
                     <div className="mt-5 text-lg font-semibold text-secondary">
@@ -432,7 +423,7 @@ export default function CampaignFourPage() {
                     </div>
                     <div className="mt-2 flex justify-between text-sm">
                       <span>$0 Raised</span>
-                      <span>0 Supporters</span>
+                      <span>0 Customers</span>
                       <span className="text-secondary">
                         {previewData?.campaign?.durationDays ||
                           draft.durationDays ||
@@ -441,7 +432,7 @@ export default function CampaignFourPage() {
                       </span>
                     </div>
                     <h3 className="mt-6 text-lg font-semibold">
-                      About This Campaign
+                      About This Sales Event
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground whitespace-pre-line">
                       {previewData?.campaign?.story ||
@@ -500,28 +491,20 @@ export default function CampaignFourPage() {
                         <ShoppingCart className="size-4" />
                         Buy {firstProduct?.name || "Product"}
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Heart className="size-4" />
-                        Donate
-                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
               <p className="mt-5 text-center text-sm text-muted-foreground">
-                This is exactly how supporters will see your campaign.
+                This is exactly how customers will see your sales event.
               </p>
             </section>
             <div className="space-y-6 lg:sticky lg:top-6">
-              {/* Campaign Summary Card */}
+              {/* Sales Event Summary Card */}
               <div className="bg-white border border-slate-200 rounded-[24px] p-6 shadow-sm">
                 <h3 className="flex items-center gap-3 text-lg font-bold text-slate-900 mb-5 pb-3 border-b border-slate-100">
                   <ClipboardList className="size-5 text-teal-600" />
-                  Campaign Summary
+                  Sales Event Summary
                 </h3>
                 <div className="space-y-4">
                   {summaryRows.map((row) => {
@@ -558,7 +541,7 @@ export default function CampaignFourPage() {
                   </div>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    Your Campaign has been created and is ready to go live.
+                    Your Sales Event has been created and is ready to go live.
                   </p>
                 </div>
 
@@ -613,11 +596,11 @@ export default function CampaignFourPage() {
                   </h3>
                   <ul className="space-y-3 text-sm text-slate-700">
                     {[
-                      "Campaign goes live instantly",
-                      "Receive orders & donations",
-                      "Track supporters",
+                      "Sales event goes live instantly",
+                      "Receive orders",
+                      "Track customers",
                       "Download customer spreadsheet",
-                      "Get paid after campaign ends",
+                      "Get paid after sales event ends",
                     ].map((item) => (
                       <li key={item} className="flex items-center gap-3">
                         <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-teal-500 text-white text-[10px]">
@@ -665,7 +648,7 @@ export default function CampaignFourPage() {
                       className="mt-1 size-4 shrink-0 accent-primary"
                     />
                     <span>
-                      I understand all sales are final and campaign launch fees
+                      I understand all sales are final and sales event launch fees
                       are non-refundable
                     </span>
                   </label>
@@ -722,7 +705,7 @@ export default function CampaignFourPage() {
                     className="w-full h-11 bg-primary text-white hover:bg-primary/95 transition-all duration-300"
                   >
                     <Rocket className="size-4 mr-2" />
-                    {isLaunching ? "Launching..." : "Launch My Campaign"}
+                    {isLaunching ? "Launching..." : "Launch My Sales Event"}
                   </Button>
                   <div className="grid grid-cols-2 gap-3">
                     <Button
@@ -732,7 +715,7 @@ export default function CampaignFourPage() {
                       className="border-secondary text-secondary h-10 text-xs"
                     >
                       <Edit3 className="size-3.5 mr-1" />
-                      Edit Campaign
+                      Edit Sales Event
                     </Button>
                     <Button
                       type="button"
@@ -741,7 +724,7 @@ export default function CampaignFourPage() {
                       className="h-10 text-xs"
                     >
                       <ArrowLeft className="size-3.5 mr-1" />
-                      All Campaigns
+                      All Sales Events
                     </Button>
                   </div>
                 </div>
@@ -758,7 +741,7 @@ export default function CampaignFourPage() {
                 Need More Time?
               </h2>
               <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                Your campaign draft is automatically saved. Launch whenever
+                Your sales event draft is automatically saved. Launch whenever
                 you’re ready.
               </p>
             </div>

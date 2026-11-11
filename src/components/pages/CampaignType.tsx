@@ -2,13 +2,9 @@ import React from "react";
 import Link from "next/link";
 import {
   Rocket,
-  GraduationCap,
-  Church,
-  Trophy,
   Utensils,
   Ticket,
   Tablet,
-  Heart,
 } from "lucide-react";
 
 const campaignTypes = [
@@ -22,39 +18,6 @@ const campaignTypes = [
     textColor: "text-[#005fb8]",
     shadowColor: "hover:shadow-[#005fb8]/10",
     borderColor: "hover:border-[#005fb8]/30",
-  },
-  {
-    title: "School Fundraiser",
-    id: "school_fundraiser",
-    description: "Raise money for your students, clubs, and classrooms.",
-    icon: GraduationCap,
-    bgColor: "bg-[#f5eeff]",
-    iconColor: "text-[#6b21a8]",
-    textColor: "text-[#6b21a8]",
-    shadowColor: "hover:shadow-[#6b21a8]/10",
-    borderColor: "hover:border-[#6b21a8]/30",
-  },
-  {
-    title: "Church Campaign",
-    id: "church_campaign",
-    description: "Support missions, ministries, and community outreach.",
-    icon: Church,
-    bgColor: "bg-[#edf7ed]",
-    iconColor: "text-[#1b5e20]",
-    textColor: "text-[#1b5e20]",
-    shadowColor: "hover:shadow-[#1b5e20]/10",
-    borderColor: "hover:border-[#1b5e20]/30",
-  },
-  {
-    title: "Sports Teams",
-    id: "sports_team",
-    description: "Fund uniforms, travel, tournaments, and equipment.",
-    icon: Trophy,
-    bgColor: "bg-[#fff5eb]",
-    iconColor: "text-[#e65100]",
-    textColor: "text-[#e65100]",
-    shadowColor: "hover:shadow-[#e65100]/10",
-    borderColor: "hover:border-[#e65100]/30",
   },
   {
     title: "Products & Pre-Orders",
@@ -91,17 +54,6 @@ const campaignTypes = [
     shadowColor: "hover:shadow-[#4527a0]/10",
     borderColor: "hover:border-[#4527a0]/30",
   },
-  {
-    title: "Community & Nonprofits",
-    id: "community_nonprofit",
-    description: "Collect donations and rally support for your cause.",
-    icon: Heart,
-    bgColor: "bg-[#fce4ec]",
-    iconColor: "text-[#c2185b]",
-    textColor: "text-[#c2185b]",
-    shadowColor: "hover:shadow-[#c2185b]/10",
-    borderColor: "hover:border-[#c2185b]/30",
-  },
 ];
 
 const CampaignType = () => {
@@ -127,7 +79,7 @@ const CampaignType = () => {
             </svg>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-[#07122f] tracking-tight">
-            Choose Your Campaign Type
+            Choose Your Sales Event
           </h2>
         </div>
         <p className="mt-3 text-lg text-[#45506a]">
@@ -135,7 +87,7 @@ const CampaignType = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {campaignTypes.map((item, idx) => {
           const IconComponent = item.icon;
           return (

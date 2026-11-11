@@ -179,7 +179,7 @@ const OrderSummery = () => {
   const organizerImageSrc =
     campaign?.organizerProfileImage || defaultCampaignOwner;
   const campaignStory =
-    campaign?.story || "Thank you for supporting our campaign!";
+    campaign?.story || "Thank you for supporting our sales event!";
   const campaignShippingFee = campaign?.shippingFee || 0;
 
   // Calculations
@@ -215,7 +215,7 @@ const OrderSummery = () => {
     shippingMethods.push({
       id: "shipping",
       title: "Shipping",
-      description: "We ship to supporters",
+      description: "We ship to customers",
       price: campaignShippingFee,
       icon: Box,
     });
@@ -294,7 +294,7 @@ const OrderSummery = () => {
 
     if (accountInfo && accountInfo.status?.toLowerCase() !== "active") {
       return toast.error(
-        "You cannot donate or place orders because your onboarding account status is not active. Please complete verification in Settings.",
+        "You cannot place orders because your onboarding account status is not active. Please complete verification in Settings.",
       );
     }
 
@@ -440,7 +440,7 @@ const OrderSummery = () => {
                 <h1 className="text-lg font-semibold leading-6 text-foreground sm:text-xl truncate">
                   {organizerName}&apos;s
                   <br />
-                  Fundraiser Products
+                  Sales Event Products
                 </h1>
               </div>
 
@@ -549,7 +549,7 @@ const OrderSummery = () => {
 
               <div className="mt-6 text-sm leading-6 text-muted-foreground whitespace-pre-line border-t border-slate-100 pt-4">
                 <h2 className="font-semibold text-foreground">
-                  About This Campaign
+                  About This Sales Event
                 </h2>
                 <p className="mt-2 text-xs">{campaignStory}</p>
               </div>

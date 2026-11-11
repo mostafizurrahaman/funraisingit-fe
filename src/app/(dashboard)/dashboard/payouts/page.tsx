@@ -33,7 +33,7 @@ import { useGetAccountQuery } from "@/redux/features/auth/authApi";
 const faqItems = [
   {
     question: "When do I get paid?",
-    answer: "Within 1 business day after your campaign ends.",
+    answer: "Within 1 business day after your sales event ends.",
     icon: CalendarDays,
   },
   {
@@ -42,7 +42,7 @@ const faqItems = [
     icon: ShieldCheck,
   },
   {
-    question: "Can I see my payout before the campaign ends?",
+    question: "Can I see my payout before the sales event ends?",
     answer: "Yes, estimated earnings update in real time.",
     icon: CheckCircle2,
   },
@@ -159,7 +159,7 @@ export default function PayoutsPage() {
     return (
       <div className="flex h-96 items-center justify-center">
         <p className="text-lg font-semibold text-muted-foreground">
-          No campaign selected. Please select a campaign from the dashboard.
+          No sales event selected. Please select a sales event from the dashboard.
         </p>
       </div>
     );
@@ -177,7 +177,7 @@ export default function PayoutsPage() {
 
   const payoutTimeline = [
     {
-      label: "Campaign ends",
+      label: "Sales event ends",
       date: formatDate(overview?.endedAt),
       icon: CalendarDays,
     },
@@ -209,12 +209,6 @@ export default function PayoutsPage() {
       danger: false,
     },
     {
-      label: "Donations",
-      amount: formatAmount(overview?.financialBreakdown?.totalDonationAmount),
-      highlight: false,
-      danger: false,
-    },
-    {
       label: "Total Raised",
       amount: formatAmount(overview?.financialBreakdown?.totalAmount),
       highlight: true,
@@ -240,7 +234,7 @@ export default function PayoutsPage() {
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
           <p className="text-xs text-muted-foreground">
-            Select a campaign to filter payout details
+            Select a sales event to filter payout details
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -248,7 +242,7 @@ export default function PayoutsPage() {
             htmlFor="campaign-filter"
             className="text-sm font-semibold text-muted-foreground shrink-0"
           >
-            Campaign:
+            Sales Event:
           </label>
           <select
             id="campaign-filter"
@@ -281,7 +275,7 @@ export default function PayoutsPage() {
               {campaign?.name || "Loading..."}
             </p>
             <p className="mt-3 flex items-center gap-2 text-sm font-medium">
-              Campaign Status:
+              Sales Event Status:
               <span className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary capitalize">
                 <span className="size-2 rounded-full bg-secondary animate-pulse" />
                 {overview?.status || campaign?.status || "active"}
@@ -466,7 +460,7 @@ export default function PayoutsPage() {
           </p>
           <p className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
             <Rocket className="size-5 shrink-0 text-primary" />
-            Keep sharing your campaign to increase your payout
+            Keep sharing your sales event to increase your payout
           </p>
         </DashboardCard>
       </section>

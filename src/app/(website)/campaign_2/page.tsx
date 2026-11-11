@@ -21,7 +21,7 @@ import hero from "@/assets/hero.png";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
+const steps = ["Your Sales Event", "Your Story", "Details", "Preview"] as const;
 const purposes = [
   "Ingredients",
   "Packaging",
@@ -58,7 +58,7 @@ export default function CampaignTwoPage() {
     const localToken =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
-      toast.error("Please log in first to start a campaign.");
+      toast.error("Please log in first to start a sales event.");
       router.push("/login");
     }
   }, [token, router]);
@@ -148,7 +148,7 @@ export default function CampaignTwoPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (story.trim().length < 50) {
-      setError("Please tell supporters a little more about your campaign.");
+      setError("Please tell customers a little more about your sales event.");
       return;
     }
     if (selectedPurposes.length < 2) {
@@ -177,7 +177,7 @@ export default function CampaignTwoPage() {
       formData.append("allowLocalPickup", String(draft.allowLocalPickup));
       formData.append("allowLocalDelivery", String(draft.allowLocalDelivery));
       formData.append("allowShipping", String(draft.allowShipping));
-      formData.append("allowDonation", String(draft.allowDonation));
+      formData.append("allowDonation", "false");
       if (draft.allowShipping) {
         formData.append("shippingFee", String(draft.shippingFee));
       }
@@ -193,10 +193,10 @@ export default function CampaignTwoPage() {
           formData,
         }).unwrap();
         console.log(" Campaign Response:", response);
-        toast.success(response?.message || "Campaign updated successfully!");
+        toast.success(response?.message || "Sales event updated successfully!");
       } else {
         response = await createCampaign(formData).unwrap();
-        toast.success(response?.message || "Campaign created successfully!");
+        toast.success(response?.message || "Sales event created successfully!");
       }
       const campaignId = response?.data?._id || response?.data?.id || draft.id;
       if (campaignId) {
@@ -204,7 +204,7 @@ export default function CampaignTwoPage() {
         localStorage.setItem("campaignId", campaignId);
         router.push("/campaign_3");
       } else {
-        toast.error("Could not retrieve Campaign ID.");
+        toast.error("Could not retrieve Sales Event ID.");
       }
     } catch (err: unknown) {
       console.error("Campaign creation handleSubmit error:", err);
@@ -226,7 +226,7 @@ export default function CampaignTwoPage() {
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
         <ol
-          aria-label="Campaign creation progress"
+          aria-label="Sales event creation progress"
           className="mx-auto flex max-w-3xl items-start"
         >
           {steps.map((step, index) => {
@@ -369,59 +369,6 @@ export default function CampaignTwoPage() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
-              <h2 className="text-lg font-semibold">Allow Donations?</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Supporters can donate without purchasing.
-              </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => updateDraft({ allowDonation: true })}
-                  className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "allow" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}
-                >
-                  <span
-                    className={`size-4 rounded-full border-4 ${donationChoice === "allow" ? "border-secondary" : "border-slate-300"}`}
-                  />
-                  Yes, allow donations
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateDraft({ allowDonation: false })}
-                  className={`flex min-h-12 items-center gap-3 rounded-md border px-4 text-left text-sm transition-all duration-300 hover:border-secondary ${donationChoice === "purchase" ? "border-secondary bg-secondary/10" : "border-slate-300"}`}
-                >
-                  <span
-                    className={`size-4 rounded-full border-4 ${donationChoice === "purchase" ? "border-secondary" : "border-slate-300"}`}
-                  />
-                  No, purchase only
-                </button>
-              </div>
-            </section>
-
-            <section className="rounded-lg border border-slate-400 p-5 sm:p-6">
-              <h2 className="text-lg font-semibold">Donation Preview</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Supporters will see:
-              </p>
-              <div className="mt-5 flex flex-col items-center gap-5 rounded-lg border border-secondary bg-secondary/10 p-5 sm:flex-row">
-                <div className="relative flex size-20 shrink-0 items-center justify-center text-secondary">
-                  <Heart className="absolute right-1 top-0 size-7 fill-red-400 text-red-400" />
-                  <Heart className="size-12" />
-                </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <p className="text-lg font-semibold">Support This Campaign</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Can’t purchase today? You can still support Jenna’s Banana
-                    Pudding with a donation.
-                  </p>
-                </div>
-                <Button type="button" size="sm" className="shrink-0">
-                  <Heart className="size-4" />
-                  Donate
-                </Button>
-              </div>
-            </section>
-
             {error ? (
               <p role="alert" className="text-lg text-red-600">
                 {error}
@@ -460,7 +407,7 @@ export default function CampaignTwoPage() {
             <div className="relative mt-4 aspect-[1.55/1] w-full overflow-hidden rounded-lg">
               <Image
                 src={draft.thumbnailPreview || hero}
-                alt="Campaign preview"
+                alt="Sales event preview"
                 fill
                 unoptimized={!!draft.thumbnailPreview}
                 className="object-cover"
@@ -474,7 +421,7 @@ export default function CampaignTwoPage() {
                      /> */}
               <div>
                 <h3 className="text-lg font-semibold leading-5">
-                  {draft.name || "My Campaign"}
+                  {draft.name || "My Sales Event"}
                 </h3>
               </div>
             </div>
@@ -486,9 +433,9 @@ export default function CampaignTwoPage() {
             </div>
             <div className="mt-2 flex justify-between text-xs">
               <span>$0 Raised</span>
-              <span>0 Supporters</span>
+              <span>0 Customers</span>
             </div>
-            <h3 className="mt-5 text-lg font-semibold">About This Campaign</h3>
+            <h3 className="mt-5 text-lg font-semibold">About This Sales Event</h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">
               {story}
             </p>
@@ -497,10 +444,6 @@ export default function CampaignTwoPage() {
                 <ShoppingCart className="size-4" />
                 Buy {draft.name || "Product"}
               </Button>
-              <Button type="button" variant="outline" className="w-full">
-                <Heart className="size-4" />
-                Donate
-              </Button>
             </div>
             <div className="mt-5 rounded-lg border border-secondary bg-secondary/10 p-4">
               <h3 className="flex items-center gap-2 text-lg font-semibold text-secondary">
@@ -508,7 +451,7 @@ export default function CampaignTwoPage() {
                 Helpful Tip
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Campaigns with a personal story often receive more support.
+                Sales events with a personal story often receive more support.
               </p>
               <ul className="mt-3 space-y-2 text-sm">
                 {[

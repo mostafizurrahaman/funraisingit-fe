@@ -31,7 +31,7 @@ const orderDetails = [
 const helpCards = [
   {
     title: "What Happens Next?",
-    description: "Check your email receipt, watch for pickup details, and share Jenna's campaign with friends.",
+    description: "Check your email receipt, watch for pickup details, and share Jenna's sales event with friends.",
     action: "View Order Details",
     icon: ClipboardCheck,
     colors: "bg-[#eefafa] text-secondary border-secondary",
@@ -45,8 +45,8 @@ const helpCards = [
   },
   {
     title: "Want to Support More Dreams?",
-    description: "Discover more inspiring community campaigns and help more dreams take off.",
-    action: "Browse Campaigns",
+    description: "Discover more inspiring community sales events and help more dreams take off.",
+    action: "Browse Sales Events",
     icon: Users,
     colors: "bg-[#faf2ff] text-[#9333ea] border-[#9333ea]",
   },
@@ -77,7 +77,7 @@ const OrderSuccess = () => {
               Jenna&apos;s Banana Pudding!
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-xs text-muted-foreground sm:text-sm">
-              Your order has been confirmed, and Jenna&apos;s campaign is one step closer to reaching her goal.
+              Your order has been confirmed, and Jenna&apos;s sales event is one step closer to reaching her goal.
             </p>
           </div>
 
@@ -125,7 +125,7 @@ const OrderSuccess = () => {
                 </Link>
                 <button type="button" className="flex h-11 items-center justify-center gap-2 rounded-lg border border-secondary text-sm font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white">
                   <Share2 className="size-4" />
-                  Share Jenna&apos;s Campaign
+                  Share Jenna&apos;s Sales Event
                 </button>
               </div>
             </article>
@@ -138,7 +138,7 @@ const OrderSuccess = () => {
               </h2>
               <div className="mt-5 flex items-center gap-4">
                 <div className="relative size-24 shrink-0 overflow-hidden rounded-lg sm:size-28">
-                  <Image src={orderImage} alt="Banana pudding campaign" fill className="object-cover" sizes="112px" />
+                  <Image src={orderImage} alt="Banana pudding sales event" fill className="object-cover" sizes="112px" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold">Jenna&apos;s Banana Pudding</h3>
@@ -156,7 +156,7 @@ const OrderSuccess = () => {
               </div>
               <button type="button" className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-secondary text-sm font-semibold text-secondary transition-all duration-300 hover:bg-secondary hover:text-white">
                 <Share2 className="size-4" />
-                Share Jenna&apos;s Campaign
+                Share Jenna&apos;s Sales Event
               </button>
             </article>
           </div>
@@ -166,13 +166,13 @@ const OrderSuccess = () => {
               <h2 className="text-xl font-semibold">You Just Supported a Dream...</h2>
               <p className="mt-3 text-xl font-semibold text-primary">Now Yours Could Be Yours &#128640;</p>
               <p className="mt-5 max-w-xl text-xs leading-5 text-muted-foreground sm:text-sm">
-                You just helped Jenna move closer to her goal. Now imagine what your own family, friends, customers, or community could help you build. With FunRaisingIt, you can raise money, sell products, accept donations, and share one simple campaign link&mdash;without needing a website.
+                You just helped Jenna move closer to her goal. Now imagine what your own family, friends, customers, or community could help you build. With FunRaisingIt, you can sell your products and services, and share one simple sales event link&mdash;without needing a website.
               </p>
               <p className="mt-4 text-xs font-medium sm:text-sm">Whether you&apos;re raising for a team, school, event, business idea, or personal goal, we make it simple to get started.</p>
               <Link href="/campaign" className="mt-6 inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md">
-                Start My Own Campaign
+                Start My Own Sales Event
               </Link>
-              <p className="mt-3 text-xs text-muted-foreground">Build your campaign free. Launch only when you&apos;re ready.</p>
+              <p className="mt-3 text-xs text-muted-foreground">Build your sales event free. Launch only when you&apos;re ready.</p>
             </div>
             <Image src={roket} alt="Rocket launching a new dream" className="absolute bottom-0 right-0 h-auto w-40 opacity-35 sm:w-56 sm:opacity-100 lg:right-10 lg:w-64" />
           </section>

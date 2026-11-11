@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/drawer";
 
 const navigation = [
-  { label: "Campaign", href: "/campaign" },
+  { label: "Sales Events", href: "/campaign" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Success Stories", href: "/success-stories" },
   { label: "Pricing", href: "/pricing" },
@@ -83,7 +83,7 @@ const Navbar = () => {
             href="/campaign_1"
             className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-300 hover:bg-primary/90 sm:px-5 sm:py-3 sm:text-base"
           >
-            Start My Campaign
+            Start Selling Today
           </Link>
         </div>
 
@@ -146,7 +146,7 @@ const Navbar = () => {
                   href="/campaign_1"
                   className="rounded-lg bg-primary px-3 py-3 text-center font-semibold text-white transition-colors duration-300 hover:bg-primary/90"
                 >
-                  Start My Campaign
+                  Start Selling Today
                 </Link>
               </DrawerClose>
             </div>

@@ -196,7 +196,7 @@ export function EditProductModal({
     e.stopPropagation();
 
     if (isCampaignActive) {
-      return toast.error("Products cannot be edited when the campaign is active");
+      return toast.error("Products cannot be edited when the sales event is active");
     }
 
     if (!name.trim()) return toast.error("Product name is required");
@@ -255,7 +255,7 @@ export function EditProductModal({
               ? "text-slate-400 cursor-not-allowed opacity-60"
               : "text-primary hover:text-primary-hover"
           )}
-          title={isCampaignActive ? "Products cannot be edited when campaign is active" : "Edit Product"}
+          title={isCampaignActive ? "Products cannot be edited when sales event is active" : "Edit Product"}
         >
           Edit
         </button>
@@ -489,7 +489,7 @@ export function DeleteProductModal({
 
   const handleDelete = async () => {
     if (isCampaignActive) {
-      return toast.error("Products cannot be deleted when the campaign is active");
+      return toast.error("Products cannot be deleted when the sales event is active");
     }
 
     try {
@@ -518,7 +518,7 @@ export function DeleteProductModal({
               ? "text-slate-400 cursor-not-allowed opacity-60"
               : "text-red-500 hover:text-red-600"
           )}
-          title={isCampaignActive ? "Products cannot be deleted when campaign is active" : "Delete Product"}
+          title={isCampaignActive ? "Products cannot be deleted when sales event is active" : "Delete Product"}
         >
           Delete
         </button>

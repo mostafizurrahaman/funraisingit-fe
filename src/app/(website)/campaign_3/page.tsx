@@ -29,7 +29,7 @@ import user from "@/assets/user.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
+const steps = ["Your Sales Event", "Your Story", "Details", "Preview"] as const;
 const prices = [5, 10, 15, 20] as const;
 const durations = [2, 3, 5, 7] as const;
 const shippingFees = [5, 8, 10] as const;
@@ -88,7 +88,7 @@ export default function CampaignThreePage() {
     const localToken =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
-      toast.error("Please log in first to start a campaign.");
+      toast.error("Please log in first to start a sales event.");
       router.push("/login");
     }
   }, [token, router]);
@@ -288,7 +288,7 @@ export default function CampaignThreePage() {
       );
       if (isDuplicate) {
         const errorMsg =
-          "A product with this SKU already exists in this campaign. Please use a unique SKU.";
+          "A product with this SKU already exists in this sales event. Please use a unique SKU.";
         toast.error(errorMsg);
         setError(errorMsg);
         return;
@@ -296,7 +296,7 @@ export default function CampaignThreePage() {
     }
 
     if (!campaignId) {
-      const errorMsg = "Campaign ID not found. Please create the campaign first in Step 2.";
+      const errorMsg = "Sales Event ID not found. Please create the sales event first in Step 2.";
       toast.error(errorMsg);
       setError(errorMsg);
       return;
@@ -364,7 +364,7 @@ export default function CampaignThreePage() {
 
     if (!campaignId) {
       return setError(
-        "Campaign ID not found. Please create the campaign first in Step 2.",
+        "Sales Event ID not found. Please create the sales event first in Step 2.",
       );
     }
 
@@ -380,7 +380,7 @@ export default function CampaignThreePage() {
       );
       if (isDuplicate) {
         return setError(
-          "A product with this SKU already exists in this campaign. Please use a unique SKU.",
+          "A product with this SKU already exists in this sales event. Please use a unique SKU.",
         );
       }
 
@@ -425,7 +425,7 @@ export default function CampaignThreePage() {
     }
 
     if (dbProducts.length === 0) {
-      return setError("Please add at least one product to your campaign.");
+      return setError("Please add at least one product to your sales event.");
     }
 
     try {
@@ -441,7 +441,7 @@ export default function CampaignThreePage() {
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
         <ol
-          aria-label="Campaign creation progress"
+          aria-label="Sales event creation progress"
           className="mx-auto flex max-w-3xl items-start"
         >
           {steps.map((step, index) => {
@@ -475,14 +475,14 @@ export default function CampaignThreePage() {
                 <Button type="button" variant="outline" onClick={handleAddProductToList} className="border-secondary text-secondary"><Plus className="size-4" />Add Product to Campaign</Button>
               </div> */}
               <h1 className="mt-5 text-[32px] font-semibold leading-tight tracking-tight text-black">
-                Set Up Your Campaign
+                Set Up Your Sales Event
               </h1>
               <p className="mt-4 text-lg leading-7 text-muted-foreground">
-                Just a few more details before we create your fundraiser.
+                Just a few more details before we create your sales event.
               </p>
               {dbProducts.length > 0 ? (
                 <p className="mt-2 text-sm font-medium text-secondary">
-                  {dbProducts.length} campaign items added
+                  {dbProducts.length} sales event items added
                 </p>
               ) : null}
             </header>
@@ -526,14 +526,14 @@ export default function CampaignThreePage() {
             {!showProductForm ? (
               <div className="flex flex-col items-center justify-center py-10 border border-dashed border-secondary/30 rounded-xl bg-secondary/5 gap-4">
                 <p className="text-muted-foreground text-sm font-medium">
-                  Need to add a product or experience to your campaign?
+                  Need to add a product or experience to your sales event?
                 </p>
                 <Button
                   type="button"
                   onClick={() => setShowProductForm(true)}
                   className="px-6 h-12 bg-secondary text-white font-semibold rounded-md transition-all duration-300 hover:bg-secondary/90 hover:scale-[1.02] hover:shadow-md active:scale-95 flex items-center gap-2"
                 >
-                  <Plus className="size-5" /> Add Product to Campaign
+                  <Plus className="size-5" /> Add Product to Sales Event
                 </Button>
               </div>
             ) : (
@@ -821,10 +821,10 @@ export default function CampaignThreePage() {
               </span>
               <div>
                 <h2 className="text-[32px] font-semibold leading-tight">
-                  3. Campaign Length
+                  3. Sales Event Length
                 </h2>
                 <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                  How long should your fundraiser run?
+                  How long should your sales event run?
                 </p>
                 <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {durations.map((days) => (
@@ -972,7 +972,7 @@ export default function CampaignThreePage() {
             <div className="relative mt-4 aspect-[1.55/1] w-full overflow-hidden rounded-lg">
               <Image
                 src={draft.thumbnailPreview || hero}
-                alt="Campaign preview"
+                alt="Sales event preview"
                 fill
                 unoptimized={!!draft.thumbnailPreview}
                 className="object-cover"
@@ -985,7 +985,7 @@ export default function CampaignThreePage() {
                 className="size-12 rounded-full object-cover"
               />
               <h3 className="text-lg font-semibold leading-5">
-                {draft.name || "My Campaign"}
+                {draft.name || "My Sales Event"}
               </h3>
             </div>
             <p className="mt-5 text-sm font-medium text-secondary">
@@ -996,7 +996,7 @@ export default function CampaignThreePage() {
             </div>
             <div className="mt-2 flex justify-between text-xs">
               <span>$0 Raised</span>
-              <span>0 Supporters</span>
+              <span>0 Customers</span>
             </div>
             <div className="mt-4 rounded-md border border-secondary bg-secondary/10 px-4 py-3 text-center text-sm font-medium text-secondary">
               <ShoppingCart className="mr-2 inline size-4" />
@@ -1009,12 +1009,8 @@ export default function CampaignThreePage() {
                 Buy {productName || "Product"}
                 {displayPrice ? ` — $${displayPrice}` : ""}
               </Button>
-              <Button type="button" variant="outline" className="w-full">
-                <Heart className="size-4" />
-                Donate
-              </Button>
             </div>
-            <h3 className="mt-5 text-lg font-semibold">Campaign Details</h3>
+            <h3 className="mt-5 text-lg font-semibold">Sales Event Details</h3>
             <dl className="mt-3 space-y-3 text-sm">
               <PreviewRow
                 icon={Gift}
@@ -1023,7 +1019,7 @@ export default function CampaignThreePage() {
               />
               <PreviewRow
                 icon={CalendarDays}
-                label="Campaign Length"
+                label="Sales Event Length"
                 value={`${duration} Days`}
               />
               <PreviewRow

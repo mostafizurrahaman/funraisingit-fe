@@ -280,7 +280,7 @@ export default function OrdersPage() {
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
           <p className="text-xs text-muted-foreground">
-            Select a campaign to filter orders
+            Select a sales event to filter orders
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -288,7 +288,7 @@ export default function OrdersPage() {
             htmlFor="campaign-filter"
             className="text-sm font-semibold text-muted-foreground shrink-0"
           >
-            Campaign:
+            Sales Event:
           </label>
           <select
             id="campaign-filter"

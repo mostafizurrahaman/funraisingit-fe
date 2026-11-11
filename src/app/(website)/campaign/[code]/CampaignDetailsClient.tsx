@@ -51,7 +51,7 @@ export default function CampaignDetailsClient({
   const handleActionCheck = (e: React.MouseEvent) => {
     if (campaign?.status === "draft" || campaign?.status === "pending") {
       e.preventDefault();
-      toast.error("This campaign is not launched yet.");
+      toast.error("This sales event is not launched yet.");
     }
   };
 
@@ -59,42 +59,34 @@ export default function CampaignDetailsClient({
     if (campaign) {
       const shareUrl = `${window.location.origin}/campaign/${campaign.campaignCode}`;
       navigator.clipboard.writeText(shareUrl);
-      toast.success("Campaign link copied to clipboard!");
+      toast.success("Sales event link copied to clipboard!");
     }
   };
 
   return (
     <main className="bg-slate-50 min-h-screen py-10 sm:py-16">
       <div className="container mx-auto px-5 sm:px-8 lg:px-10 max-w-6xl">
-        {/* <Link
-          href="/campaign"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-all duration-300 hover:text-secondary mb-8 hover:-translate-x-0.5"
-        >
-          <ArrowLeft className="size-4" />
-          Back to Campaigns
-        </Link> */}
-
         {isLoading && !campaign ? (
           <div className="flex min-h-[450px] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-white p-8 shadow-sm">
             <Loader2 className="size-10 animate-spin text-secondary" />
             <p className="text-sm font-medium text-muted-foreground animate-pulse">
-              Loading campaign details...
+              Loading sales event details...
             </p>
           </div>
         ) : error || !campaign ? (
           <div className="flex min-h-[450px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-white p-8 text-center shadow-sm">
             <h2 className="text-xl font-bold text-foreground">
-              Campaign Not Found
+              Sales Event Not Found
             </h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              We couldn't locate the campaign you requested. It might have ended
+              We couldn&apos;t locate the sales event you requested. It might have ended
               or the link might be incorrect.
             </p>
             <Link
               href="/campaign"
               className="inline-flex h-11 items-center justify-center rounded-xl bg-secondary px-6 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/90 hover:shadow-md cursor-pointer"
             >
-              Browse Campaigns
+              Browse Sales Events
             </Link>
           </div>
         ) : (
@@ -180,7 +172,7 @@ export default function CampaignDetailsClient({
                 <div className="space-y-4">
                   <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                     <ShoppingBag className="size-5 text-secondary" />
-                    Campaign Products
+                    Sales Event Products
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2">
                     {campaign.products.map((product: any) => (
@@ -231,7 +223,7 @@ export default function CampaignDetailsClient({
             <div className="space-y-6 lg:sticky lg:top-24">
               <article className="rounded-2xl border border-border bg-white p-6 sm:p-8 shadow-sm">
                 <h2 className="text-lg font-bold text-foreground mb-4">
-                  Campaign Progress
+                  Sales Event Progress
                 </h2>
 
                 <div className="space-y-3">
@@ -258,7 +250,7 @@ export default function CampaignDetailsClient({
                   <div className="bg-slate-50/50 p-3 rounded-xl border border-border/50">
                     <Users className="size-5 text-secondary mx-auto mb-1" />
                     <p className="text-xs text-muted-foreground font-semibold">
-                      Supporters
+                      Customers
                     </p>
                     <p className="text-base font-extrabold text-foreground mt-0.5">
                       {campaign.totalSupporters || 0}
@@ -278,15 +270,6 @@ export default function CampaignDetailsClient({
                 {/* Actions Grid */}
                 <div className="mt-8 grid gap-3">
                   <Link
-                    href={`/donate-now?campaignId=${campaign._id}`}
-                    onClick={handleActionCheck}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-secondary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/95 hover:shadow-md cursor-pointer"
-                  >
-                    <Heart className="size-4 fill-white" />
-                    Donate Now
-                  </Link>
-
-                  <Link
                     href={`/order-summary?code=${campaign.campaignCode}`}
                     onClick={handleActionCheck}
                     className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/95 hover:shadow-md cursor-pointer"
@@ -300,7 +283,7 @@ export default function CampaignDetailsClient({
                     className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-secondary bg-white text-sm font-semibold text-secondary transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:text-white cursor-pointer"
                   >
                     <Share2 className="size-4" />
-                    Share Campaign
+                    Share Sales Event
                   </button>
                 </div>
               </article>

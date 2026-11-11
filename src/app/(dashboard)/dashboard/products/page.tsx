@@ -102,7 +102,7 @@ export default function ProductsPage() {
     {
       title: "Total Products",
       value: String(totalProducts),
-      detail: "In this campaign",
+      detail: "In this sales event",
       icon: Tag,
       colorClass: "bg-secondary/10 text-secondary",
     },
@@ -142,7 +142,7 @@ export default function ProductsPage() {
           <div>
             <h2 className="text-2xl font-semibold">Products</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage physical and digital products for your campaign
+              Manage physical and digital products for your sales event
             </p>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function ProductsPage() {
               htmlFor="campaign-filter"
               className="text-sm font-semibold text-muted-foreground shrink-0"
             >
-              Campaign:
+              Sales Event:
             </label>
             <select
               id="campaign-filter"
@@ -262,8 +262,8 @@ export default function ProductsPage() {
             <div className="flex min-h-50 flex-col items-center justify-center">
               <p className="text-sm text-red-500 font-semibold">
                 {!selectedCampaignId
-                  ? "No campaign found. Please select a campaign first."
-                  : "Error loading campaign products."}
+                  ? "No sales event found. Please select a sales event first."
+                  : "Error loading sales event products."}
               </p>
             </div>
           ) : filteredProducts.length === 0 ? (

@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const handleExploreBrandBuilder = (e: React.MouseEvent) => {
     e.preventDefault();
     if (selectedCampaign?.status !== "completed") {
-      toast.error("You can only access the Brand Builder once your campaign status is Completed.");
+      toast.error("You can only access the Brand Builder once your sales event status is Completed.");
       return;
     }
     router.push("/brand-builder");
@@ -92,7 +92,7 @@ export default function DashboardPage() {
 
   const handleShareAction = (label: string) => {
     if (!campaignCode) {
-      toast.error("No active campaign selected to share.");
+      toast.error("No active sales event selected to share.");
       return;
     }
     const shareUrl = `${window.location.origin}/campaign/${campaignCode}`;
@@ -100,7 +100,7 @@ export default function DashboardPage() {
     switch (label) {
       case "Copy Link":
         navigator.clipboard.writeText(shareUrl);
-        toast.success("Campaign link copied to clipboard!");
+        toast.success("Sales event link copied to clipboard!");
         break;
       case "Facebook":
         window.open(
@@ -112,7 +112,7 @@ export default function DashboardPage() {
         window.location.href = `sms:?&body=${encodeURIComponent(shareUrl)}`;
         break;
       case "Email":
-        window.location.href = `mailto:?subject=${encodeURIComponent("Support my campaign")}&body=${encodeURIComponent(shareUrl)}`;
+        window.location.href = `mailto:?subject=${encodeURIComponent("Support my sales event")}&body=${encodeURIComponent(shareUrl)}`;
         break;
       case "WhatsApp":
         window.open(
@@ -129,11 +129,11 @@ export default function DashboardPage() {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-4">
         <p className="text-lg font-semibold text-muted-foreground text-center">
-          Create a campaign to view dashboard analytics.
+          Create a sales event to view dashboard analytics.
         </p>
         <Link href="/campaign_1">
           <Button className="bg-secondary text-white hover:bg-secondary/90 transition-all duration-300">
-            Create Campaign
+            Create Sales Event
           </Button>
         </Link>
       </div>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
       <div className="flex h-96 flex-col items-center justify-center gap-3">
         <p className="text-lg font-semibold text-red-500">
           {myCampaignsResponse?.data?.length === 0
-            ? "No campaign found."
+            ? "No sales event found."
             : "Failed to load dashboard analytics."}
         </p>
         {/* <Button onClick={() => window.location.reload()}>Retry</Button> */}
@@ -171,7 +171,7 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-xl font-semibold">Overview</h2>
           <p className="text-xs text-muted-foreground">
-            Select a campaign to filter dashboard analytics
+            Select a sales event to filter dashboard analytics
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             htmlFor="campaign-filter"
             className="text-sm font-semibold text-muted-foreground shrink-0"
           >
-            Campaign:
+            Sales Event:
           </label>
           <select
             id="campaign-filter"
@@ -260,7 +260,7 @@ export default function DashboardPage() {
           tone="secondary"
         />
         <StatCard
-          title="Supporters"
+          title="Customers"
           value={String(data.supporters)}
           detail="people"
           icon={Heart}
@@ -276,7 +276,7 @@ export default function DashboardPage() {
         <StatCard
           title="Goal"
           value={`$${data.goalAmount}`}
-          detail="campaign target"
+          detail="sales event target"
           icon={Goal}
           tone="violet"
         />
@@ -287,7 +287,7 @@ export default function DashboardPage() {
           <DashboardCard>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold">Campaign Progress</h3>
+                <h3 className="text-base font-semibold">Sales Event Progress</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   ${data.raisedAmount.toFixed(2)} raised of ${data.goalAmount} goal
                 </p>
@@ -330,8 +330,7 @@ export default function DashboardPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">
-                          {activity.name}{" "}
-                          {activity.isDonation ? "donated" : "purchased"}
+                          {activity.name} purchased
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {activity.paidAt}
@@ -383,67 +382,6 @@ export default function DashboardPage() {
               </Link>
             </DashboardCard>
           </div>
-
-          <div className="grid gap-5 xl:grid-cols-2">
-            <DashboardCard>
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-semibold">Recent Donations</h3>
-              </div>
-              <div className="space-y-3 max-h-55 overflow-y-auto pr-1">
-                {!data.recentDonations || data.recentDonations.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No recent donations.
-                  </p>
-                ) : (
-                  data.recentDonations.map((donation: any, index: number) => (
-                    <div
-                      key={donation.donationId || index}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="font-medium">{donation.name}</span>
-                      <span className="font-semibold">${donation.amount}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-              <Link href="/dashboard/donation">
-                <Button variant="outline" className="mt-5 w-full text-xs">
-                  <Heart className="size-4" />
-                  View All Donations
-                </Button>
-              </Link>
-            </DashboardCard>
-
-            {/* <DashboardCard>
-              <div className="flex items-start gap-3">
-                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
-                  <Download className="size-5" />
-                </span>
-                <div>
-                  <h3 className="text-base font-semibold">Download Orders</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Download a spreadsheet of all orders and customer details.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-xs"
-                >
-                  <FileSpreadsheet className="size-4" />
-                  Download Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-xs"
-                >
-                  <ClipboardList className="size-4" />
-                  Download CSV
-                </Button>
-              </div>
-            </DashboardCard> */}
-          </div>
         </div>
 
         <aside className="space-y-5">
@@ -454,7 +392,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Campaign Ends</span>
+                <span className="text-muted-foreground">Sales Event Ends</span>
                 <span className="font-semibold">
                   {data.campaignEnds
                     ? new Date(data.campaignEnds).toLocaleDateString("en-US", {
@@ -484,12 +422,12 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-secondary/10 p-3 text-xs text-muted-foreground">
-              Payouts are sent 5 business days after your campaign ends.
+              Payouts are sent 5 business days after your sales event ends.
             </div>
           </DashboardCard>
 
           <DashboardCard>
-            <h3 className="text-base font-semibold">Share Campaign</h3>
+            <h3 className="text-base font-semibold">Share Sales Event</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               The more you share, the more you&apos;ll raise.
             </p>
@@ -536,7 +474,7 @@ export default function DashboardPage() {
           <div className="flex-1">
             <h3 className="text-base font-semibold">Need More Sales?</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Accept pre-orders and online payments for your next campaign.
+              Accept pre-orders and online payments for your next sales event.
             </p>
           </div>
           <Link href="/content/seller_agreement">
@@ -553,7 +491,7 @@ export default function DashboardPage() {
           <div className="flex-1">
             <h3 className="text-base font-semibold">Business Launch Center</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ready to scale from fundraising to a real brand?
+              Ready to scale from a sales event to a real brand?
             </p>
           </div>
           <Button
@@ -569,8 +507,8 @@ export default function DashboardPage() {
 
       <p className="pb-3 text-center text-xs text-muted-foreground">
         <TrendingUp className="mr-1 inline size-4 text-secondary" />
-        PRO TIP: Campaigns that post updates daily raise more. Keep your
-        supporters engaged.
+        PRO TIP: Sales events that post updates daily raise more. Keep your
+        customers engaged.
       </p>
     </div>
   );

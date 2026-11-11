@@ -31,7 +31,7 @@ const initialDraft: CampaignDraft = {
   thumbnailPreview: "",
   story: "",
   fundUsage: [],
-  allowDonation: true,
+  allowDonation: false,
   productName: "",
   price: 10,
   durationDays: 7,

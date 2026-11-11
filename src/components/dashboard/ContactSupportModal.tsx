@@ -99,7 +99,7 @@ export function ContactSupportModal({ open, onOpenChange }: ContactSupportModalP
                 Contact Support
               </Dialog.Title>
               <Dialog.Description className="text-xs text-muted-foreground mt-1">
-                Let us know how we can help you with your campaigns.
+                Let us know how we can help you with your sales events.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
@@ -141,7 +141,7 @@ export function ContactSupportModal({ open, onOpenChange }: ContactSupportModalP
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Example: Campaign issue for payment"
+                placeholder="Example: Sales event issue for payment"
                 className="mt-1.5 h-11 w-full border-slate-300 focus:border-secondary focus:ring-secondary/20"
               />
             </div>
@@ -149,7 +149,7 @@ export function ContactSupportModal({ open, onOpenChange }: ContactSupportModalP
             <div>
               <label htmlFor="support-campaign" className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
                 <Layout className="size-4 text-secondary" />
-                Related Campaign (Optional)
+                Related Sales Event (Optional)
               </label>
               <select
                 id="support-campaign"
@@ -157,7 +157,7 @@ export function ContactSupportModal({ open, onOpenChange }: ContactSupportModalP
                 onChange={(e) => setCampaign(e.target.value)}
                 className="mt-1.5 flex h-11 w-full rounded-md border border-slate-300 px-3 text-sm bg-white text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer"
               >
-                <option value="">Select a campaign (optional)</option>
+                <option value="">Select a sales event (optional)</option>
                 {campaigns.map((camp: any) => (
                   <option key={camp._id} value={camp._id}>
                     {camp.name}

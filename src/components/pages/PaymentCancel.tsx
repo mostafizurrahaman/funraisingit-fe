@@ -43,7 +43,7 @@ const PaymentCancel = () => {
               Payment was Cancelled
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-xs text-muted-foreground sm:text-sm">
-              Your transaction was not completed. No funds were charged from your card. You can try again or browse other campaigns.
+              Your transaction was not completed. No funds were charged from your card. You can try again or browse other sales events.
             </p>
           </div>
           <Image

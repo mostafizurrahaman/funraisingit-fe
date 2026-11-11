@@ -29,10 +29,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://funraisingit.com";
-  const title = campaignName ? `${campaignName} | FunRaisingIt` : `Campaign Details - ${code} | FunRaisingIt`;
+  const title = campaignName ? `${campaignName} | FunRaisingIt` : `Sales Event Details - ${code} | FunRaisingIt`;
   const description = campaignStory
     ? campaignStory.slice(0, 155) + "..."
-    : `Support campaign ${code} on FunRaisingIt! Join supporters to help this project achieve its goal.`;
+    : `Support sales event ${code} on FunRaisingIt! Join customers to help this project achieve its goal.`;
   const shareUrl = `${baseUrl}/campaign/${code}`;
 
   return {

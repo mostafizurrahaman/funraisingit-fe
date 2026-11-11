@@ -7,7 +7,7 @@ const Campaign = () => {
       <Suspense fallback={
         <div className="flex h-96 flex-col items-center justify-center gap-3">
           <div className="size-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading campaigns...</p>
+          <p className="text-sm text-muted-foreground">Loading sales events...</p>
         </div>
       }>
         <CampaignSection />

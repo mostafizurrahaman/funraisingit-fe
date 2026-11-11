@@ -32,16 +32,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import user from "../../../assets/user.jpg";
 // import hero from "../../assets/hero.jpg";
-const steps = ["Your Campaign", "Your Story", "Details", "Preview"] as const;
+const steps = ["Your Sales Event", "Your Story", "Details", "Preview"] as const;
 const amounts = [500, 1000, 2500, 5000] as const;
 const durations = [2, 3, 5, 7] as const;
 const shippingAmounts = [5, 8, 10] as const;
 
 const examples = [
   ["Jenny’s Banana Pudding", "Mike’s Custom Tees"],
-  ["Rollie Republic Cinnamon Rolls", "Dayton Youth Football"],
-  ["Sarah’s Candle Company", "Help Emma Start Her Business"],
-  ["Glam Beauty Bar"],
+  ["Rollie Republic Cinnamon Rolls", "Glam Beauty Bar"],
+  ["Sarah’s Candle Company", "Emma’s Boutique Launch"],
 ] as const;
 
 import { useSelector } from "react-redux";
@@ -69,7 +68,7 @@ function CampaignOneForm() {
     const localToken =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token && !localToken) {
-      toast.error("Please log in first to start a campaign.");
+      toast.error("Please log in first to start a sales event.");
       router.push("/login");
     }
   }, [token, router]);
@@ -193,21 +192,21 @@ function CampaignOneForm() {
     event.preventDefault();
     setError("");
 
-    // 1. Campaign Name Validation
+    // 1. Sales Event Name Validation
     if (!draft.name || draft.name.trim().length < 3) {
-      setError("Campaign name must be at least 3 characters long.");
+      setError("Sales event name must be at least 3 characters long.");
       return;
     }
 
-    // 2. Campaign Category Validation
+    // 2. Sales Event Category Validation
     if (!draft.campaignCategory) {
-      setError("Please select a campaign category.");
+      setError("Please select a sales event category.");
       return;
     }
 
-    // 3. Campaign Photo Validation
+    // 3. Sales Event Photo Validation
     if (!draft.thumbnail && !draft.thumbnailPreview) {
-      setError("Campaign photo is required. Please upload an image.");
+      setError("Sales event photo is required. Please upload an image.");
       return;
     }
 
@@ -224,9 +223,9 @@ function CampaignOneForm() {
       }
     }
 
-    // 5. Campaign Length Validation
+    // 5. Sales Event Length Validation
     if (!draft.durationDays || draft.durationDays <= 0) {
-      setError("Please select a campaign duration.");
+      setError("Please select a sales event duration.");
       return;
     }
 
@@ -259,7 +258,7 @@ function CampaignOneForm() {
     <main className="bg-background px-5 pb-20 pt-8 sm:px-8 lg:px-10 lg:pt-12">
       <div className="container mx-auto">
         <ol
-          aria-label="Campaign creation progress"
+          aria-label="Sales event creation progress"
           className="mx-auto flex max-w-3xl items-start"
         >
           {steps.map((step, index) => (
@@ -287,10 +286,10 @@ function CampaignOneForm() {
               Step 1 of 4
             </span>
             <h1 className="mt-5 max-w-md text-[32px] font-semibold leading-tight tracking-tight text-black">
-              Let’s start your campaign!
+              Let’s start your sales event!
             </h1>
             <p className="mt-4 max-w-lg text-lg leading-7 text-muted-foreground">
-              Tell us a few basic about your campaign so we can help you get
+              Tell us a few basics about your sales event so we can help you get
               started.
             </p>
           </div>
@@ -299,7 +298,7 @@ function CampaignOneForm() {
             {/* Decorative top label */}
             <div className="absolute -top-4 left-6 z-20 rounded-full border border-slate-100 bg-white px-4 py-2 shadow-sm">
               <p className="text-xs font-bold text-[#0B1530]">
-                ✦ Live Campaign
+                ✦ Live Sales Event
               </p>
             </div>
 
@@ -320,7 +319,7 @@ function CampaignOneForm() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium text-white/80">
-                        Campaign goal
+                        Sales goal
                       </p>
                       <p className="mt-0.5 text-xl font-bold text-white">
                         $2,500
@@ -414,18 +413,10 @@ function CampaignOneForm() {
                 </div> */}
 
                 {/* Actions */}
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-4">
                   <button
                     type="button"
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-white px-3 text-xs font-bold text-secondary"
-                  >
-                    <Heart className="size-4 fill-current" />
-                    Donate
-                  </button>
-
-                  <button
-                    type="button"
-                    className="inline-flex h-11 items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white"
                   >
                     Buy Now
                   </button>
@@ -451,13 +442,13 @@ function CampaignOneForm() {
                     </div>
 
                     <p className="text-[11px] font-semibold text-foreground">
-                      Join 42 supporters
+                      Join 42 customers
                     </p>
                   </div>
 
                   <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                     <Users className="size-3.5" />
-                    Community funded
+                    Community backed
                   </div>
                 </div>
               </div>
@@ -467,19 +458,6 @@ function CampaignOneForm() {
             <div className="pointer-events-none absolute -bottom-5 -right-5 -z-10 size-28 rounded-full bg-[#FF7800]/10" />
             <div className="pointer-events-none absolute -left-6 top-20 -z-10 size-20 rounded-full bg-secondary/10" />
           </div>
-          {/* <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg">
-            <Image
-              src={hero}
-              alt="Banana pudding fundraising campaign"
-              className="aspect-[1.55/1] h-auto w-full object-cover object-top-right "
-              sizes="(max-width: 768px) 90vw, 40vw"
-              priority
-            />
-            <Heart
-              className="absolute right-4 top-4 size-8 rotate-[-12deg] fill-white text-secondary drop-shadow"
-              aria-hidden="true"
-            />
-          </div> */}
         </section>
 
         <form onSubmit={handleSubmit} className="mt-14 space-y-12 lg:mt-16">
@@ -489,10 +467,10 @@ function CampaignOneForm() {
             </span>
             <div className="w-full">
               <h2 className="text-[32px] font-semibold leading-tight">
-                Campaign Name
+                Sales Event Name
               </h2>
               <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                Give your campaign a name supporters will recognize.
+                Give your sales event a name customers will recognize.
               </p>
               <Input
                 name="campaignName"
@@ -523,7 +501,7 @@ function CampaignOneForm() {
                 <span className="text-secondary">✧</span>
                 <span>
                   <strong className="font-medium text-secondary">Tips:</strong>{" "}
-                  Use your business name, fundraiser name, or organization name.
+                  Use your business name, product line name, or brand name.
                 </span>
               </p>
             </div>
@@ -535,10 +513,10 @@ function CampaignOneForm() {
             </span>
             <div className="w-full ">
               <h2 className="text-[32px] font-semibold leading-tight">
-                Campaign Category
+                Sales Event Category
               </h2>
               <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                Select the category that best fits your campaign.
+                Select the category that best fits your sales event.
               </p>
               <select
                 id="campaignCategory"
@@ -551,17 +529,11 @@ function CampaignOneForm() {
                 className="mt-4 w-full h-12 rounded-md border border-slate-800  px-4 text-base  text-foreground outline-none transition-all duration-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
               >
                 <option value="business">Launch a Business</option>
-                <option value="school_fundraiser">School Fundraiser</option>
-                <option value="church_campaign">Church Campaign</option>
-                <option value="sports_team">Sports Team</option>
                 <option value="products_pre_orders">
                   Products & Pre-Orders
                 </option>
                 <option value="events_tickets">Events & Tickets</option>
                 <option value="digital_products">Digital Products</option>
-                <option value="community_nonprofit">
-                  Community & Nonprofits
-                </option>
               </select>
             </div>
           </section>
@@ -573,10 +545,10 @@ function CampaignOneForm() {
             <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
               <div>
                 <h2 className="text-[32px] font-semibold leading-tight">
-                  Upload Campaign Photo
+                  Upload Sales Event Photo
                 </h2>
                 <p className="mt-1 max-w-sm text-lg leading-7 text-muted-foreground">
-                  Add a photo that represent your product, business, or cause
+                  Add a photo that represents your product, service, or business
                 </p>
               </div>
               <div>
@@ -584,7 +556,7 @@ function CampaignOneForm() {
                   {draft.thumbnailPreview ? (
                     <Image
                       src={draft.thumbnailPreview}
-                      alt="Campaign upload preview"
+                      alt="Sales event upload preview"
                       fill
                       unoptimized
                       className="object-cover"
@@ -629,7 +601,7 @@ function CampaignOneForm() {
             <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
               <div>
                 <h2 className="max-w-sm text-[32px] font-semibold leading-tight">
-                  How much would you like to raise?
+                  What is your sales goal?
                 </h2>
                 <p className="mt-2 max-w-sm text-lg leading-7 text-muted-foreground">
                   This helps you stay focused and motivated.
@@ -658,7 +630,7 @@ function CampaignOneForm() {
                 </button>
                 {selectedAmount === "custom" ? (
                   <label className="col-span-full">
-                    <span className="sr-only">Custom campaign amount</span>
+                    <span className="sr-only">Custom sales event amount</span>
                     <Input
                       type="number"
                       min="1"
@@ -679,7 +651,7 @@ function CampaignOneForm() {
             </div>
           </section>
 
-          {/* Campaign Length */}
+          {/* Sales Event Length */}
           <section className="mx-auto grid w-full max-w-6xl gap-5 sm:grid-cols-[80px_1fr]">
             <span className="flex size-20 items-center justify-center rounded-full bg-secondary/10 text-secondary">
               <Calendar className="size-10" />
@@ -687,10 +659,10 @@ function CampaignOneForm() {
             <div className="grid w-full gap-6 md:grid-cols-[1fr_1.2fr] md:items-start">
               <div>
                 <h2 className="text-[32px] font-semibold leading-tight">
-                  Campaign Length
+                  Sales Event Length
                 </h2>
                 <p className="mt-2 text-lg leading-7 text-muted-foreground">
-                  How long should your fundraiser run?
+                  How long should your sales event run?
                 </p>
               </div>
               <div className="flex flex-wrap gap-4">
@@ -817,7 +789,7 @@ function CampaignOneForm() {
                         Shipping
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        We ship to supporters
+                        We ship to customers
                       </p>
                     </div>
                   </div>
@@ -962,7 +934,7 @@ export default function CampaignOnePage() {
           <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
             <div className="size-10 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
             <p className="text-muted-foreground font-medium">
-              Loading campaign details...
+              Loading sales event details...
             </p>
           </div>
         </main>

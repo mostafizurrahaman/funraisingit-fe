@@ -73,11 +73,11 @@ export default function MyCampaignsPage() {
 
       if (res.success) {
         toast.success(
-          `Campaign ${action === "completed" ? "completed" : "cancelled"} successfully!`,
+          `Sales event ${action === "completed" ? "completed" : "cancelled"} successfully!`,
         );
         refetch();
       } else {
-        toast.error(res.message || "Failed to update campaign status.");
+        toast.error(res.message || "Failed to update sales event status.");
       }
     } catch (err: any) {
       toast.error(
@@ -105,9 +105,9 @@ export default function MyCampaignsPage() {
             <Sparkles className="size-7" />
           </span>
           <div>
-            <h2 className="text-2xl font-semibold">My Campaigns</h2>
+            <h2 className="text-2xl font-semibold">My Sales Events</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage and monitor all your fundraising campaigns.
+              Manage and monitor all your sales events.
             </p>
           </div>
         </div>
@@ -115,10 +115,10 @@ export default function MyCampaignsPage() {
 
       <DashboardCard className="p-0 bg-white border border-border">
         <div className="flex items-center justify-between border-b border-border p-4">
-          <h3 className="text-base font-semibold">Fundraisers List</h3>
+          <h3 className="text-base font-semibold">Sales Events List</h3>
           <p className="text-sm font-medium text-muted-foreground">
             {campaigns.length}{" "}
-            {campaigns.length === 1 ? "Campaign" : "Campaigns"}
+            {campaigns.length === 1 ? "Sales Event" : "Sales Events"}
           </p>
         </div>
 
@@ -127,23 +127,23 @@ export default function MyCampaignsPage() {
             <div className="flex h-64 flex-col items-center justify-center gap-2">
               <Loader2 className="size-8 animate-spin text-secondary" />
               <p className="text-sm text-muted-foreground">
-                Loading campaigns...
+                Loading sales events...
               </p>
             </div>
           ) : campaigns.length === 0 ? (
             <div className="flex h-64 flex-col items-center justify-center text-center p-4">
               <Sparkles className="size-12 text-slate-300 mb-2" />
               <p className="text-base font-semibold text-muted-foreground">
-                You haven&apos;t created any campaigns yet.
+                You haven&apos;t created any sales events yet.
               </p>
             </div>
           ) : (
             <table className="w-full min-w-[1000px] text-left text-sm">
               <thead className="text-xs font-semibold text-muted-foreground bg-slate-50 border-b border-border">
                 <tr>
-                  <th className="px-4 py-3">Campaign Details</th>
+                  <th className="px-4 py-3">Sales Event Details</th>
                   <th className="px-4 py-3">Code</th>
-                  <th className="px-4 py-3">Campaign Link</th>
+                  <th className="px-4 py-3">Sales Event Link</th>
                   <th className="px-4 py-3">Category</th>
                   <th className="px-4 py-3">Goal</th>
                   <th className="px-4 py-3">Raised</th>
@@ -209,10 +209,10 @@ export default function MyCampaignsPage() {
                               onClick={() => {
                                 const url = `${origin}/campaign/${campaign.campaignCode}`;
                                 navigator.clipboard.writeText(url);
-                                toast.success("Campaign link copied!");
+                                toast.success("Sales event link copied!");
                               }}
                               className="inline-flex items-center justify-center p-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-secondary shadow-sm transition-all duration-300 hover:-translate-y-0.5 cursor-pointer size-7"
-                              title="Copy Campaign Link"
+                              title="Copy Sales Event Link"
                             >
                               <Copy className="size-3.5" />
                             </button>
@@ -348,7 +348,7 @@ export default function MyCampaignsPage() {
               {selectedStory.name}
             </h3>
             <p className="text-xs text-secondary font-semibold mb-4">
-              Campaign Description / Story
+              Sales Event Description / Story
             </p>
             <div className="border-t border-slate-100 pt-4 text-sm text-slate-600 whitespace-pre-line leading-relaxed">
               {selectedStory.story}
@@ -382,7 +382,7 @@ export default function MyCampaignsPage() {
                   ? "early complete"
                   : "cancel"}
               </strong>{" "}
-              the campaign{" "}
+              the sales event{" "}
               <strong>&quot;{confirmAction.campaignName}&quot;</strong>?
               <br />
               <span className="text-xs text-red-500 mt-2 block font-medium">
@@ -398,7 +398,7 @@ export default function MyCampaignsPage() {
                   required
                   value={cancelledReason}
                   onChange={(e) => setCancelledReason(e.target.value)}
-                  placeholder="Please enter a reason (e.g. This campaign is cancelled due to rain)"
+                  placeholder="Please enter a reason (e.g. This sales event is cancelled due to rain)"
                   rows={3}
                   className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none transition-all duration-300 focus:border-red-500 resize-none"
                 />
@@ -430,9 +430,9 @@ export default function MyCampaignsPage() {
                     Updating...
                   </>
                 ) : confirmAction.action === "completed" ? (
-                  "Complete Campaign"
+                  "Complete Sales Event"
                 ) : (
-                  "Cancel Campaign"
+                  "Cancel Sales Event"
                 )}
               </Button>
             </div>

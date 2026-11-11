@@ -21,7 +21,7 @@ const onboardingSteps = [
   },
   {
     title: "Account Activated",
-    description: "Access to create campaigns and receive donations is enabled.",
+    description: "Access to create sales events and receive orders is enabled.",
     status: "done",
   },
   {
@@ -53,8 +53,8 @@ const OnboardingSuccess = () => {
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-xs text-muted-foreground sm:text-sm">
               Your profile is now complete, and your account has been
-              successfully onboarded. You are ready to start launching campaigns
-              and accepting donations.
+              successfully onboarded. You are ready to start launching sales events
+              and accepting orders.
             </p>
           </div>
           <Image
@@ -105,7 +105,7 @@ const OnboardingSuccess = () => {
                 className="flex h-11 px-1 items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-md"
               >
                 <Share2 className="size-4" />
-                Share Your Campaign
+                Share Your Sales Event
                 <ArrowRight className="size-4" />
               </Link>
               <Link

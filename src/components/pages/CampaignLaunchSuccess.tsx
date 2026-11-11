@@ -56,8 +56,8 @@ const tips = [
   "Quick Success Tips",
   "Text family and friends first",
   "Post on social media today",
-  "Thank every supporter",
-  "Post updates throughout your campaign",
+  "Thank every customer",
+  "Post updates throughout your sales event",
 ] as const;
 
 export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, campaignCode: initialCampaignCode }: CampaignLaunchSuccessProps) {
@@ -139,10 +139,10 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
     try {
       await navigator.clipboard.writeText(campaignUrl);
       setCopied(type);
-      toast.success("Campaign link copied to clipboard!");
+      toast.success("Sales event link copied to clipboard!");
       window.setTimeout(() => setCopied(null), 1800);
     } catch {
-      toast.error("Could not copy automatically. Please copy the campaign URL manually.");
+      toast.error("Could not copy automatically. Please copy the sales event URL manually.");
     }
   }
 
@@ -158,7 +158,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
         <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center gap-4">
           <Loader2 className="size-10 animate-spin text-secondary" />
           <p className="text-muted-foreground font-medium animate-pulse">
-            Loading campaign launch details...
+            Loading sales event launch details...
           </p>
         </div>
       </main>
@@ -173,16 +173,16 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
             <Heart className="size-8 text-secondary fill-secondary" />
           </div>
           <h2 className="text-2xl font-bold text-foreground">
-            Campaign Launch Data Not Found
+            Sales Event Launch Data Not Found
           </h2>
           <p className="text-muted-foreground max-w-md">
-            We couldn't retrieve the details for this campaign. Please check the URL or view your campaigns dashboard.
+            We couldn&apos;t retrieve the details for this sales event. Please check the URL or view your sales events dashboard.
           </p>
           <Button
             onClick={() => router.push("/dashboard/my-campaigns")}
             className="mt-4 bg-primary text-white hover:bg-primary/90 transition-all duration-300"
           >
-            Go to My Campaigns
+            Go to My Sales Events
           </Button>
         </div>
       </main>
@@ -212,13 +212,13 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
         <div className="mx-auto w-full max-w-6xl">
           {/* Top Status Pill Banner */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 rounded-full bg-[#f0faf9] px-6 py-3 text-center text-sm font-medium text-slate-700">
-            <span className="font-semibold text-slate-600">Campaign Status:</span>
+            <span className="font-semibold text-slate-600">Sales Event Status:</span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#d1fae5] px-3.5 py-0.5 font-bold text-[#065f46] text-xs">
               <span className="size-1.5 rounded-full bg-[#10b981] animate-pulse" />
               Live
             </span>
             <span className="text-slate-300 hidden sm:inline">|</span>
-            <span className="text-slate-600">Your campaign is now accepting orders and donations!</span>
+            <span className="text-slate-600">Your sales event is now accepting orders!</span>
           </div>
 
           {/* Congratulations Hero Banner with Confetti */}
@@ -242,7 +242,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
               {campaign.name} Is Now Live
             </p>
             <p className="relative z-10 mt-2 text-base text-muted-foreground font-medium">
-              Your fundraiser is officially accepting orders and donations.
+              Your sales event is officially accepting orders.
             </p>
           </section>
 
@@ -301,11 +301,11 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                   >
                     {isAccountConnected ? (
                       <p className="text-sm font-bold text-emerald-800">
-                        ✓ Account Connected — Your Stripe account is active and verified to receive payouts directly from campaign orders and donations.
+                        ✓ Account Connected — Your Stripe account is active and verified to receive payouts directly from sales event orders.
                       </p>
                     ) : (
                       <p className="text-sm font-semibold text-amber-900">
-                        ⚠️ Please connect your bank account to receive direct payouts for all incoming orders and donations.
+                        ⚠️ Please connect your bank account to receive direct payouts for all incoming orders.
                       </p>
                     )}
                   </div>
@@ -332,7 +332,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 )}
               </div>
 
-              {/* Step 2: Share Link to Get Orders and Donations */}
+              {/* Step 2: Share Link to Get Orders */}
               <div className="rounded-xl border border-secondary/30 bg-white p-5 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -345,17 +345,17 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                   </div>
 
                   <h3 className="mt-3 text-base font-bold text-slate-900">
-                    Share Your Fundraiser
+                    Share Your Sales Event
                   </h3>
 
                   {/* Highlighted text explicitly requested by user */}
                   <div className="mt-3 rounded-lg bg-orange-50 p-3.5 border border-primary/30">
                     <p className="text-sm font-black text-primary">
-                      To get orders and donations, copy the link and share it with your supporters!
+                      To get orders, copy the link and share it with your customers!
                     </p>
                   </div>
 
-                  {/* Visible Campaign Link Box */}
+                  {/* Visible Sales Event Link Box */}
                   <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 font-mono select-all">
                     <Link2 className="size-4 shrink-0 text-secondary" />
                     <span className="flex-1 truncate font-medium">{campaignUrl}</span>
@@ -376,7 +376,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                     variant="outline"
                     onClick={() => window.open(campaignUrl, "_blank")}
                     className="h-10 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 text-xs px-3 cursor-pointer"
-                    title="Open campaign in new tab"
+                    title="Open sales event in new tab"
                   >
                     <ExternalLink className="size-3.5" />
                   </Button>
@@ -388,7 +388,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
           {/* Social Share Grid */}
           <section className="mt-12 text-center">
             <h2 className="text-2xl font-bold text-foreground">
-              Share Your Campaign
+              Share Your Sales Event
             </h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
               The faster you share, the faster you’ll start receiving orders.
@@ -409,7 +409,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 label="Text Message"
                 iconBg="bg-green-50 text-green-500"
                 onClick={() => {
-                  window.location.href = `sms:?body=${encodeURIComponent(`Support my campaign "${campaign.name}": ${campaignUrl}`)}`;
+                  window.location.href = `sms:?body=${encodeURIComponent(`Support my sales event "${campaign.name}": ${campaignUrl}`)}`;
                 }}
               />
               <ShareButton
@@ -417,7 +417,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 label="Email"
                 iconBg="bg-red-50 text-red-500"
                 onClick={() => {
-                  window.location.href = `mailto:?subject=${encodeURIComponent(`Support my campaign: ${campaign.name}`)}&body=${encodeURIComponent(`Hi,\n\nPlease support my fundraiser campaign "${campaign.name}" by ordering or donating here: ${campaignUrl}\n\nThank you!`)}`;
+                  window.location.href = `mailto:?subject=${encodeURIComponent(`Support my sales event: ${campaign.name}`)}&body=${encodeURIComponent(`Hi,\n\nPlease support my sales event "${campaign.name}" by ordering here: ${campaignUrl}\n\nThank you!`)}`;
                 }}
               />
               <ShareButton
@@ -426,7 +426,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 iconBg="bg-emerald-50 text-emerald-600"
                 onClick={() =>
                   openShare(
-                    `https://wa.me/?text=${encodeURIComponent(`Support my campaign "${campaign.name}": ${campaignUrl}`)}`,
+                    `https://wa.me/?text=${encodeURIComponent(`Support my sales event "${campaign.name}": ${campaignUrl}`)}`,
                   )
                 }
               />
@@ -443,8 +443,8 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
           {/* Main Grid Content */}
           <div className="mt-12 grid items-start gap-8 lg:grid-cols-[1.25fr_0.75fr]">
             <div className="space-y-7">
-              {/* Campaign Snapshot */}
-              <Panel title="Campaign Snapshot" icon={BarChart3}>
+              {/* Sales Event Snapshot */}
+              <Panel title="Sales Event Snapshot" icon={BarChart3}>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {stats.map(({ icon: Icon, value, label, detail }, index) => {
                     const isEarnings = index === 0;
@@ -473,10 +473,10 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 </div>
               </Panel>
 
-              {/* How to Manage Your Campaign Video */}
-              <Panel title="How to Manage Your Campaign" icon={Video}>
+              {/* How to Manage Your Sales Event Video */}
+              <Panel title="How to Manage Your Sales Event" icon={Video}>
                 <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                  Watch this step-by-step video to learn how to monitor incoming orders, track donations, communicate with supporters, and manage your live campaign from your dashboard.
+                  Watch this step-by-step video to learn how to monitor incoming orders, communicate with customers, and manage your live sales event from your dashboard.
                 </p>
                 <div className="mt-4 relative overflow-hidden rounded-2xl border border-secondary/20 bg-slate-950 shadow-md aspect-video">
                   <video
@@ -500,15 +500,15 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                     onClick={() => router.push("/dashboard/my-campaigns")}
                     className="w-full sm:w-auto bg-secondary text-white hover:bg-secondary/90 font-bold rounded-lg text-xs transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                   >
-                    Open Campaign Manager
+                    Open Sales Event Manager
                   </Button>
                 </div>
               </Panel>
 
-              {/* First Supporter Challenge */}
-              <Panel title="First Supporter Challenge" icon={Sparkles}>
+              {/* First Customer Challenge */}
+              <Panel title="First Customer Challenge" icon={Sparkles}>
                 <p className="text-sm leading-6 text-muted-foreground font-medium">
-                  Most successful campaigns receive their first supporters within 24 hours.
+                  Most successful sales events receive their first customers within 24 hours.
                 </p>
                 <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row justify-start">
                   <div className="flex gap-2">
@@ -523,14 +523,14 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                     <p className="text-3xl font-extrabold text-secondary">
                       0/5{" "}
                       <span className="inline-block sm:block text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Supporters
+                        Customers
                       </span>
                     </p>
                   </div>
                 </div>
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2.5 text-sm font-semibold text-slate-700">
                   <Trophy className="size-5 text-yellow-500 fill-yellow-100 shrink-0" />
-                  <span>Reward: <span className="text-slate-500 font-normal">Unlock your first Campaign Success Badge</span></span>
+                  <span>Reward: <span className="text-slate-500 font-normal">Unlock your first Sales Event Success Badge</span></span>
                 </div>
               </Panel>
 
@@ -547,7 +547,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                       <span className="text-sm font-extrabold">Go To Dashboard</span>
                     </div>
                     <span className="text-[11px] font-medium text-white/80 block mt-0.5">
-                      View orders, donations, supporters and more
+                      View orders, customers and more
                     </span>
                   </Button>
                   <Button
@@ -558,10 +558,10 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                   >
                     <div className="flex items-center gap-2">
                       <ExternalLink className="size-4 shrink-0" />
-                      <span className="text-sm font-extrabold">View My Campaign</span>
+                      <span className="text-sm font-extrabold">View My Sales Event</span>
                     </div>
                     <span className="text-[11px] font-medium text-muted-foreground block mt-0.5 group-hover:text-white/85">
-                      See how your campaign looks to supporters
+                      See how your sales event looks to customers
                     </span>
                   </Button>
                 </div>
@@ -596,13 +596,13 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 </ul>
               </Panel>
 
-              {/* Campaign Preview Card */}
-              <Panel title="Your Campaign Preview" icon={Heart}>
+              {/* Sales Event Preview Card */}
+              <Panel title="Your Sales Event Preview" icon={Heart}>
                 <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4">
                   <div className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200 shadow-sm">
                     <Image
                       src={campaign.thumbnail || hero}
-                      alt="Campaign thumbnail"
+                      alt="Sales event thumbnail"
                       fill
                       className="object-cover"
                       unoptimized={!!campaign.thumbnail}
@@ -633,32 +633,22 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                     </div>
                     <div className="mt-2 flex justify-between text-xs font-bold text-slate-500">
                       <span>${raisedAmount.toLocaleString()} Raised</span>
-                      <span>0 Supporters</span>
+                      <span>0 Customers</span>
                     </div>
                     <p className="mt-1 text-xs font-bold text-secondary">
                       {durationDays} Days Left
                     </p>
                   </div>
                 </div>
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="mt-5">
                   <Button
                     type="button"
                     size="sm"
-                    className="bg-primary text-white hover:bg-primary-hover font-bold rounded-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+                    className="w-full bg-primary text-white hover:bg-primary-hover font-bold rounded-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
                     onClick={() => router.push(`/campaign/${campaignCode}`)}
                   >
                     <ShoppingBag className="size-3.5 mr-1.5" />
-                   <CarTaxiFront></CarTaxiFront> Buy 
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="border-secondary text-secondary hover:bg-secondary hover:text-white font-bold rounded-lg transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
-                    onClick={() => router.push(`/campaign/${campaignCode}`)}
-                  >
-                    <Heart className="size-3.5 mr-1.5 fill-current" />
-                    Donate
+                    Buy
                   </Button>
                 </div>
               </Panel>
@@ -682,10 +672,10 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
                 <Trophy className="size-6 fill-current" />
               </div>
               <h2 className="text-lg sm:text-xl font-extrabold leading-tight text-secondary">
-                Most successful campaigns get their first 5 supporters within the first 24 hours.
+                Most successful sales events get their first 5 customers within the first 24 hours.
               </h2>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 font-bold">
-                Share your campaign now and start building momentum.
+                Share your sales event now and start building momentum.
               </p>
             </div>
           </section>
@@ -693,7 +683,7 @@ export default function CampaignLaunchSuccess({ campaignId: initialCampaignId, c
           {/* Footer security tag */}
           <p className="mt-6 flex items-center justify-center gap-2 text-xs font-bold text-slate-400">
             <LockKeyhole className="size-3.5 text-secondary" />
-            Your campaign is live and secure.
+            Your sales event is live and secure.
           </p>
         </div>
       </div>

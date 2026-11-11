@@ -31,7 +31,7 @@ const SuccessStories = () => {
     id: review._id || idx,
     quote: review.message || "",
     name: review?.organizerName || "Organizer",
-    organization: review?.businessName || "Campaign Organizer",
+    organization: review?.businessName || "Sales Event Organizer",
     profileImage: review?.profileImage || "",
     rating: review.rating || 5,
   }));

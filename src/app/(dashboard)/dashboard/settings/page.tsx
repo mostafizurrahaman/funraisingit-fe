@@ -451,7 +451,7 @@ export default function SettingsPage() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground leading-6">
-                To accept donations and orders from your campaigns, you must
+                To accept orders from your sales events, you must
                 link your payout account. We use Stripe to ensure safe, secure,
                 and direct payouts to your bank account.
               </p>
@@ -522,7 +522,7 @@ export default function SettingsPage() {
                 <textarea
                   value={reviewMessage}
                   onChange={(e) => setReviewMessage(e.target.value)}
-                  placeholder="Tell us how your fundraiser went..."
+                  placeholder="Tell us how your sales event went..."
                   rows={4}
                   className="flex w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none transition-all duration-300 focus:border-secondary resize-none"
                   required

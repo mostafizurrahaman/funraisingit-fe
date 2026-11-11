@@ -34,7 +34,7 @@ const Hero = () => {
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base md:mx-0 lg:text-lg lg:leading-8">
-            Raise money, sell products, and accept donations —
+            Sell your products and services —
             <br className="hidden sm:block" />
             all without needing a website.
           </p>
@@ -45,7 +45,7 @@ const Hero = () => {
               href="/campaign_1"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(0,0,0,0.12)] sm:h-13 sm:px-7 sm:text-base"
             >
-              Start My Campaign
+              Start Selling Today
               <ArrowRight className="size-4" />
             </Link>
 
@@ -64,7 +64,7 @@ const Hero = () => {
             <div>
               <p className="text-lg font-bold text-[#0B1530]">10K+</p>
               <p className="text-[11px] text-muted-foreground">
-                Campaigns
+                Sales Events
               </p>
             </div>
 
@@ -73,7 +73,7 @@ const Hero = () => {
             <div>
               <p className="text-lg font-bold text-[#0B1530]">$2M+</p>
               <p className="text-[11px] text-muted-foreground">
-                Raised
+                Total Sales
               </p>
             </div>
 
@@ -94,7 +94,7 @@ const Hero = () => {
           {/* Decorative top label */}
           <div className="absolute -top-4 left-6 z-20 rounded-full border border-slate-100 bg-white px-4 py-2 shadow-sm">
             <p className="text-xs font-bold text-[#0B1530]">
-              ✦ Live Campaign
+              ✦ Live Sales Event
             </p>
           </div>
 
@@ -116,7 +116,7 @@ const Hero = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-medium text-white/80">
-                      Campaign goal
+                      Sales goal
                     </p>
                     <p className="mt-0.5 text-xl font-bold text-white">
                       $2,500
@@ -191,18 +191,10 @@ const Hero = () => {
           
 
               {/* Actions */}
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4">
                 <button
                   type="button"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-white px-3 text-xs font-bold text-secondary"
-                >
-                  <Heart className="size-4 fill-current" />
-                  Donate
-                </button>
-
-                <button
-                  type="button"
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white"
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#FF7800] px-3 text-xs font-bold text-white"
                 >
                   Buy Now
                 </button>
@@ -228,13 +220,13 @@ const Hero = () => {
                   </div>
 
                   <p className="text-[11px] font-semibold text-foreground">
-                    Join 42 supporters
+                    Join 42 customers
                   </p>
                 </div>
 
                 <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                   <Users className="size-3.5" />
-                  Community funded
+                  Community backed
                 </div>
               </div>
             </div>
